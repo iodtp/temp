@@ -270,6 +270,46 @@ function makeBallTransparent(img, squareSize = 40) {
         };
     });
 }
+function make30pxTransparent(img, squareSize = 40) {
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+
+        img.onload = () => {
+            document.body.appendChild(img);
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+
+            // Make triangle part transparent
+            for (let i = 0; i < squareSize; i++) {
+                for (let j = 0; j < squareSize; j++) {
+                    //i+j <= 12 || i+j >= 68 ||
+
+                    if ((i-19.5) * (i-19.5) + (j-19.5) * (j-19.5) > 225){
+                        data[(i+squareSize*j)*4+3] = 0;
+                        //console.log("test");
+                    }
+                }
+            }
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            resolve(modifiedDataURL);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
+}
 
 function remakeTiles(tiles){//probably turn this into a promise too
     return new Promise((resolve, reject) => {
@@ -279,17 +319,19 @@ function remakeTiles(tiles){//probably turn this into a promise too
         //const gates = [3,16,39,24];
         //const backgroundTiles = [6,17,28,30,21,31];
         const fullTiles = [3,16,39,24,17,28,30,21,31, 0];
-        const partialTiles = [8,20,42,40,15,18,10,12,14,26,27,34,36,38,9,19];
         const balls = [15,18]
-        const allTiles = fullTiles.concat(partialTiles);
+        const bombsBoosts30px = [8,20,40,42,7,13,23,10,12,14,26,27,26,38,34];
+        //const allTiles = fullTiles.concat(partialTiles);
         //const partialTiles = [34];
-        const result = allTiles.map(num => tiles[num]);
+        const result = fullTiles.map(num => tiles[num]);
 
-        const promises = balls.map(num => makeBallTransparent(tiles[num]));
+        const promises = balls.map(num => makeBallTransparent(tiles[num])).concat(walls.map(num => makeTriangleTransparent(tiles[num])));
         //.concat(gates.map(num => makeColorTransparent(tiles[num], [[0,1,1]]))).concat(backgroundTiles.map(num => makeColorTransparent(tiles[num], [dummyColor])))
 
         Promise.all(promises)
             .then((modifiedDataURLs) => {
+                        console.log("test");
+
             modifiedDataURLs.forEach(modifiedDataURL => {
 
                 const modifiedImage = new Image();
@@ -299,18 +341,19 @@ function remakeTiles(tiles){//probably turn this into a promise too
 
             });
             const canvas = document.createElement('canvas');
-                canvas.width = 40;
-                canvas.height = 40 * result.length;
-                const ctx = canvas.getContext('2d');
-                let currenty = 0;
+            canvas.width = 40;
+            canvas.height = 40 * result.length;
+            const ctx = canvas.getContext('2d');
+            let currenty = 0;
 
-                result.forEach(tile => {
-                    ctx.drawImage(tile, 0, currenty, 40, 40);
-                    currenty += 40;
-                });
-                //ctx.drawImage(modifiedImage, 0, currenty, 40, 40);
+            result.forEach(tile => {
+                ctx.drawImage(tile, 0, currenty, 40, 40);
                 currenty += 40;
-                document.body.appendChild(canvas);
+            });
+            //ctx.drawImage(modifiedImage, 0, currenty, 40, 40);
+            currenty += 40;
+            console.log(currenty);
+            document.body.appendChild(canvas);
 
         })
             .catch((error) => {
