@@ -293,7 +293,9 @@ function remakeTiles(tiles){//probably turn this into a promise too
                 modifiedImage.src = modifiedDataURL;
                 //modifiedImage.style.padding = '5px';
                 result.push(modifiedImage);
-                const canvas = document.createElement('canvas');
+
+            });
+            const canvas = document.createElement('canvas');
                 canvas.width = 40;
                 canvas.height = 40 * result.length;
                 const ctx = canvas.getContext('2d');
@@ -307,10 +309,6 @@ function remakeTiles(tiles){//probably turn this into a promise too
                 currenty += 40;
                 document.body.appendChild(canvas);
 
-                //document.body.appendChild(modifiedImage); // Append each modified image to the body to display
-
-            });
-
         })
             .catch((error) => {
             console.error("An error occurred:", error);
@@ -321,7 +319,3 @@ function remakeTiles(tiles){//probably turn this into a promise too
         //img.onerror = reject; // Handle errors (e.g., if the image fails to load)
     });
 }
-
-
-
-
