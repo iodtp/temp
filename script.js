@@ -228,6 +228,7 @@ function makeBallTransparent(img, squareSize = 40) {
 
 
         img.onload = () => {
+            document.body.appendChild(img);
             canvas.width = squareSize;
             canvas.height = squareSize;
             ctx.drawImage(img, 0, 0);
@@ -237,9 +238,11 @@ function makeBallTransparent(img, squareSize = 40) {
             //const borderColor = [data[400], data[401], data[402], data[403]];
 
             // Make triangle part transparent
-            for (let i = 0; i < squareSize; i ++) {
+            for (let i = 0; i < squareSize; i++) {
                 for (let j = 0; j < squareSize; j++) {
-                    if (Math.abs(i-j) <= 2){
+                    //i+j <= 12 || i+j >= 68 ||
+
+                    if ((i-19.5) * (i-19.5) + (j-19.5) * (j-19.5) > 324){
                         data[(i+squareSize*j)*4+3] = 0;
                     }
                 }
@@ -282,7 +285,7 @@ function remakeTiles(tiles){//probably turn this into a promise too
         //const partialTiles = [34];
         const result = allTiles.map(num => tiles[num]);
 
-        const promises = walls.map(num => makeTriangleTransparent(tiles[num]));
+        const promises = balls.map(num => makeBallTransparent(tiles[num]));
         //.concat(gates.map(num => makeColorTransparent(tiles[num], [[0,1,1]]))).concat(backgroundTiles.map(num => makeColorTransparent(tiles[num], [dummyColor])))
 
         Promise.all(promises)
