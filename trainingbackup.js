@@ -67,15 +67,17 @@ function training(tiles){
     // Add the PixiJS canvas to the body of the page
     gameDiv.appendChild(app.view);
 
+    const mapSprites = []
     for(let i = 0; i < map.length; i++){
+        mapSprites.push([]);
         for(let j = 0; j < map[i].length; j++){
             if(map[i][j] != '0'){
-                console.log(`i:${i} j:${j} map:${map[i][j]}`);
-                addSpriteToLocation(app, tiles, map[i][j], i*40, j*40);
+                //console.log(`i:${i} j:${j} map:${map[i][j]}`);
+                mapSprites[i].push(addSpriteToLocation(app, tiles, map[i][j], i*40, j*40));
             }
         }
     }
-    const sprite1 = addSpriteToLocation(app, tiles, '1.2', 40, 40);
+    const sprite1 = mapSprites[0][0];
     
     document.addEventListener('keydown', function(e) {
         //gonna change all this to modify object values like velocity and stuff
@@ -99,64 +101,102 @@ function training(tiles){
 }
 
 function addSpriteToLocation(app, tiles, tileNum, x, y) {
-    const texture1 = PIXI.Texture.from(getImageFromTileNum(tiles, tileNum));
-    const sprite1 = new PIXI.Sprite(texture1);
-    sprite1.position.set(x,y);
+    const sprite1 = getSpriteFromTileNum(tiles, tileNum);
+    sprite1.position.x += x;
+    sprite1.position.y += y;
     app.stage.addChild(sprite1);
     return sprite1;
 }
-function getImageFromTileNum(tiles, tileNum) {
+function getSpriteFromTileNum(tiles, tileNum) {
+    let sprite1;
+    let sprite2;
+    let container = new PIXI.Container();
     switch(tileNum) {
+        case '1.1':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
         case '1.2':
-            return tiles['1.1']
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            container.pivot.set(0.5,0.5);
+            container.rotation = Math.PI/2;
+            container.pivot.set(0,0);
+            container.position.x += 40;
+            return container;
         case '1.3':
-            return tiles['1.1']
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            container.pivot.set(0.5,0.5);
+            container.rotation = Math.PI;
+            container.pivot.set(0,0);
+            container.position.x += 40;
+            container.position.y += 40;
+            return container;
         case '1.4':
-            return tiles['1.1']
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            container.pivot.set(0.5,0.5);
+            container.rotation = Math.PI * 1.5;
+            container.pivot.set(0,0);
+            container.position.y += 40;
+            return container;
         case '3.1':
-            return tiles['3'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['3']));
         case '4.1':
-            return tiles['4'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['4']));
         case '5.1':
-            return tiles['5'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['5']));
         case '5.11':
-            return tiles['5'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['5']));
         case '6.11':
-            return tiles['6.1'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.1']));
         case '6.12':
-            return tiles['6.1'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.1']));
         case '6.21':
-            return tiles['6.2'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.2']));
         case '6.22':
-            return tiles['6.2'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.2']));
         case '6.31':
-            return tiles['6.3'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.3']));
         case '6.32':
-            return tiles['6.3'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.3']));
         case '10.11':
-            return tiles['10.1'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['10.1']));
         case '13.11':
-            return tiles['13'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['13']));
         case '24.1':
-            return tiles['24'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['24']));
         case '24.11':
-            return tiles['24'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['24']));
         case '25.1':
-            return tiles['25'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['25']));
         case '25.11':
-            return tiles['25'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['25']));
         case '14.1':
-            return tiles['14'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['14']));
         case '14.11':
-            return tiles['14'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['14']));
         case '15.1':
-            return tiles['15'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['15']));
         case '15.11':
-            return tiles['15'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['15']));
         case '16.1':
-            return tiles['16'];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
         default:
-            return tiles[tileNum];
+            return new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
     }
 }
 
