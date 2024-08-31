@@ -80,7 +80,7 @@ function texture(imgPath){
 
 
             squares.splice(4, 1);
-            squares.splice(8, 1);
+           const tile =  squares.splice(8, 1);
             squares.splice(9, 3);
             squares.splice(12, 13);
             squares.splice(14, 2);
@@ -105,69 +105,13 @@ function texture(imgPath){
             squares.splice(41, 17);
             squares.splice(42, 3);
             squares.splice(43, 10);
+            squares.push(tile[0]);
 
             /*for(let i = 0; i < squares.length; i++){
             const exampleSquare = new Image();
             exampleSquare.src = squares[i]; // Load the first square
             document.body.appendChild(exampleSquare); // Append to the body to display
         }*/
-            const tiles = {
-                '1': squares[22],
-                '1.1': squares[41],
-                '1.2': squares[5],
-                '1.3': '45upright',
-                '1.4': '45botright',
-                '2': squares[6],
-                '3': squares[23],
-                '3.1': 'red flag taken',
-                '4': squares[13],
-                '4.1': 'blueflagtaken',
-                '5':  squares[27],
-                '5.1': 'boos inactive',
-                '5.11': 'boost respawn',
-                '6.1': 'jj',
-                '6.11': squares[12],
-                '6.12': 'jj preview',
-                '6.2': squares[14],
-                '6.21': 'rb respawn',
-                '6.22': 'rb preview',
-                '6.3':  squares[10],
-                '6.31': 'tp respawn',
-                '6.32': 'tp preview',
-                '7': squares[9],
-                '8': squares[19],
-                '9': squares[16],
-                '9.1': squares[24],
-                '9.2': squares[3],
-                '9.3': squares[39],
-                '10': squares[26],
-                '10.1': squares[34],
-                '10.11': 'bomb respawn',
-                '11': squares[30],
-                '12': squares[17],
-                '13': squares[40],
-                '13.1': squares[20],
-                '13.11': 'inactive portal respawn',
-                '24': squares[42],
-                '24.1': 'inactive blue portal',
-                '24.11': 'inactie blue portal respawn',
-                '25': squares[8],
-                '25.1': 'inactive blue portal',
-                '25.11': 'inactie blue portal respawn',
-                '14': squares[36],
-                '14.1': 'red boost inactive',
-                '14.11': 'red boost respawn',
-                '15': squares[38],
-                '15.1': 'blue boost inactive',
-                '15.11': 'blue boost respawn',
-                '16': squares[7],
-                '16.1': 'yellow flag taken',
-                '17': squares[21],
-                '18': squares[31],
-                '23': squares[23],
-                'redball': squares[15],
-                'blueball': squares[18]
-            };
 
 
             resolve(squares); // Resolve the Promise with the squares array
@@ -318,7 +262,7 @@ function remakeTiles(tiles){//probably turn this into a promise too
         const walls = [41];
         //const gates = [3,16,39,24];
         //const backgroundTiles = [6,17,28,30,21,31];
-        const fullTiles = [3,16,39,24,17,28,30,21,31, 0];
+        const fullTiles = [3,16,39,24,17,28,30,21,31, 0, 8,20,40,42,7,13,23,10,12,14,27,26,38,34,36,19, tiles.length-1];
         const balls = [15,18]
         const bombsBoosts30px = [8,20,40,42,7,13,23,10,12,14,26,27,26,38,34];
         //const allTiles = fullTiles.concat(partialTiles);
