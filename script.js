@@ -80,7 +80,7 @@ function texture(imgPath){
 
 
             squares.splice(4, 1);
-           const tile =  squares.splice(8, 1);
+            const tile =  squares.splice(8, 1);
             squares.splice(9, 3);
             squares.splice(12, 13);
             squares.splice(14, 2);
@@ -262,7 +262,8 @@ function remakeTiles(tiles){//probably turn this into a promise too
         const walls = [41];
         //const gates = [3,16,39,24];
         //const backgroundTiles = [6,17,28,30,21,31];
-        const fullTiles = [3,16,39,24,17,28,30,21,31, 0, 8,20,40,42,7,13,23,10,12,14,27,26,38,34,36,19, tiles.length-1];
+        console.log(tiles.length);
+        const fullTiles = [3,16,39,24,17,28,30,21,31, 0, 8,20,40,42,7,13,23,10,12,14,27,26,38,34,36,19, 43, 9];
         const balls = [15,18]
         const bombsBoosts30px = [8,20,40,42,7,13,23,10,12,14,26,27,26,38,34];
         //const allTiles = fullTiles.concat(partialTiles);
