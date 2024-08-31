@@ -162,7 +162,7 @@ function getImageFromTileNum(tiles, tileNum) {
 
 function texture(){
     return new Promise((resolve, reject) => {
-        const imgPath = 'https://raw.githubusercontent.com/iodtp/temp/main/funkoTexturePack.png';  // Replace with the path to your image
+        const imgPath = 'https://raw.githubusercontent.com/iodtp/temp/main/funko.png';  // Replace with the path to your image
         const squareSize = 40;
         const squares = []; // Array to store the data URLs of squares
 
@@ -215,7 +215,7 @@ function texture(){
             }*/
             const tiles = {
                 '1': squares[9],
-                '1.1': squares[29],
+                '1.1': squares[30],
                 '1.2': '45upleft',
                 '1.3': '45upright',
                 '1.4': '45botright',
@@ -236,7 +236,7 @@ function texture(){
                 '6.3':  squares[17],
                 '6.31': 'tp respawn',
                 '6.32': 'tp preview',
-                '7': squares[9],
+                '7': squares[27],
                 '8': squares[25],
                 '9': squares[1],
                 '9.1': squares[3],
@@ -267,8 +267,8 @@ function texture(){
                 '17': squares[7],
                 '18': squares[8],
                 '23': squares[5],
-                'redball': squares[26],
-                'blueball': squares[27]
+                'redball': squares[28],
+                'blueball': squares[29]
             };
             //MISSING BUTTON, NEED TO RERUN OTHER SCRIPT
 
