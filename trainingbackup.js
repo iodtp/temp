@@ -182,6 +182,7 @@ function createBall(x, y, radius, world) {
 
 
     dynamicBody.CreateFixture(fixtureDef);
+    dynamicBody.SetAngularDamping(0.5); //stop from spinning forever
 
     return dynamicBody;
 }
@@ -565,7 +566,7 @@ function loop(delta, playerSprite, playerCollision, world, keys) {
 
     playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
     playerSprite.y = position.y * 40;
-    //playerSprite.rotation = angle;
+    playerSprite.rotation = angle;
 
     world.ClearForces();
 }
