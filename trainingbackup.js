@@ -11,9 +11,8 @@
 const TPU = 100;
 const ACCELERATION = 1.5;
 const DRAGCELERATION = 0.5;
-const WALL_DAMPING = -0.6;
-const WALL_FRICTION = 0.97;
 const PIXELS_PER_METER = 40;
+const WALL_FRICTION = 0.5;
 
 (function() {
     'use strict';
@@ -84,16 +83,22 @@ function training(tiles){
         mapSprites.push([]);
         for(let j = 0; j < map[i].length; j++){
             if(map[i][j] != '0'){ //blank space
-                mapSprites[i].push(addSpriteToLocation(app, tiles, map[i][j], i*40, j*40, map, i, j));
+                const x = i * 40;
+                const y = j *40;
+                mapSprites[i].push(addSpriteToLocation(app, tiles, map[i][j], x, y, map, i, j));
                 if(map[i][j] === '1') {
-                    createWall(i*40,j*40,40,40, world); //annoyingly starts from center?
+                    createWall(x,y,40,40, world);
+                }
+                else if (map[i][j] === '1.2'){
+                    const vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0)];
+                    createNonSquareWall(x, y, vertices, world);
                 }
             }
         }
     }
-    const playerSprite = addSpriteToLocation(app, tiles, 'redball', 80, 80);
+    const playerSprite = addSpriteToLocation(app, tiles, 'redball', 120, 120);
     playerSprite.anchor.set(0.5,0.5);
-    const playerCollision = createBall(80, 80, 19, world);
+    const playerCollision = createBall(120, 120, 19, world);
 
     const keys = {
         up: false,
@@ -142,6 +147,7 @@ function training(tiles){
                 break;
         }
     });
+
     app.ticker.add(delta => loop(delta, playerSprite, playerCollision, world, keys));
 }
 
@@ -157,7 +163,25 @@ function createWall(x, y, width, height, world) {
 
     const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
     fixtureDef.shape = wallShape;
-    fixtureDef.friction = 0.5;
+    fixtureDef.friction = WALL_FRICTION;
+
+    wallBody.CreateFixture(fixtureDef);
+}
+
+function createNonSquareWall(x,y,vertices, world) {
+    const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
+    wallBodyDef.position.Set((x) / 40, (y) / 40); //have to get center point
+    wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(wallBodyDef);
+
+    const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
+    wallShape.SetAsArray(vertices, vertices.length);
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = wallShape;
+    fixtureDef.friction = WALL_FRICTION;
+
 
     wallBody.CreateFixture(fixtureDef);
 }
@@ -565,6 +589,9 @@ function loop(delta, playerSprite, playerCollision, world, keys) {
     playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
     playerSprite.y = position.y * 40;
     playerSprite.rotation = angle;
+
+
+
 
     world.ClearForces();
 }
