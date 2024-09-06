@@ -75,11 +75,6 @@ function training(tiles){
 
     const gravity = new Box2D.Common.Math.b2Vec2(0, 0); // No gravity
     const world = new Box2D.Dynamics.b2World(gravity, true); // Allow sleep
-    //just make full border walls for now
-    createWall(640, 10, 1280, 10, world);   // Top wall
-    createWall(640, 790, 1280, 10, world);  // Bottom wall
-    createWall(10, 400, 10, 800, world);    // Left wall
-    createWall(1270, 400, 10, 800, world);  // Right wall
 
     // Add the pixi canvas to the body of the page
     gameDiv.appendChild(app.view);
@@ -90,6 +85,9 @@ function training(tiles){
         for(let j = 0; j < map[i].length; j++){
             if(map[i][j] != '0'){ //blank space
                 mapSprites[i].push(addSpriteToLocation(app, tiles, map[i][j], i*40, j*40, map, i, j));
+                if(map[i][j] === '1') {
+                    createWall(i*40,j*40,40,40, world); //annoyingly starts from center?
+                }
             }
         }
     }
@@ -149,13 +147,13 @@ function training(tiles){
 
 function createWall(x, y, width, height, world) {
     const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
-    wallBodyDef.position.Set(x / 40, y / 40);
+    wallBodyDef.position.Set((x + width/2) / 40, (y+height/2) / 40); //have to get center point
     wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
 
     const wallBody = world.CreateBody(wallBodyDef);
 
     const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
-    wallShape.SetAsBox(width / 40, height / 40); //40px per meter
+    wallShape.SetAsBox(width / 2 / 40, height / 2 / 40); //40px per meter, starts at center
 
     const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
     fixtureDef.shape = wallShape;
