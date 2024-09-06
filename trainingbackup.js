@@ -89,8 +89,20 @@ function training(tiles){
                 if(map[i][j] === '1') {
                     createWall(x,y,40,40, world);
                 }
+                else if (map[i][j] === '1.1'){
+                    const vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
+                    createNonSquareWall(x, y, vertices, world);
+                }
                 else if (map[i][j] === '1.2'){
                     const vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0)];
+                    createNonSquareWall(x, y, vertices, world);
+                }
+                else if (map[i][j] === '1.3'){
+                    const vertices = [new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
+                    createNonSquareWall(x, y, vertices, world);
+                }
+                else if (map[i][j] === '1.4'){
+                    const vertices = [new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1), new Box2D.Common.Math.b2Vec2(0, 1)];
                     createNonSquareWall(x, y, vertices, world);
                 }
             }
