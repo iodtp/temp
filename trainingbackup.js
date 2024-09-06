@@ -5,7 +5,15 @@
 // @author       Iodized Salt
 // @match        https://tagpro.koalabeast.com/playersearch
 // @require      https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.2/pixi.min.js
+// @require      https://raw.githubusercontent.com/hecht-software/box2dweb/master/Box2d.min.js
 // ==/UserScript==
+
+const TPU = 100;
+const ACCELERATION = 1.5;
+const DRAGCELERATION = 0.5;
+const WALL_DAMPING = -0.6;
+const WALL_FRICTION = 0.97;
+const PIXELS_PER_METER = 40;
 
 (function() {
     'use strict';
@@ -26,19 +34,20 @@
 })();
 
 function startTraining() {
-    texture().then(squares => {
-        for (const [key, value] of Object.entries(squares)) {
-            //turn all those data urls into image objects for easier times later on
-            if(value[0] === 'd' && value[1] === 'a'){
-                const img = new Image();
-                img.src = value;
-                squares[key] = img;
+
+        texture().then(squares => {
+            for (const [key, value] of Object.entries(squares)) {
+                //turn all those data urls into image objects for easier times later on
+                if(value[0] === 'd' && value[1] === 'a'){
+                    const img = new Image();
+                    img.src = value;
+                    squares[key] = img;
+                }
             }
-        }
-        training(squares);
-    }).catch(error => {
-        console.error('Error loading texture:', error);
-    });
+            training(squares);
+        }).catch(error => {
+            console.error('Error loading texture:', error);
+        });
 }
 
 function training(tiles){
@@ -64,10 +73,15 @@ function training(tiles){
         resolution: window.devicePixelRatio || 1, // Adjust resolution for HiDPI screens
     });
 
-    app.view.style.maxWidth = '1280px';
-    app.view.style.maxHeight = '800px';
+    const gravity = new Box2D.Common.Math.b2Vec2(0, 0); // No gravity
+    const world = new Box2D.Dynamics.b2World(gravity, true); // Allow sleep
+    //just make full border walls for now
+    createWall(640, 10, 1280, 10, world);   // Top wall
+    createWall(640, 790, 1280, 10, world);  // Bottom wall
+    createWall(10, 400, 10, 800, world);    // Left wall
+    createWall(1270, 400, 10, 800, world);  // Right wall
 
-    // Add the PixiJS canvas to the body of the page
+    // Add the pixi canvas to the body of the page
     gameDiv.appendChild(app.view);
 
     const mapSprites = []
@@ -80,26 +94,163 @@ function training(tiles){
         }
     }
     const playerSprite = addSpriteToLocation(app, tiles, 'redball', 80, 80);
+    playerSprite.anchor.set(0.5,0.5);
+    const playerCollision = createBall(80, 80, 19, world);
 
-    document.addEventListener('keydown', function(e) {
+    const keys = {
+        up: false,
+        down: false,
+        left: false,
+        right: false
+    };
+
         //gonna change all this to modify object values like velocity and stuff
         //then use those values in loop?
         //also make variables to remember keydown and add another event for up
         //unsure if thats gonna work how i want it to but well see ig
-        if(e.key === 'ArrowRight'){
-            playerSprite.x += 1;
-        }
-        else if (e.key === 'ArrowLeft'){
-            playerSprite.x -= 1;
-        }
-        else if (e.key === 'ArrowUp'){
-            playerSprite.y -= 1;
-        }
-        else if (e.key === 'ArrowDown'){
-            playerSprite.y += 1;
+    document.addEventListener('keydown', (event) => {
+        switch (event.key) {
+            case 'ArrowRight': // Move right
+                keys.left = false;
+                keys.right = true;
+                break;
+            case 'ArrowLeft': // Move left
+                keys.left = true;
+                keys.right = false;
+                break;
+            case 'ArrowUp': // Move up
+                keys.up = true;
+                keys.down = false;
+                break;
+            case 'ArrowDown': // Move down
+                keys.up = false;
+                keys.down = true;
+                break;
         }
     });
-    app.ticker.add(delta => loop(delta, playerSprite));
+    document.addEventListener('keyup', (event) => {
+        switch (event.key) {
+            case 'ArrowRight': // Move right
+                keys.right = false;
+                break;
+            case 'ArrowLeft': // Move left
+                keys.left = false;
+                break;
+            case 'ArrowUp': // Move up
+                keys.up = false;
+                break;
+            case 'ArrowDown': // Move down
+                keys.down = false;
+                break;
+        }
+    });
+    app.ticker.add(delta => loop(delta, playerSprite, playerCollision, world, keys));
+}
+
+function createWall(x, y, width, height, world) {
+    const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
+    wallBodyDef.position.Set(x / 40, y / 40);
+    wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(wallBodyDef);
+
+    const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
+    wallShape.SetAsBox(width / 40, height / 40); //40px per meter
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = wallShape;
+    fixtureDef.friction = 0.5;
+
+    wallBody.CreateFixture(fixtureDef);
+}
+
+function createBall(x, y, radius, world) {
+    const bodyDef = new Box2D.Dynamics.b2BodyDef();
+    bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+    bodyDef.position.Set(x / 40, y / 40);
+
+    const dynamicBody = world.CreateBody(bodyDef);
+
+    const circleShape = new Box2D.Collision.Shapes.b2CircleShape();
+    circleShape.SetRadius(radius / 40);
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = circleShape;
+    fixtureDef.density = 1.0;
+    fixtureDef.friction = 0.3;
+    fixtureDef.restitution = 0.3;
+
+
+    dynamicBody.CreateFixture(fixtureDef);
+
+    return dynamicBody;
+}
+
+function applyForceToBall(keys, ball, dt=1/60) {
+    const body = ball.body; // Assuming 'ball.body' is the Box2D body
+
+    // Get the body's current position and velocity
+    const velocity = ball.GetLinearVelocity();
+
+    // Forces to be applied
+    let forceX = 0;
+    let forceY = 0;
+
+    // Apply movement forces
+    if (keys.up) {
+        forceY -= PIXELS_PER_METER * TPU * ACCELERATION * dt * dt;
+    }
+    if (keys.down) {
+        forceY += PIXELS_PER_METER * TPU * ACCELERATION * dt * dt;
+    }
+    if (keys.left) {
+        forceX -= PIXELS_PER_METER * TPU * ACCELERATION * dt * dt;
+    }
+    if (keys.right) {
+        forceX += PIXELS_PER_METER * TPU * ACCELERATION * dt * dt;
+    }
+
+    // Apply forces to the body in Box2D world coordinates
+    ball.ApplyForce(
+        new Box2D.Common.Math.b2Vec2(forceX, forceY), // Force vector
+        ball.GetWorldCenter()                         // Point of application (usually the center)
+    );
+
+    // Apply drag (deceleration) to simulate friction
+    let dragForceX = 0;
+    let dragForceY = 0;
+
+    if (velocity.x < 0) {
+        dragForceX = PIXELS_PER_METER * TPU * DRAGCELERATION * dt * dt;
+        if (velocity.x + dragForceX > 0) {
+            dragForceX = -velocity.x;  // Don't overcompensate
+        }
+    }
+    if (velocity.x > 0) {
+        dragForceX = PIXELS_PER_METER * -1 * TPU * DRAGCELERATION * dt * dt;
+        if (velocity.x + dragForceX < 0) {
+            dragForceX = -velocity.x;
+        }
+    }
+    if (velocity.y < 0) {
+        dragForceY = PIXELS_PER_METER * TPU * DRAGCELERATION * dt * dt;
+        if (velocity.y + dragForceY > 0) {
+            dragForceY = -velocity.y;
+        }
+    }
+    if (velocity.y > 0) {
+        dragForceY = PIXELS_PER_METER * -1 * TPU * DRAGCELERATION * dt * dt;
+        if (velocity.y + dragForceY < 0) {
+            dragForceY = -velocity.y;
+        }
+    }
+
+    // Apply drag forces
+    ball.ApplyForce(
+        new Box2D.Common.Math.b2Vec2(dragForceX, dragForceY),
+        ball.GetWorldCenter()
+    );
+
 }
 
 function addSpriteToLocation(app, tiles, tileNum, x, y, map=[], i=0, j=0) {
@@ -109,6 +260,7 @@ function addSpriteToLocation(app, tiles, tileNum, x, y, map=[], i=0, j=0) {
     app.stage.addChild(sprite1);
     return sprite1;
 }
+
 function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
     let sprite1;
     let sprite2;
@@ -403,8 +555,19 @@ function texture(){
     });
 }
 
-function loop(delta, sprite1) {
-    //sprite1.position.set(sprite1.x + 1, sprite1.y);
+function loop(delta, playerSprite, playerCollision, world, keys) {
+    applyForceToBall(keys, playerCollision);
+    world.Step(1 / 60, 8, 3); // Update Box2D world
+    // Update PixiJS sprite position
+
+    const position = playerCollision.GetPosition();
+    const angle = playerCollision.GetAngle();
+
+    playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
+    playerSprite.y = position.y * 40;
+    //playerSprite.rotation = angle;
+
+    world.ClearForces();
 }
 
 
