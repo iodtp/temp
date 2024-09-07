@@ -9,7 +9,7 @@
 // ==/UserScript==
 
 const TPU = 100;
-const ACCELERATION = 1.5;
+const ACCELERATION = 2;
 const DRAGCELERATION = 0.5;
 const PIXELS_PER_METER = 40;
 const WALL_FRICTION = 0.5;
@@ -423,16 +423,17 @@ function createBall(x, y, radius, world) {
 }
 
 function applyExtraForceToBall(ball, dt=1/60) {
-    const body = ball.body; // Assuming 'ball.body' is the Box2D body
+    //maybe turn velocity into unit vectors first? Always apply set amount of boost
 
-    // Get the body's current position and velocity
+
+    const body = ball.body; 
+
+    // Get the body's current velocity
     const velocity = ball.GetLinearVelocity();
 
-    // Forces to be applied
     let forceX = 0;
     let forceY = 0;
 
-    // Apply movement forces
     if (velocity.x > 0) {
         forceX += PIXELS_PER_METER * TPU * velocity.x * BOOST_SPEED * dt * dt;
     }
@@ -510,6 +511,7 @@ function applyForceToBall(keys, ball, dt=1/60) {
             dragForceY = -velocity.y;
         }
     }
+
 
     if (velocity.x > MAX_SPEED) {
         dragForceX += PIXELS_PER_METER * -5  * velocity.x * DRAGCELERATION * dt;
