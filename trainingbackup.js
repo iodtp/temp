@@ -13,6 +13,8 @@ const ACCELERATION = 1.5;
 const DRAGCELERATION = 0.5;
 const PIXELS_PER_METER = 40;
 const WALL_FRICTION = 0.5;
+const MAX_SPEED = 6.25;
+const BOOST_SPEED = 100;
 
 const WIDTH = Math.min(1280, window.innerWidth);
 const HEIGHT = Math.min(800, window.innerHeight);
@@ -214,8 +216,10 @@ function training(tiles){
             switch(type2){
                 case '5':
                     console.log('boost');
+                    applyExtraForceToBall(fixtureA.GetBody());
                     break;
                 case '14':
+                    applyExtraForceToBall(fixtureA.GetBody());
                     console.log('boost');
                     break;
                 case '7':
@@ -233,9 +237,11 @@ function training(tiles){
             console.log('1', type1);
             switch(type1){
                 case '5':
+                    applyExtraForceToBall(fixtureB.GetBody());
                     console.log('boost');
                     break;
                 case '14':
+                    applyExtraForceToBall(fixtureB.GetBody());
                     console.log('boost');
                     break;
                 case '7':
@@ -416,6 +422,40 @@ function createBall(x, y, radius, world) {
     return dynamicBody;
 }
 
+function applyExtraForceToBall(ball, dt=1/60) {
+    const body = ball.body; // Assuming 'ball.body' is the Box2D body
+
+    // Get the body's current position and velocity
+    const velocity = ball.GetLinearVelocity();
+
+    // Forces to be applied
+    let forceX = 0;
+    let forceY = 0;
+
+    // Apply movement forces
+    if (velocity.x > 0) {
+        forceX += PIXELS_PER_METER * TPU * velocity.x * BOOST_SPEED * dt * dt;
+    }
+    else if (velocity.x < 0) {
+        forceX += PIXELS_PER_METER * TPU * velocity.x * BOOST_SPEED * dt * dt;
+    }
+    if (velocity.y > 0) {
+        forceY += PIXELS_PER_METER * TPU * velocity.y * BOOST_SPEED * dt * dt;
+    }
+    else if (velocity.y < 0) {
+        forceY += PIXELS_PER_METER * TPU * velocity.y * BOOST_SPEED * dt * dt;
+    }
+
+
+    // Apply accel forces
+    ball.ApplyForce(
+        new Box2D.Common.Math.b2Vec2(forceX, forceY), // Force vector
+        ball.GetWorldCenter()                         // Point of application (usually the center)
+    );
+    console.log(ball.GetLinearVelocity());
+
+}
+
 function applyForceToBall(keys, ball, dt=1/60) {
     const body = ball.body; // Assuming 'ball.body' is the Box2D body
 
@@ -467,6 +507,31 @@ function applyForceToBall(keys, ball, dt=1/60) {
     if (velocity.y > 0) {
         dragForceY = PIXELS_PER_METER * -1 * velocity.y * DRAGCELERATION * dt;
         if (velocity.y + dragForceY < 0) {
+            dragForceY = -velocity.y;
+        }
+    }
+
+    if (velocity.x > MAX_SPEED) {
+        dragForceX += PIXELS_PER_METER * -5  * velocity.x * DRAGCELERATION * dt;
+        if (velocity.x + dragForceX < 0) {
+            dragForceX = -velocity.x;
+        }
+    }
+    else if (velocity.x < -1 * MAX_SPEED) {
+        dragForceX += PIXELS_PER_METER * -5  * velocity.x * DRAGCELERATION * dt;
+        if (velocity.x + dragForceX > 0) {
+            dragForceX = -velocity.x;
+        }
+    }
+    if (velocity.y > MAX_SPEED) {
+        dragForceY += PIXELS_PER_METER * -5  * velocity.y * DRAGCELERATION * dt;
+        if (velocity.y + dragForceY < 0) {
+            dragForceY = -velocity.y;
+        }
+    }
+    else if (velocity.y < -1 * MAX_SPEED) {
+        dragForceY += PIXELS_PER_METER * -5  * velocity.y * DRAGCELERATION * dt;
+        if (velocity.y + dragForceY > 0) {
             dragForceY = -velocity.y;
         }
     }
