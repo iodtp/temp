@@ -334,10 +334,9 @@ function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
         case '1.2': //topleft
             sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
             if(i >= map.length-1 || j >= map.length-1 || map[i][j+1] == '0' || map[i+1][j] == '0'){
-                container.pivot.set(0.5,0.5);
-                container.rotation = Math.PI/2;
-                sprite1.position.x += 20;
-                sprite1.position.y += 20;
+                sprite1.pivot.set(0.5,0.5);
+                sprite1.rotation = Math.PI / 2;
+                sprite1.position.x += 39; //this is weird...
                 return sprite1;
             }
             else if (map[i][j+1] == '17' || map[i+1][j] == '17') {
