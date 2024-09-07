@@ -14,6 +14,9 @@ const DRAGCELERATION = 0.5;
 const PIXELS_PER_METER = 40;
 const WALL_FRICTION = 0.5;
 
+const WIDTH = Math.min(1280, window.innerWidth);
+const HEIGHT = Math.min(800, window.innerHeight);
+
 (function() {
     'use strict';
     const nav = document.getElementById('nav-feedback');
@@ -66,8 +69,8 @@ function training(tiles){
     document.body.appendChild(gameDiv);
 
     const app = new PIXI.Application({
-        width: Math.min(1280, window.innerWidth), // Width of the canvas
-        height: Math.min(800, window.innerHeight), // Height of the canvas
+        width: WIDTH, // Width of the canvas
+        height: HEIGHT, // Height of the canvas
         backgroundColor: 0x000000, // Background color
         resolution: window.devicePixelRatio || 1, // Adjust resolution for HiDPI screens
     });
@@ -160,7 +163,7 @@ function training(tiles){
         }
     });
 
-    app.ticker.add(delta => loop(delta, playerSprite, playerCollision, world, keys));
+    app.ticker.add(delta => loop(delta, playerSprite, playerCollision, world, keys, app));
 }
 
 function createWall(x, y, width, height, world) {
@@ -590,11 +593,11 @@ function texture(){
     });
 }
 
-function loop(delta, playerSprite, playerCollision, world, keys) {
+function loop(delta, playerSprite, playerCollision, world, keys, app) {
     applyForceToBall(keys, playerCollision);
     world.Step(1 / 60, 8, 3); // Update Box2D world
-    // Update PixiJS sprite position
 
+    // Update PixiJS sprite positions
     const position = playerCollision.GetPosition();
     const angle = playerCollision.GetAngle();
 
@@ -602,6 +605,12 @@ function loop(delta, playerSprite, playerCollision, world, keys) {
     playerSprite.y = position.y * 40;
     playerSprite.rotation = angle;
 
+    //Center view on ball
+    app.stage.position.x = WIDTH/2;
+    app.stage.position.y = HEIGHT/2;
+    //now specify which point INSIDE stage must be (0,0)
+    app.stage.pivot.x = playerSprite.position.x;
+    app.stage.pivot.y = playerSprite.position.y;
 
 
 
