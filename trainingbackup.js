@@ -215,7 +215,7 @@ function createBall(x, y, radius, world) {
     fixtureDef.shape = circleShape;
     fixtureDef.density = 1.0;
     fixtureDef.friction = 0.3;
-    fixtureDef.restitution = 0.3;
+    fixtureDef.restitution = 0.2;
 
 
     dynamicBody.CreateFixture(fixtureDef);
@@ -248,41 +248,42 @@ function applyForceToBall(keys, ball, dt=1/60) {
         forceX += PIXELS_PER_METER * TPU * ACCELERATION * dt * dt;
     }
 
-    // Apply forces to the body in Box2D world coordinates
-    ball.ApplyForce(
-        new Box2D.Common.Math.b2Vec2(forceX, forceY), // Force vector
-        ball.GetWorldCenter()                         // Point of application (usually the center)
-    );
+
 
     // Apply drag (deceleration) to simulate friction
     let dragForceX = 0;
     let dragForceY = 0;
 
     if (velocity.x < 0) {
-        dragForceX = PIXELS_PER_METER * TPU * DRAGCELERATION * dt * dt;
+        dragForceX = PIXELS_PER_METER * -1 * velocity.x * DRAGCELERATION * dt;
         if (velocity.x + dragForceX > 0) {
             dragForceX = -velocity.x;  // Don't overcompensate
         }
     }
     if (velocity.x > 0) {
-        dragForceX = PIXELS_PER_METER * -1 * TPU * DRAGCELERATION * dt * dt;
+        dragForceX = PIXELS_PER_METER * -1  * velocity.x * DRAGCELERATION * dt;
         if (velocity.x + dragForceX < 0) {
             dragForceX = -velocity.x;
         }
     }
     if (velocity.y < 0) {
-        dragForceY = PIXELS_PER_METER * TPU * DRAGCELERATION * dt * dt;
+        dragForceY = PIXELS_PER_METER * -1 * velocity.y * DRAGCELERATION * dt;
         if (velocity.y + dragForceY > 0) {
             dragForceY = -velocity.y;
         }
     }
     if (velocity.y > 0) {
-        dragForceY = PIXELS_PER_METER * -1 * TPU * DRAGCELERATION * dt * dt;
+        dragForceY = PIXELS_PER_METER * -1 * velocity.y * DRAGCELERATION * dt;
         if (velocity.y + dragForceY < 0) {
             dragForceY = -velocity.y;
         }
     }
-
+console.log(velocity);
+    // Apply accel forces
+    ball.ApplyForce(
+        new Box2D.Common.Math.b2Vec2(forceX, forceY), // Force vector
+        ball.GetWorldCenter()                         // Point of application (usually the center)
+    );
     // Apply drag forces
     ball.ApplyForce(
         new Box2D.Common.Math.b2Vec2(dragForceX, dragForceY),
