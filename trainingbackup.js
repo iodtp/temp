@@ -118,6 +118,15 @@ function training(tiles){
                         vertices = [new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1), new Box2D.Common.Math.b2Vec2(0, 1)];
                         createNonSquareWall(x, y, vertices, world);
                         break;
+                    case '5':
+                        createBoost(x,y,15,world, '5');
+                        break;
+                    case '14':
+                        createBoost(x,y,15,world, '14');
+                        break;
+                    case '15':
+                        createBoost(x,y,15,world, '15');
+                        break;
                     case '7':
                         createSpike(x,y,14,world);
                         break;
@@ -203,6 +212,12 @@ function training(tiles){
         if(type1 === 'redball') {
             console.log('2', type2);
             switch(type2){
+                case '5':
+                    console.log('boost');
+                    break;
+                case '14':
+                    console.log('boost');
+                    break;
                 case '7':
                     player.dead = true;
                     break;
@@ -214,9 +229,15 @@ function training(tiles){
                     break;
             }
         }
-        else {
+        else if (type2 === 'redball') {
             console.log('1', type1);
             switch(type1){
+                case '5':
+                    console.log('boost');
+                    break;
+                case '14':
+                    console.log('boost');
+                    break;
                 case '7':
                     player.dead = true;
                     break;
@@ -329,6 +350,37 @@ function createSpike(x, y, radius, world) {
     dynamicBody.CreateFixture(sensorDef);
 
     dynamicBody.SetUserData({type: "7"});
+}
+
+function createBoost(x, y, radius, world, type) {
+    const bodyDef = new Box2D.Dynamics.b2BodyDef();
+    bodyDef.position.Set((x+20) / 40, (y+20) / 40);
+    bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(bodyDef);
+
+    const circleShape = new Box2D.Collision.Shapes.b2CircleShape();
+    circleShape.SetRadius(radius / 40);
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = circleShape;
+
+    if(type === '5') {
+        fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+    }
+    else if(type === '14') {
+        fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM;
+    }
+    else if(type === '15') {
+        fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.BLUE_TEAM;
+    }
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: type});
 }
 
 function createBall(x, y, radius, world) {
