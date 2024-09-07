@@ -118,27 +118,39 @@ function training(tiles){
                 const x = i * 40;
                 const y = j *40;
                 mapSprites[i].push(addSpriteToLocation(app, tiles, current_tile, x, y, map, i, j));
-                if(current_tile === '1') {
-                    createWall(x,y,40,40, world);
-                }
-                else if (current_tile === '1.1'){
-                    const vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
-                    createNonSquareWall(x, y, vertices, world);
-                }
-                else if (current_tile === '1.2'){
-                    const vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0)];
-                    createNonSquareWall(x, y, vertices, world);
-                }
-                else if (current_tile === '1.3'){
-                    const vertices = [new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
-                    createNonSquareWall(x, y, vertices, world);
-                }
-                else if (current_tile === '1.4'){
-                    const vertices = [new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1), new Box2D.Common.Math.b2Vec2(0, 1)];
-                    createNonSquareWall(x, y, vertices, world);
-                }
-                else if (current_tile === '7') {
-                    createSpike(x,y,14,world);
+                let vertices = []
+                switch(current_tile) {
+                    case '1':
+                        createWall(x,y,40,40, world);
+                        break;
+                    case '1.1':
+                        vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
+                        createNonSquareWall(x, y, vertices, world);
+                        break;
+                    case '1.2':
+                        vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0)];
+                        createNonSquareWall(x, y, vertices, world);
+                        break;
+                    case '1.3':
+                        vertices = [new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
+                        createNonSquareWall(x, y, vertices, world);
+                        break;
+                    case '1.4':
+                        vertices = [new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1), new Box2D.Common.Math.b2Vec2(0, 1)];
+                        createNonSquareWall(x, y, vertices, world);
+                        break;
+                    case '7':
+                        createSpike(x,y,14,world);
+                        break;
+                    case '9.1':
+                        createGate(x,y,40,40, world, '9.1');
+                        break;
+                    case '9.2':
+                        createGate(x,y,40,40, world, '9.2');
+                        break;
+                    case '9.3':
+                        createGate(x,y,40,40, world, '9.3');
+                        break;
                 }
             }
         }
@@ -207,17 +219,35 @@ function training(tiles){
 
 
         // Check if both of the fixtures are
-        if (fixtureA.IsSensor() || fixtureB.IsSensor()) {
-            let type1 = fixtureA.GetBody().GetUserData().type;
-            let type2 = fixtureB.GetBody().GetUserData().type;
-            if(type1 === 'redball') {
-                switch(type2){
-                    case '7':
-                        console.log("dead");
-                        player.dead = true;
-                }
+        let type1 = fixtureA.GetBody().GetUserData().type;
+        let type2 = fixtureB.GetBody().GetUserData().type;
+        if(type1 === 'redball') {
+            console.log('2', type2);
+            switch(type2){
+                case '7':
+                    player.dead = true;
+                    break;
+                case '9.1':
+                    player.dead = true;
+                    break;
+                case '9.3':
+                    player.dead = true;
+                    break;
             }
-            // Handle your sensor logic here
+        }
+        else {
+            console.log('1', type1);
+            switch(type1){
+                case '7':
+                    player.dead = true;
+                    break;
+                case '9.1':
+                    player.dead = true;
+                    break;
+                case '9.3':
+                    player.dead = true;
+                    break;
+            }
         }
     };
 
@@ -244,6 +274,25 @@ function createWall(x, y, width, height, world) {
     wallBody.CreateFixture(fixtureDef);
 
     wallBody.SetUserData({type: "1"});
+}
+
+function createGate(x, y, width, height, world, type) {
+    const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
+    wallBodyDef.position.Set((x + width/2) / 40, (y+height/2) / 40); //have to get center point
+    wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(wallBodyDef);
+
+    const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
+    wallShape.SetAsBox(width / 2 / 40, height / 2 / 40); //40px per meter, starts at center
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = wallShape;
+    fixtureDef.friction = WALL_FRICTION;
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: type});
 }
 
 function createNonSquareWall(x,y,vertices, world) {
