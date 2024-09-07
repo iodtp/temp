@@ -17,32 +17,11 @@ const WALL_FRICTION = 0.5;
 const WIDTH = Math.min(1280, window.innerWidth);
 const HEIGHT = Math.min(800, window.innerHeight);
 
-const entityCategory = {
-    RED_BALL :          0x0001,
-    BLUE_BALL :     0x0002,
-    RED_ENDZONE :        0x0004,
-    BLUE_ENDZONE : 0x0008,
-    RED_TEAMTILE :    0x0010,
-    BLUE_TEAMTILE :    0x0020,
-    YELLOW_TEAMTILE :      0x0040,
-    RED_FLAG :    0x0080,
-    BLUE_FLAG :    0x0100,
-    YELLOW_FLAG :      0x0200,
-    SPIKE :    0x0400,
-    RED_BOOST : 0x0800,
-    BLUE_BOOST : 0x1000,
-    YELLOW_BOOST : 0x2000,
-    RED_PORTAL : 0x4000,
-    BLUE_PORTAL : 0x8000,
-    PORTAL : 0x10000,
-    BUTTON : 0x20000,
-    RED_GATE : 0x40000,
-    BLUE_GATE : 0x80000,
-    GREEN_GATE : 0x100000,
-    ROLLING_BOMB : 0x200000,
-    JUKE_JUICE : 0x400000,
-    TAGPRO : 0x800000,
-    BOMB : 0x1000000,
+const entityCategory = { //who collides with me?
+    EVERYONE : 0x0001,
+    RED_TEAM : 0x0002,
+    BLUE_TEAM : 0x0004,
+    NO_ONE : 0x0008,
   };
 
 (function() {
@@ -271,6 +250,9 @@ function createWall(x, y, width, height, world) {
     fixtureDef.shape = wallShape;
     fixtureDef.friction = WALL_FRICTION;
 
+    fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+
     wallBody.CreateFixture(fixtureDef);
 
     wallBody.SetUserData({type: "1"});
@@ -290,6 +272,19 @@ function createGate(x, y, width, height, world, type) {
     fixtureDef.shape = wallShape;
     fixtureDef.friction = WALL_FRICTION;
 
+    if(type === '9.1') {
+        fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+    }
+    else if(type === '9.2') {
+        fixtureDef.filter.categoryBits = entityCategory.BLUE_TEAM;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+    }
+    else if(type === '9.3') {
+        fixtureDef.filter.categoryBits = entityCategory.RED_TEAM;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+    }
+
     wallBody.CreateFixture(fixtureDef);
 
     wallBody.SetUserData({type: type});
@@ -308,6 +303,9 @@ function createNonSquareWall(x,y,vertices, world) {
     const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
     fixtureDef.shape = wallShape;
     fixtureDef.friction = WALL_FRICTION;
+
+    fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
 
 
     wallBody.CreateFixture(fixtureDef);
@@ -348,6 +346,9 @@ function createBall(x, y, radius, world) {
     fixtureDef.density = 1.0;
     fixtureDef.friction = 0.3;
     fixtureDef.restitution = 0.2;
+
+    fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM;
 
     const sensorDef = new Box2D.Dynamics.b2FixtureDef();
     sensorDef.shape = circleShape;
