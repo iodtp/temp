@@ -14,16 +14,29 @@
     const imgPath = 'https://tagpro.koalabeast.com/textures/mtbad/tiles.png';
     texture(imgPath).then(squares => {
         const tiles = new Array(2);
-        for(let i = 0; i < squares.length; i++){
-            document.body.appendChild(squares[i]); // Append to the body to display
+        const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                        squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+        const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                         squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+        console.log(squares);
+        const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+        console.log(otherTiles);
+        for(let i = 0; i < otherTiles.length; i++){
+            document.body.appendChild(otherTiles[i]);
         }
-        /*separateHalvesBotRightTopLeft(squares[11]).then(tiles => {
-            const img = new Image();
-            img.src = tiles[0];
-            document.body.appendChild(img);
-            const img2 = new Image();
-            img2.src = tiles[1];
-            document.body.appendChild(img2);
+        const promises = botLeft.map(img => separateHalvesBotLeftTopRight(img)).concat(botRight.map(img => separateHalvesBotRightTopLeft(img)));
+        /*Promise.all(promises).then((images) => {
+            images.forEach(imgsrc => {
+                const img = new Image();
+                img.src = imgsrc[0];
+                img.style.padding = '5px';
+                document.body.appendChild(img);
+                const img2 = new Image();
+                img2.src = imgsrc[1];
+                                img2.style.padding = '5px';
+
+                document.body.appendChild(img2);
+            });
         });*/
     }).catch(error => {
         console.error('Error loading texture:', error);
