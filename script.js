@@ -18,14 +18,10 @@
                         squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
         const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
                          squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-        console.log(squares);
         const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-        console.log(otherTiles);
-        for(let i = 0; i < otherTiles.length; i++){
-            document.body.appendChild(otherTiles[i]);
-        }
+
         const promises = botLeft.map(img => separateHalvesBotLeftTopRight(img)).concat(botRight.map(img => separateHalvesBotRightTopLeft(img)));
-        /*Promise.all(promises).then((images) => {
+        Promise.all(promises).then((images) => {
             images.forEach(imgsrc => {
                 const img = new Image();
                 img.src = imgsrc[0];
@@ -37,7 +33,10 @@
 
                 document.body.appendChild(img2);
             });
-        });*/
+            for(let i = 0; i < otherTiles.length; i++){
+                document.body.appendChild(otherTiles[i]);
+            }
+        });
     }).catch(error => {
         console.error('Error loading texture:', error);
     });
@@ -196,132 +195,6 @@ function texture(imgPath){
         };
 
         img.onerror = reject; // Handle errors (e.g., if the image fails to load)
-    });
-}
-function makeTriangleTransparent(img, squareSize = 40) {
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-            const borderColor = [data[400], data[401], data[402], data[403]];
-
-            // Make triangle part transparent
-            for (let i = 0; i < squareSize; i ++) {
-                for (let j = 0; j < i; j++) {
-                    data[(i+squareSize*j)*4+3] = 0;
-                }
-            }
-
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            resolve(modifiedDataURL);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
-    });
-}
-
-function makeBallTransparent(img, squareSize = 40) {
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-
-        img.onload = () => {
-            document.body.appendChild(img);
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-            //const borderColor = [data[400], data[401], data[402], data[403]];
-
-            // Make triangle part transparent
-            for (let i = 0; i < squareSize; i++) {
-                for (let j = 0; j < squareSize; j++) {
-                    //i+j <= 12 || i+j >= 68 ||
-
-                    if ((i-19.5) * (i-19.5) + (j-19.5) * (j-19.5) > 324){
-                        data[(i+squareSize*j)*4+3] = 0;
-                    }
-                }
-            }
-
-            /*for(let i = 0; i < 3; i++){
-                for(let j = 0; j < squareSize; j++){
-                    for (let k = 0; k < 4; k++){
-                        data[(i+squareSize*j)*4+k] = borderColor[k];
-                    }
-                }
-            }*/
-            //iterateTrapezoid(data, 40, 40, 35, 3);
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            resolve(modifiedDataURL);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
-    });
-}
-function make30pxTransparent(img, squareSize = 40) {
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-
-        img.onload = () => {
-            document.body.appendChild(img);
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-
-            // Make triangle part transparent
-            for (let i = 0; i < squareSize; i++) {
-                for (let j = 0; j < squareSize; j++) {
-                    //i+j <= 12 || i+j >= 68 ||
-
-                    if ((i-19.5) * (i-19.5) + (j-19.5) * (j-19.5) > 225){
-                        data[(i+squareSize*j)*4+3] = 0;
-                        //console.log("test");
-                    }
-                }
-            }
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            resolve(modifiedDataURL);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
     });
 }
 
