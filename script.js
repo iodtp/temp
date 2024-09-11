@@ -17,10 +17,14 @@
         for(let i = 0; i < 1; i++){
             document.body.appendChild(squares[i]); // Append to the body to display
         }
-        separateHalvesBotLeftTopRight(squares[0]).then(tile => {
+        separateHalvesBotLeftTopRight(squares[0]).then(tiles => {
             const img = new Image();
-            img.src = tile;
-            document.body.appendChild(img)});
+            img.src = tiles[0];
+            document.body.appendChild(img);
+            const img2 = new Image();
+            img2.src = tiles[1];
+            document.body.appendChild(img2);
+        });
     }).catch(error => {
         console.error('Error loading texture:', error);
     });
@@ -30,38 +34,45 @@ function separateHalvesBotLeftTopRight(img, squareSize = 40){
     return new Promise((resolve, reject) => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
+        const canvas2 = document.createElement('canvas');
+        const ctx2 = canvas2.getContext('2d');
 
 
         img.onload = () => {
             canvas.width = squareSize;
             canvas.height = squareSize;
             ctx.drawImage(img, 0, 0);
+
+            canvas2.width = squareSize;
+            canvas2.height = squareSize;
+            ctx2.drawImage(img, 0, 0);
             // Access pixel data
             const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
             const data = imageData.data;
-            //const data2 = imageData.data;
 
-            // Make triangle part transparent
-            /*for (let i = 0; i < squareSize; i ++) {
-                for (let j = 0; j < squareSize-i; j++) {
-                    data[(i+squareSize*j)*4+3] = 0;
-                    //data2[(j+squareSize*i)*4+3] = 0;
-                }
-            }*/
+            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
+            const data2 = imageData2.data;
+
             for (let i = 0; i < squareSize; i ++) {
                 for (let j = squareSize; j > squareSize-i; j--) {
                     data[(j+squareSize*i)*4+3] = 0;
-                    //data2[(j+squareSize*i)*4+3] = 0;
                 }
             }
 
+            for (let i = 0; i < squareSize; i ++) {
+                for (let j = 0; j < squareSize-i; j++) {
+                    data2[(i+squareSize*j)*4+3] = 0;
+                }
+            }
 
             // Put the modified data back on the canvas
             ctx.putImageData(imageData, 0, 0);
+            ctx2.putImageData(imageData2, 0, 0);
 
             // Convert the modified canvas back to a data URL
             const modifiedDataURL = canvas.toDataURL();
-            resolve(modifiedDataURL);
+            const modifiedDataURL2 = canvas2.toDataURL();
+            resolve([modifiedDataURL, modifiedDataURL2]);
         };
 
         img.onerror = () => {
@@ -272,7 +283,7 @@ function remakeTiles(tiles){//probably turn this into a promise too
 
         Promise.all(promises)
             .then((modifiedDataURLs) => {
-                        console.log("test");
+            console.log("test");
 
             modifiedDataURLs.forEach(modifiedDataURL => {
 
