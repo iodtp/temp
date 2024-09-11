@@ -14,17 +14,17 @@
     const imgPath = 'https://tagpro.koalabeast.com/textures/mtbad/tiles.png';
     texture(imgPath).then(squares => {
         const tiles = new Array(2);
-        for(let i = 0; i < 1; i++){
+        for(let i = 0; i < squares.length; i++){
             document.body.appendChild(squares[i]); // Append to the body to display
         }
-        separateHalvesBotLeftTopRight(squares[0]).then(tiles => {
+        /*separateHalvesBotRightTopLeft(squares[11]).then(tiles => {
             const img = new Image();
             img.src = tiles[0];
             document.body.appendChild(img);
             const img2 = new Image();
             img2.src = tiles[1];
             document.body.appendChild(img2);
-        });
+        });*/
     }).catch(error => {
         console.error('Error loading texture:', error);
     });
@@ -80,7 +80,56 @@ function separateHalvesBotLeftTopRight(img, squareSize = 40){
         };
     });
 }
+function separateHalvesBotRightTopLeft(img, squareSize = 40){
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvas2 = document.createElement('canvas');
+        const ctx2 = canvas2.getContext('2d');
 
+
+        img.onload = () => {
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+
+            canvas2.width = squareSize;
+            canvas2.height = squareSize;
+            ctx2.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+
+            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
+            const data2 = imageData2.data;
+
+            for (let i = 0; i < squareSize; i ++) {
+                for (let j = 0; j < i; j++) {
+                    data[(i+squareSize*j)*4+3] = 0;
+                }
+            }
+
+            for (let i = 0; i < squareSize; i ++) {
+                for (let j = 0; j < i; j++) {
+                    data2[(j+squareSize*i)*4+3] = 0;
+                }
+            }
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+            ctx2.putImageData(imageData2, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            const modifiedDataURL2 = canvas2.toDataURL();
+            resolve([modifiedDataURL, modifiedDataURL2]);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
+}
 function texture(imgPath){
     return new Promise((resolve, reject) => {
         const squareSize = 40;
