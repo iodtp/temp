@@ -11,26 +11,64 @@
 
 (function() {
     'use strict';
-    const imgPath = 'https://static.koalabeast.com/images/textures/funko.png';
+    const imgPath = 'https://tagpro.koalabeast.com/textures/mtbad/tiles.png';
     texture(imgPath).then(squares => {
-        remakeTiles(squares).then(tiles => {
-            console.log(tiles);
-            /*tiles.forEach(tile => {
-
-
-                document.body.appendChild(tile)
-            });*/
-
-
-
-        }).catch(error => {
-            console.error("Error changing tiles", error);
-        });
+        const tiles = new Array(2);
+        for(let i = 0; i < 1; i++){
+            document.body.appendChild(squares[i]); // Append to the body to display
+        }
+        separateHalvesBotLeftTopRight(squares[0]).then(tile => {
+            const img = new Image();
+            img.src = tile;
+            document.body.appendChild(img)});
     }).catch(error => {
         console.error('Error loading texture:', error);
     });
 })();
 
+function separateHalvesBotLeftTopRight(img, squareSize = 40){
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+
+        img.onload = () => {
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+            //const data2 = imageData.data;
+
+            // Make triangle part transparent
+            /*for (let i = 0; i < squareSize; i ++) {
+                for (let j = 0; j < squareSize-i; j++) {
+                    data[(i+squareSize*j)*4+3] = 0;
+                    //data2[(j+squareSize*i)*4+3] = 0;
+                }
+            }*/
+            for (let i = 0; i < squareSize; i ++) {
+                for (let j = squareSize; j > squareSize-i; j--) {
+                    data[(j+squareSize*i)*4+3] = 0;
+                    //data2[(j+squareSize*i)*4+3] = 0;
+                }
+            }
+
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            resolve(modifiedDataURL);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
+}
 
 function texture(imgPath){
     return new Promise((resolve, reject) => {
@@ -74,44 +112,11 @@ function texture(imgPath){
                     const dataURL = newCanvas.toDataURL();
                     const img = new Image();
                     img.src = dataURL;
+                    img.style.padding = '5px';
                     squares.push(img);
                 }
             }
 
-
-            squares.splice(4, 1);
-            const tile =  squares.splice(8, 1);
-            squares.splice(9, 3);
-            squares.splice(12, 13);
-            squares.splice(14, 2);
-            squares.splice(15, 3);
-            squares.splice(16, 1);
-            squares.splice(18, 10);
-            squares.splice(19, 2);
-            squares.splice(20, 5);
-            squares.splice(21, 1);
-            squares.splice(23, 1);
-            squares.splice(24, 13);
-            squares.splice(25, 7);
-            squares.splice(26, 3);
-            squares.splice(28, 4);
-            squares.splice(29, 4);
-            squares.splice(32, 1);
-            squares.splice(35, 2);
-            squares.splice(36, 3);
-            squares.splice(37, 7);
-            squares.splice(38, 8);
-            squares.splice(39, 8);
-            squares.splice(41, 17);
-            squares.splice(42, 3);
-            squares.splice(43, 10);
-            squares.push(tile[0]);
-
-            /*for(let i = 0; i < squares.length; i++){
-            const exampleSquare = new Image();
-            exampleSquare.src = squares[i]; // Load the first square
-            document.body.appendChild(exampleSquare); // Append to the body to display
-        }*/
 
 
             resolve(squares); // Resolve the Promise with the squares array
@@ -142,14 +147,6 @@ function makeTriangleTransparent(img, squareSize = 40) {
                 }
             }
 
-            /*for(let i = 0; i < 3; i++){
-                for(let j = 0; j < squareSize; j++){
-                    for (let k = 0; k < 4; k++){
-                        data[(i+squareSize*j)*4+k] = borderColor[k];
-                    }
-                }
-            }*/
-            //iterateTrapezoid(data, 40, 40, 35, 3);
 
             // Put the modified data back on the canvas
             ctx.putImageData(imageData, 0, 0);
