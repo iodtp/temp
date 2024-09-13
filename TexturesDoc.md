@@ -9,7 +9,7 @@ We have the following 4 representations of diagonal walls
 * 1.3	45 degree wall (◥)
 * 1.4	45 degree wall (◢)
 
-However, with dynamic texture packs that have special wall borders, there are actually many more representations. Each of the three major walls can have a border or be connected to another wall and if the two legs are connected but at least one is connected to a full wall it will result in a border area at the right angle. This leaves us with  subdivisions for each wall 5, for 20 types of diagonal walls in total.
+However, with dynamic texture packs that have special wall borders, there are actually many more representations. Each of the three major walls can have a border or be connected to another wall and if the two legs are connected but at least one is connected to a full wall it will result in a border area at the right angle. This leaves us with  subdivisions for each wall 6, for 24 types of diagonal walls in total.
 > **_NOTE:_**  The hypotenuse will always have a border, leaving us with the only options being 3 borders, two types of two borders, 1 border no corner, and 1 border corner.
 
 Since there are only 3 variables with these walls, we can make their full representations using 3 extra characters, one to represent each wall (Yes this could be optimized but it would just make me waste more time looking at this documentation I'm forcing myself to make). To avoid any confusion, we will not be using the numbers {1,2,3,4} again, instead using a 0 to represent no border, and a 5 to represent a border. This will work in the following order: **Left leg, Right leg, Corner**.
@@ -30,6 +30,10 @@ That leaves us with the following 24 wall representations:
 * 1.2505	45 degree wall (◤)(top)
 * 1.3505	45 degree wall (◥)(right)
 * 1.4505	45 degree wall (◢)(right)
+* 1.1550	45 degree wall (◣)(corner)
+* 1.2550	45 degree wall (◤)(corner)
+* 1.3550	45 degree wall (◥)(corner)
+* 1.4550	45 degree wall (◢)(corner)
 
 ### Walls Missing Two Legs but with Corner
 * 1.1005	45 degree wall (◣)
@@ -42,3 +46,42 @@ That leaves us with the following 24 wall representations:
 * 1.2000	45 degree wall (◤)
 * 1.3000	45 degree wall (◥)
 * 1.4000	45 degree wall (◢)
+
+## Full Walls
+
+The general subtype of walls will be represented as 1., followed by up to 8 0s or 5s, the first four for the edges, starting at the top and going clockwise, then four for the corners if any special ones exist, starting at the top left and going clockwise.
+
+### All sides
+* 1.5555
+
+### 3 Sides
+* 1.5550
+* 1.5505
+* 1.5055
+* 1.0555
+
+### 2 Sides No Corners
+* 1.5500
+* 1.5050
+* 1.5005
+* 1.0550
+* 1.0055
+* 1.0505
+
+### 2 Sides Extra Corners
+* 1.55000005 Bot left Corner
+* 1.50050050 Bot Right
+* 1.05505000 Top Left
+* 1.00550500 Top Right
+
+
+
+
+
+
+
+
+
+
+
+
