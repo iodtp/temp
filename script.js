@@ -68,7 +68,13 @@
                 '1.5550': otherTiles[92].cloneNode(true),
                 '1.5505': otherTiles[92].cloneNode(true),
                 '1.5055': otherTiles[81].cloneNode(true),
-                '1.0555': otherTiles[92].cloneNode(true)
+                '1.0555': otherTiles[92].cloneNode(true),
+                "1.5500": otherTiles[34].cloneNode(true),
+                "1.5050": otherTiles[132].cloneNode(true),
+                "1.5005": otherTiles[33].cloneNode(true),
+                "1.0550": otherTiles[34].cloneNode(true),
+                "1.0055": otherTiles[34].cloneNode(true),
+                "1.0505": otherTiles[60].cloneNode(true)
             };
             doRotations(fullWalls);
 
@@ -89,6 +95,8 @@
 function doRotations(fullWalls){
     fullWalls['1.5505'].style.transform = 'rotate(' + 90 + 'deg)';
     fullWalls['1.0555'].style.transform = 'rotate(' + 270 + 'deg)';
+    fullWalls['1.0550'].style.transform = 'rotate(' + 90 + 'deg)';
+    fullWalls['1.0055'].style.transform = 'rotate(' + 180 + 'deg)';
 }
 function separateHalvesBotLeftTopRight(img, squareSize = 40){
     return new Promise((resolve, reject) => {
