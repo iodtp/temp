@@ -13,28 +13,73 @@
     'use strict';
     const imgPath = 'https://tagpro.koalabeast.com/textures/mtbad/tiles.png';
     texture(imgPath).then(squares => {
-        const tiles = new Array(2);
         const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
                         squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
         const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
                          squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
         const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
 
+
         const promises = botLeft.map(img => separateHalvesBotLeftTopRight(img)).concat(botRight.map(img => separateHalvesBotRightTopLeft(img)));
         Promise.all(promises).then((images) => {
+            const walls = [];
             images.forEach(imgsrc => {
                 const img = new Image();
                 img.src = imgsrc[0];
                 img.style.padding = '5px';
-                document.body.appendChild(img);
+                walls.push(img);
                 const img2 = new Image();
                 img2.src = imgsrc[1];
                                 img2.style.padding = '5px';
 
-                document.body.appendChild(img2);
+                walls.push(img2);
             });
-            for(let i = 0; i < otherTiles.length; i++){
+            /*for(let i = 0; i < otherTiles.length; i++){
                 document.body.appendChild(otherTiles[i]);
+            }*/
+            //walls.splice(4, 4);
+            //walls.splice(5, 9);
+            //walls.splice(7, 1);
+            //walls.splice(8, 3);
+            //walls.splice(9, 6);
+            //walls.splice(13, 3);
+            //walls.splice(14, 3);
+            for(let i = 0; i < otherTiles.length; i++){
+                 document.body.appendChild(otherTiles[i]);
+                const p = document.createElement('p');
+                p.innerText = i;
+                document.body.appendChild(p);
+            }
+
+            const diagWalls = {
+                "1.1555": walls[60].cloneNode(true),
+                "1.2555": walls[0].cloneNode(true),
+                "1.3555": walls[33].cloneNode(true),
+                "1.4555": walls[25].cloneNode(true),
+                "1.1055": walls[32].cloneNode(true),
+                "1.2055": walls[8].cloneNode(true),
+                "1.3055": walls[59].cloneNode(true),
+                "1.4055": walls[21].cloneNode(true),
+                "1.1505": walls[58].cloneNode(true),
+                "1.2505": walls[2].cloneNode(true),
+                "1.3505": walls[57].cloneNode(true),
+                "1.4505": walls[1].cloneNode(true),
+                "1.1005": walls[56].cloneNode(true),
+                "1.2005": walls[30].cloneNode(true),
+                "1.3005": walls[55].cloneNode(true),
+                "1.4005": walls[3].cloneNode(true),
+                "1.1000": walls[52].cloneNode(true),
+                "1.2000": otherTiles[139].cloneNode(true),
+                "1.3000": otherTiles[134].cloneNode(true),
+                "1.4000": walls[19].cloneNode(true)
+            };
+            document.body.appendChild(document.createElement('div'));
+            for (const [key, value] of Object.entries(diagWalls)) {
+                if (value == null){
+                    continue;
+                }
+                //console.log(value);
+                document.body.appendChild(value);
             }
         });
     }).catch(error => {
