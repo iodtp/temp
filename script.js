@@ -34,16 +34,6 @@
 
                 walls.push(img2);
             });
-            /*for(let i = 0; i < otherTiles.length; i++){
-                document.body.appendChild(otherTiles[i]);
-            }*/
-            //walls.splice(4, 4);
-            //walls.splice(5, 9);
-            //walls.splice(7, 1);
-            //walls.splice(8, 3);
-            //walls.splice(9, 6);
-            //walls.splice(13, 3);
-            //walls.splice(14, 3);
             for(let i = 0; i < otherTiles.length; i++){
                  document.body.appendChild(otherTiles[i]);
                 const p = document.createElement('p');
@@ -73,8 +63,17 @@
                 "1.3000": otherTiles[134].cloneNode(true),
                 "1.4000": walls[19].cloneNode(true)
             };
+            const fullWalls = {
+                '1.5555': null, //gotta make this one myself smh
+                '1.5550': otherTiles[92].cloneNode(true),
+                '1.5505': otherTiles[92].cloneNode(true),
+                '1.5055': otherTiles[81].cloneNode(true),
+                '1.0555': otherTiles[92].cloneNode(true)
+            };
+            doRotations(fullWalls);
+
             document.body.appendChild(document.createElement('div'));
-            for (const [key, value] of Object.entries(diagWalls)) {
+            for (const [key, value] of Object.entries(fullWalls)) {
                 if (value == null){
                     continue;
                 }
@@ -87,6 +86,10 @@
     });
 })();
 
+function doRotations(fullWalls){
+    fullWalls['1.5505'].style.transform = 'rotate(' + 90 + 'deg)';
+    fullWalls['1.0555'].style.transform = 'rotate(' + 270 + 'deg)';
+}
 function separateHalvesBotLeftTopRight(img, squareSize = 40){
     return new Promise((resolve, reject) => {
         const canvas = document.createElement('canvas');
