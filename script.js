@@ -22,6 +22,36 @@
     let diagWalls = {};
     let fullWalls = {};
     let nonWalls = {};
+    texture(yellowBoost).then(squares => {
+        nonWalls['5'] = squares[0];
+        nonWalls['5.1'] = squares[4];
+        nonWalls['5.11'] = squares[1];
+    });
+    texture(redBoost).then(squares => {
+        nonWalls['14'] = squares[0];
+        nonWalls['14.1'] = squares[4];
+        nonWalls['14.11'] = squares[1];
+    });
+    texture(blueBoost).then(squares => {
+        nonWalls['15'] = squares[0];
+        nonWalls['15.1'] = squares[4];
+        nonWalls['15.11'] = squares[1];
+    });
+    texture(portal).then(squares => {
+        nonWalls['13'] = squares[0];
+        nonWalls['13.1'] = squares[4];
+        nonWalls['13.11'] = squares[1];
+    });
+    texture(redPortal).then(squares => {
+        nonWalls['24'] = squares[0];
+        nonWalls['24.1'] = squares[4];
+        nonWalls['24.11'] = squares[1];
+    });
+    texture(bluePortal).then(squares => {
+        nonWalls['25'] = squares[0];
+        nonWalls['25.1'] = squares[4];
+        nonWalls['25.11'] = squares[1];
+    });
     texture(tilePath).then(squares => {
         const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
                         squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
@@ -130,9 +160,6 @@
                 "3.1": otherTiles[29].cloneNode(true),              // Red flag (taken)
                 "4": otherTiles[21].cloneNode(true),       // Blue flag
                 "4.1": otherTiles[30].cloneNode(true),              // Blue flag (taken)
-                "5": null,                // Speedpad (active)
-                "5.1": null,              // Speedpad (inactive)
-                "5.11": null,             // Speedpad (respawn warning)
                 "6": otherTiles[109].cloneNode(true),                // Powerup subgroup
                 "6.1": otherTiles[45].cloneNode(true),         // Jukejuice/grip
                 "6.11": null,        // Jukejuice/grip (respawn warning)
@@ -154,21 +181,6 @@
                 "10.11": null,            // Bomb (respawn warning)
                 "11": otherTiles[47].cloneNode(true),               // Red teamtile
                 "12": otherTiles[48].cloneNode(true),               // Blue teamtile
-                "13": null,               // Active portal
-                "13.1": null,             // Inactive portal
-                "13.11": null,            // Inactive portal (respawn warning)
-                "24": null,               // Active red portal
-                "24.1": null,             // Inactive red portal
-                "24.11": null,            // Inactive red portal (respawn warning)
-                "25": null,               // Active blue portal
-                "25.1": null,             // Inactive blue portal
-                "25.11": null,            // Inactive blue portal (respawn warning)
-                "14": null,               // Speedpad (red) (active)
-                "14.1": null,             // Speedpad (red) (inactive)
-                "14.11": null,            // Speedpad (red) (respawn warning)
-                "15": null,               // Speedpad (blue) (active)
-                "15.1": null,             // Speedpad (blue) (inactive)
-                "15.11": null,            // Speedpad (blue) (respawn warning)
                 "16": otherTiles[19].cloneNode(true),    // Yellow flag
                 "16.1": otherTiles[28].cloneNode(true),             // Yellow flag (taken)
                 "17": otherTiles[63].cloneNode(true),               // Red endzone
@@ -183,20 +195,6 @@
             doRotations(fullWalls);
 
             document.body.appendChild(document.createElement('div'));
-            for (const [key, value] of Object.entries(fullWalls)) {
-                if (value == null){
-                    continue;
-                }
-                //console.log(value);
-                document.body.appendChild(value);
-            }
-            for (const [key, value] of Object.entries(nonWalls)) {
-                if (value == null){
-                    continue;
-                }
-                //console.log(value);
-                document.body.appendChild(value);
-            }
             make1SidedWall(otherTiles[138].cloneNode(true)).then((imgsrc) => {
                 const img = new Image();
                 img.src = imgsrc;
@@ -243,6 +241,27 @@
     }).catch(error => {
         console.error('Error loading texture:', error);
     });
+    for (const [key, value] of Object.entries(diagWalls)) {
+        if (value == null){
+            continue;
+        }
+        //console.log(value);
+        document.body.appendChild(value);
+    }
+    for (const [key, value] of Object.entries(fullWalls)) {
+        if (value == null){
+            continue;
+        }
+        //console.log(value);
+        document.body.appendChild(value);
+    }
+    for (const [key, value] of Object.entries(nonWalls)) {
+        if (value == null){
+            continue;
+        }
+        //console.log(value);
+        document.body.appendChild(value);
+    }
 })();
 
 function doRotations(fullWalls){
