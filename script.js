@@ -153,44 +153,43 @@
                 //"1.00000005": null       // Bot left
 
             };
-            nonWalls = {
-                "0": otherTiles[79].cloneNode(true),                // Empty space
-                "2": otherTiles[46].cloneNode(true),                // Regular floor
-                "3": otherTiles[20].cloneNode(true),        // Red flag
-                "3.1": otherTiles[29].cloneNode(true),              // Red flag (taken)
-                "4": otherTiles[21].cloneNode(true),       // Blue flag
-                "4.1": otherTiles[30].cloneNode(true),              // Blue flag (taken)
-                "6": otherTiles[109].cloneNode(true),                // Powerup subgroup
-                "6.1": otherTiles[45].cloneNode(true),         // Jukejuice/grip
-                "6.11": null,        // Jukejuice/grip (respawn warning)
-                "6.12": null,        // Jukejuice/grip (preview)
-                "6.2": otherTiles[61].cloneNode(true),         // Rolling bomb
-                "6.21": null,        // Rolling bomb (respawn warning)
-                "6.22": null,        // Rolling bomb (preview)
-                "6.3": otherTiles[77].cloneNode(true),       // TagPro
-                "6.31": null,      // TagPro (respawn warning)
-                "6.32": null,      // TagPro (preview)
-                "7": otherTiles[10].cloneNode(true),                // Spike
-                "8": otherTiles[78].cloneNode(true),                // Button
-                "9": otherTiles[37].cloneNode(true),                // Inactive gate
-                "9.1": otherTiles[38].cloneNode(true),              // Green gate
-                "9.2": otherTiles[39].cloneNode(true),              // Red gate
-                "9.3": otherTiles[40].cloneNode(true),              // Blue gate
-                "10": otherTiles[18].cloneNode(true),               // Bomb
-                "10.1": otherTiles[27].cloneNode(true),             // Inactive bomb
-                "10.11": null,            // Bomb (respawn warning)
-                "11": otherTiles[47].cloneNode(true),               // Red teamtile
-                "12": otherTiles[48].cloneNode(true),               // Blue teamtile
-                "16": otherTiles[19].cloneNode(true),    // Yellow flag
-                "16.1": otherTiles[28].cloneNode(true),             // Yellow flag (taken)
-                "17": otherTiles[63].cloneNode(true),               // Red endzone
-                "18": otherTiles[64].cloneNode(true),               // Blue endzone
-                "23": otherTiles[62].cloneNode(true),               // Yellow teamtile
-                "redball": otherTiles[12].cloneNode(true),          // Red ball
-                "blueball": otherTiles[13].cloneNode(true),         // Blue ball
-                "redflag": null,          // Red flag shown on FC and under score
-                "blueflag": null,         // Blue flag shown on FC and under score
-            };
+            nonWalls["0"] = otherTiles[79].cloneNode(true);          // Empty space
+            nonWalls["2"] = otherTiles[46].cloneNode(true);          // Regular floor
+            nonWalls["3"] = otherTiles[20].cloneNode(true);          // Red flag
+            nonWalls["3.1"] = otherTiles[29].cloneNode(true);        // Red flag (taken)
+            nonWalls["4"] = otherTiles[21].cloneNode(true);          // Blue flag
+            nonWalls["4.1"] = otherTiles[30].cloneNode(true);        // Blue flag (taken)
+            nonWalls["6"] = otherTiles[109].cloneNode(true);         // Powerup subgroup
+            nonWalls["6.1"] = otherTiles[45].cloneNode(true);        // Jukejuice/grip
+            nonWalls["6.11"] = null;                                 // Jukejuice/grip (respawn warning)
+            nonWalls["6.12"] = null;                                 // Jukejuice/grip (preview)
+            nonWalls["6.2"] = otherTiles[61].cloneNode(true);        // Rolling bomb
+            nonWalls["6.21"] = null;                                 // Rolling bomb (respawn warning)
+            nonWalls["6.22"] = null;                                 // Rolling bomb (preview)
+            nonWalls["6.3"] = otherTiles[77].cloneNode(true);        // TagPro
+            nonWalls["6.31"] = null;                                 // TagPro (respawn warning)
+            nonWalls["6.32"] = null;                                 // TagPro (preview)
+            nonWalls["7"] = otherTiles[10].cloneNode(true);          // Spike
+            nonWalls["8"] = otherTiles[78].cloneNode(true);          // Button
+            nonWalls["9"] = otherTiles[37].cloneNode(true);          // Inactive gate
+            nonWalls["9.1"] = otherTiles[38].cloneNode(true);        // Green gate
+            nonWalls["9.2"] = otherTiles[39].cloneNode(true);        // Red gate
+            nonWalls["9.3"] = otherTiles[40].cloneNode(true);        // Blue gate
+            nonWalls["10"] = otherTiles[18].cloneNode(true);         // Bomb
+            nonWalls["10.1"] = otherTiles[27].cloneNode(true);       // Inactive bomb
+            nonWalls["10.11"] = null;                                // Bomb (respawn warning)
+            nonWalls["11"] = otherTiles[47].cloneNode(true);         // Red teamtile
+            nonWalls["12"] = otherTiles[48].cloneNode(true);         // Blue teamtile
+            nonWalls["16"] = otherTiles[19].cloneNode(true);         // Yellow flag
+            nonWalls["16.1"] = otherTiles[28].cloneNode(true);       // Yellow flag (taken)
+            nonWalls["17"] = otherTiles[63].cloneNode(true);         // Red endzone
+            nonWalls["18"] = otherTiles[64].cloneNode(true);         // Blue endzone
+            nonWalls["23"] = otherTiles[62].cloneNode(true);         // Yellow teamtile
+            nonWalls["redball"] = otherTiles[12].cloneNode(true);    // Red ball
+            nonWalls["blueball"] = otherTiles[13].cloneNode(true);   // Blue ball
+            nonWalls["redflag"] = null;                              // Red flag shown on FC and under score
+            nonWalls["blueflag"] = null;                             // Blue flag shown on FC and under score
+
 
             doRotations(fullWalls);
 
