@@ -78,7 +78,23 @@
                 "1.55000005": otherTiles[136].cloneNode(true),
                 "1.50050050": otherTiles[136].cloneNode(true),
                 "1.05505000": otherTiles[133].cloneNode(true),
-                "1.00550500": otherTiles[136].cloneNode(true)
+                "1.00550500": otherTiles[136].cloneNode(true),
+                "1.5000": null,
+                "1.0500": null,
+                "1.0050": null,
+                "1.0005": null,
+                "1.50000055": otherTiles[91].cloneNode(true),
+                "1.50000050": otherTiles[74].cloneNode(true),
+                "1.50000005": null,
+                "1.05005005": otherTiles[120].cloneNode(true),
+                "1.05005000": otherTiles[98].cloneNode(true),
+                "1.05000005": otherTiles[101].cloneNode(true),
+                "1.00505500": null,
+                "1.00505000": otherTiles[138].cloneNode(true),
+                "1.00500500": otherTiles[131].cloneNode(true),
+                "1.00050550": otherTiles[117].cloneNode(true),
+                "1.00050500": otherTiles[107].cloneNode(true),
+                "1.00050050": otherTiles[104].cloneNode(true)
             };
             doRotations(fullWalls);
 
@@ -90,6 +106,23 @@
                 //console.log(value);
                 document.body.appendChild(value);
             }
+            make1SidedWall(otherTiles[138].cloneNode(true)).then((imgsrc) => {
+                console.log(imgsrc);
+                const img = new Image();
+                img.src = imgsrc;
+                img.style.padding = '5px';
+                fullWalls['1.0050'] = img;
+                fullWalls['1.0500'] = img.cloneNode(true);
+                fullWalls['1.0005'] = img.cloneNode(true);
+                fullWalls['1.5000'] = img.cloneNode(true);
+                fullWalls['1.0500'].style.transform = 'rotate(' + 270 + 'deg)';
+                fullWalls['1.0005'].style.transform = 'rotate(' + 90 + 'deg)';
+                fullWalls['1.5000'].style.transform = 'rotate(' + 180 + 'deg)';
+                document.body.appendChild(fullWalls['1.5000']);
+                document.body.appendChild(fullWalls['1.0500']);
+                document.body.appendChild(fullWalls['1.0050']);
+                document.body.appendChild(fullWalls['1.0005']);
+            });
         });
     }).catch(error => {
         console.error('Error loading texture:', error);
@@ -103,6 +136,55 @@ function doRotations(fullWalls){
     fullWalls['1.0055'].style.transform = 'rotate(' + 180 + 'deg)';
     fullWalls['1.50050050'].style.transform = 'rotate(' + 90 + 'deg)';
     fullWalls['1.55000005'].style.transform = 'rotate(' + 180 + 'deg)';
+
+}
+
+function make1SidedWall(img, squareSize = 40){
+   return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvas2 = document.createElement('canvas');
+        const ctx2 = canvas2.getContext('2d');
+
+
+        img.onload = () => {
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+
+            canvas2.width = squareSize;
+            canvas2.height = squareSize;
+            ctx2.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+
+            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
+            const data2 = imageData2.data;
+
+            for (let i = squareSize/2; i < squareSize; i ++) {
+                for (let j = 0; j < squareSize/2; j++) {
+                    data2[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
+                    data2[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
+                    data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+2];
+                    data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
+                }
+            }
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+            ctx2.putImageData(imageData2, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            const modifiedDataURL2 = canvas2.toDataURL();
+            resolve(modifiedDataURL2);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
 }
 function separateHalvesBotLeftTopRight(img, squareSize = 40){
     return new Promise((resolve, reject) => {
