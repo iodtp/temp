@@ -15,7 +15,6 @@
         const diagWalls = parts[0];
         const fullWalls = parts[1];
         const nonWalls = parts[2];
-        console.log(parts);
         for (const [key, value] of Object.entries(diagWalls)) {
             if (value == null){
                 continue;
@@ -30,11 +29,7 @@
             //console.log(value);
             document.body.appendChild(value);
         }
-        console.log(nonWalls);
         for (const [key, value] of Object.entries(nonWalls)) {
-            console.log("test");
-            console.log(key)
-            console.log(value);
             if (value == null){
                 continue;
             }
@@ -116,6 +111,7 @@ function allPartsConversion() {
                         walls.push(img2);
                     });
 
+
                     diagWalls = {
                         "1.1555": walls[60].cloneNode(true),
                         "1.2555": walls[0].cloneNode(true),
@@ -188,6 +184,7 @@ function allPartsConversion() {
                         //"1.00000005": null       // Bot left
 
                     };
+
                     nonWalls["0"] = otherTiles[79].cloneNode(true);          // Empty space
                     nonWalls["2"] = otherTiles[46].cloneNode(true);          // Regular floor
                     nonWalls["3"] = otherTiles[20].cloneNode(true);          // Red flag
@@ -196,8 +193,8 @@ function allPartsConversion() {
                     nonWalls["4.1"] = otherTiles[30].cloneNode(true);        // Blue flag (taken)
                     nonWalls["6"] = otherTiles[109].cloneNode(true);         // Powerup subgroup
                     nonWalls["6.1"] = otherTiles[45].cloneNode(true);        // Jukejuice/grip
-                    nonWalls["6.11"] = null;                                 // Jukejuice/grip (respawn warning)
-                    nonWalls["6.12"] = null;                                 // Jukejuice/grip (preview)
+                    nonWalls["6.11"] = otherTiles[45].cloneNode(true);                                 // Jukejuice/grip (respawn warning)
+                    nonWalls["6.12"] = otherTiles[45].cloneNode(true);                                 // Jukejuice/grip (preview)
                     nonWalls["6.2"] = otherTiles[61].cloneNode(true);        // Rolling bomb
                     nonWalls["6.21"] = null;                                 // Rolling bomb (respawn warning)
                     nonWalls["6.22"] = null;                                 // Rolling bomb (preview)
@@ -222,18 +219,64 @@ function allPartsConversion() {
                     nonWalls["23"] = otherTiles[62].cloneNode(true);         // Yellow teamtile
                     nonWalls["redball"] = otherTiles[12].cloneNode(true);    // Red ball
                     nonWalls["blueball"] = otherTiles[13].cloneNode(true);   // Blue ball
-                    nonWalls["redflag"] = null;                              // Red flag shown on FC and under score
-                    nonWalls["blueflag"] = null;                             // Blue flag shown on FC and under score
                 });
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return make1SidedWall(otherTiles[138].cloneNode(true)).then((imgsrc) => {
+                    const img = new Image();
+                    img.src = imgsrc;
+                    img.style.padding = '5px';
+                    fullWalls['1.0050'] = img;
+                    fullWalls['1.0500'] = img.cloneNode(true);
+                    fullWalls['1.0005'] = img.cloneNode(true);
+                    fullWalls['1.5000'] = img.cloneNode(true);
+                    fullWalls['1.0500'].style.transform = 'rotate(' + 270 + 'deg)';
+                    fullWalls['1.0005'].style.transform = 'rotate(' + 90 + 'deg)';
+                    fullWalls['1.5000'].style.transform = 'rotate(' + 180 + 'deg)';
+                });
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return make0SidedWalls(otherTiles[123].cloneNode(true)).then((imgsrcs) => {
+                    const img = new Image();
+                    img.src = imgsrcs[0];
+                    img.style.padding = '5px';
+                    fullWalls['1.00000050'] = img;
+                    fullWalls['1.00000005'] = img.cloneNode(true);
+                    fullWalls['1.00005000'] = img.cloneNode(true);
+                    fullWalls['1.00000500'] = img.cloneNode(true);
+                    fullWalls['1.00000005'].style.transform = 'rotate(' + 90 + 'deg)';
+                    fullWalls['1.00005000'].style.transform = 'rotate(' + 180 + 'deg)';
+                    fullWalls['1.00000500'].style.transform = 'rotate(' + 270 + 'deg)';
+                    const img2 = new Image();
+                    img2.src = imgsrcs[1];
+                    img2.style.padding = '5px';
+                    fullWalls['1.0000'] = img2;
+                    const img3 = new Image();
+                    img3.src = imgsrcs[2];
+                    img3.style.padding = '5px';
+                    fullWalls['1.00005555'] = img3;
+                })
             })
         ];
 
         // Wait for all texture-related promises to resolve
         Promise.all(texturePromises)
             .then(() => {
-            // Call resolve after all textures have been processed
+
             resolve([diagWalls, fullWalls, nonWalls]);
         })
+        // Call resolve after all textures have been processed
+
             .catch(error => {
             console.error('Error loading textures:', error);
             reject(error);  // In case any texture loading fails
@@ -254,6 +297,9 @@ function doRotations(fullWalls){
     fullWalls["1.00005505"].style.transform = 'rotate(' + 180 + 'deg)';
     fullWalls['1.00005500'].style.transform = 'rotate(' + 90 + 'deg)';
     fullWalls['1.00000055'].style.transform = 'rotate(' + 270 + 'deg)';
+}
+function makeTransparent(nonWalls){
+    nonWalls["6.12"].style.opacity = "0.5";
 }
 function make0SidedWalls(img, squareSize = 40){
     return new Promise((resolve, reject) => {
