@@ -113,10 +113,74 @@
                 //"1.00000005": null       // Bot left
 
             };
+            const nonWalls = {
+                "0": otherTiles[79].cloneNode(true),                // Empty space
+                "2": otherTiles[46].cloneNode(true),                // Regular floor
+                "3": otherTiles[20].cloneNode(true),        // Red flag
+                "3.1": otherTiles[29].cloneNode(true),              // Red flag (taken)
+                "4": otherTiles[21].cloneNode(true),       // Blue flag
+                "4.1": otherTiles[30].cloneNode(true),              // Blue flag (taken)
+                "5": null,                // Speedpad (active)
+                "5.1": null,              // Speedpad (inactive)
+                "5.11": null,             // Speedpad (respawn warning)
+                "6": otherTiles[109].cloneNode(true),                // Powerup subgroup
+                "6.1": otherTiles[45].cloneNode(true),         // Jukejuice/grip
+                "6.11": null,        // Jukejuice/grip (respawn warning)
+                "6.12": null,        // Jukejuice/grip (preview)
+                "6.2": otherTiles[61].cloneNode(true),         // Rolling bomb
+                "6.21": null,        // Rolling bomb (respawn warning)
+                "6.22": null,        // Rolling bomb (preview)
+                "6.3": otherTiles[77].cloneNode(true),       // TagPro
+                "6.31": null,      // TagPro (respawn warning)
+                "6.32": null,      // TagPro (preview)
+                "7": otherTiles[10].cloneNode(true),                // Spike
+                "8": otherTiles[78].cloneNode(true),                // Button
+                "9": otherTiles[37].cloneNode(true),                // Inactive gate
+                "9.1": otherTiles[38].cloneNode(true),              // Green gate
+                "9.2": otherTiles[39].cloneNode(true),              // Red gate
+                "9.3": otherTiles[40].cloneNode(true),              // Blue gate
+                "10": otherTiles[18].cloneNode(true),               // Bomb
+                "10.1": otherTiles[27].cloneNode(true),             // Inactive bomb
+                "10.11": null,            // Bomb (respawn warning)
+                "11": otherTiles[47].cloneNode(true),               // Red teamtile
+                "12": otherTiles[48].cloneNode(true),               // Blue teamtile
+                "13": null,               // Active portal
+                "13.1": null,             // Inactive portal
+                "13.11": null,            // Inactive portal (respawn warning)
+                "24": null,               // Active red portal
+                "24.1": null,             // Inactive red portal
+                "24.11": null,            // Inactive red portal (respawn warning)
+                "25": null,               // Active blue portal
+                "25.1": null,             // Inactive blue portal
+                "25.11": null,            // Inactive blue portal (respawn warning)
+                "14": null,               // Speedpad (red) (active)
+                "14.1": null,             // Speedpad (red) (inactive)
+                "14.11": null,            // Speedpad (red) (respawn warning)
+                "15": null,               // Speedpad (blue) (active)
+                "15.1": null,             // Speedpad (blue) (inactive)
+                "15.11": null,            // Speedpad (blue) (respawn warning)
+                "16": otherTiles[19].cloneNode(true),    // Yellow flag
+                "16.1": otherTiles[28].cloneNode(true),             // Yellow flag (taken)
+                "17": otherTiles[63].cloneNode(true),               // Red endzone
+                "18": otherTiles[64].cloneNode(true),               // Blue endzone
+                "23": otherTiles[62].cloneNode(true),               // Yellow teamtile
+                "redball": otherTiles[12].cloneNode(true),          // Red ball
+                "blueball": otherTiles[13].cloneNode(true),         // Blue ball
+                "redflag": null,          // Red flag shown on FC and under score
+                "blueflag": null,         // Blue flag shown on FC and under score
+            };
+
             doRotations(fullWalls);
 
             document.body.appendChild(document.createElement('div'));
             for (const [key, value] of Object.entries(fullWalls)) {
+                if (value == null){
+                    continue;
+                }
+                //console.log(value);
+                document.body.appendChild(value);
+            }
+            for (const [key, value] of Object.entries(nonWalls)) {
                 if (value == null){
                     continue;
                 }
