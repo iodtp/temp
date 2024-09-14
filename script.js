@@ -85,16 +85,33 @@
                 "1.0005": null,
                 "1.50000055": otherTiles[91].cloneNode(true),
                 "1.50000050": otherTiles[74].cloneNode(true),
-                "1.50000005": null,
+                "1.50000005": otherTiles[67].cloneNode(true),
                 "1.05005005": otherTiles[120].cloneNode(true),
                 "1.05005000": otherTiles[98].cloneNode(true),
                 "1.05000005": otherTiles[101].cloneNode(true),
-                "1.00505500": null,
+                "1.00505500": otherTiles[91].cloneNode(true),
                 "1.00505000": otherTiles[138].cloneNode(true),
                 "1.00500500": otherTiles[131].cloneNode(true),
                 "1.00050550": otherTiles[117].cloneNode(true),
                 "1.00050500": otherTiles[107].cloneNode(true),
-                "1.00050050": otherTiles[104].cloneNode(true)
+                "1.00050050": otherTiles[104].cloneNode(true),
+                "1.0000": null,          // None
+                "1.00005555": null,      // 4 corners
+                "1.00005550": otherTiles[71].cloneNode(true),      // All but bottom left
+                "1.00005505": otherTiles[71].cloneNode(true),      // All but bottom right
+                "1.00005055": otherTiles[70].cloneNode(true),      // All but top right
+                "1.00000555": otherTiles[71].cloneNode(true),      // All but top left
+                "1.00005500": otherTiles[118].cloneNode(true),      // Top 2
+                "1.00005005": otherTiles[118].cloneNode(true),      // Left 2
+                "1.00000550": otherTiles[119].cloneNode(true),      // Right 2
+                "1.00000055": otherTiles[118].cloneNode(true),      // Both bot
+                "1.00005050": otherTiles[123].cloneNode(true),      // Top left bot right
+                "1.00000505": otherTiles[114].cloneNode(true),      // Top right bot left
+                "1.00005000": null,      // Top left
+                "1.00000500": null,      // Top Right
+                "1.00000050": null,      // Bot Right
+                "1.00000005": null       // Bot left
+
             };
             doRotations(fullWalls);
 
@@ -107,7 +124,6 @@
                 document.body.appendChild(value);
             }
             make1SidedWall(otherTiles[138].cloneNode(true)).then((imgsrc) => {
-                console.log(imgsrc);
                 const img = new Image();
                 img.src = imgsrc;
                 img.style.padding = '5px';
@@ -123,6 +139,28 @@
                 document.body.appendChild(fullWalls['1.0050']);
                 document.body.appendChild(fullWalls['1.0005']);
             });
+            make0SidedWalls(otherTiles[123].cloneNode(true)).then((imgsrcs) => {
+                const img = new Image();
+                img.src = imgsrcs[0];
+                img.style.padding = '5px';
+                fullWalls['1.00000050'] = img;
+                fullWalls['1.00000005'] = img.cloneNode(true);
+                fullWalls['1.00005000'] = img.cloneNode(true);
+                fullWalls['1.00000500'] = img.cloneNode(true);
+                fullWalls['1.00000005'].style.transform = 'rotate(' + 90 + 'deg)';
+                fullWalls['1.00005000'].style.transform = 'rotate(' + 180 + 'deg)';
+                fullWalls['1.00000500'].style.transform = 'rotate(' + 270 + 'deg)';
+                document.body.appendChild(fullWalls['1.00005000']);
+                document.body.appendChild(fullWalls['1.00000500']);
+                document.body.appendChild(fullWalls['1.00000050']);
+                document.body.appendChild(fullWalls['1.00000005']);
+                const img2 = new Image();
+                img2.src = imgsrcs[1];
+                img2.style.padding = '5px';
+                fullWalls['1.0000'] = img2;
+                document.body.appendChild(img2);
+                console.log(imgsrcs);
+            });
         });
     }).catch(error => {
         console.error('Error loading texture:', error);
@@ -136,7 +174,81 @@ function doRotations(fullWalls){
     fullWalls['1.0055'].style.transform = 'rotate(' + 180 + 'deg)';
     fullWalls['1.50050050'].style.transform = 'rotate(' + 90 + 'deg)';
     fullWalls['1.55000005'].style.transform = 'rotate(' + 180 + 'deg)';
+    fullWalls['1.00505500'].style.transform = 'rotate(' + 180 + 'deg)';
+    fullWalls["1.00005550"].style.transform = 'rotate(' + 270 + 'deg)';
+    fullWalls["1.00005505"].style.transform = 'rotate(' + 180 + 'deg)';
+    fullWalls['1.00005500'].style.transform = 'rotate(' + 90 + 'deg)';
+    fullWalls['1.00000055'].style.transform = 'rotate(' + 270 + 'deg)';
+}
+function make0SidedWalls(img, squareSize = 40){
+   return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvas2 = document.createElement('canvas');
+        const ctx2 = canvas2.getContext('2d');
+        const canvas3 = document.createElement('canvas');
+        const ctx3 = canvas3.getContext('2d');
 
+
+        img.onload = () => {
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+
+            canvas2.width = squareSize;
+            canvas2.height = squareSize;
+            ctx2.drawImage(img, 0, 0);
+
+            canvas3.width = squareSize;
+            canvas3.height = squareSize;
+            ctx3.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+
+            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
+            const data2 = imageData2.data;
+
+            const imageData3 = ctx3.getImageData(0, 0, squareSize, squareSize);
+            const data3 = imageData3.data; //blank
+
+            for (let i = squareSize/2; i < squareSize; i ++) {
+                for (let j = 0; j < squareSize/2; j++) {
+                    data2[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
+                    data2[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
+                    data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+2];
+                    data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
+                    data3[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
+                    data3[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
+                    data3[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+2];
+                    data3[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
+                }
+            }
+            for (let i = squareSize/2; i < squareSize; i ++) {
+                for (let j = squareSize/2; j < squareSize; j++) {
+                    data3[(i+squareSize*j)*4] = data[(i-squareSize/2+squareSize*j)*4];
+                    data3[(i+squareSize*j)*4+1] = data[(i-squareSize/2+squareSize*j)*4+1];
+                    data3[(i+squareSize*j)*4+3] = data[(i-squareSize/2+squareSize*j)*4+2];
+                    data3[(i+squareSize*j)*4+3] = data[(i-squareSize/2+squareSize*j)*4+3];
+                }
+            }
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+            ctx2.putImageData(imageData2, 0, 0);
+            ctx3.putImageData(imageData3, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            const modifiedDataURL2 = canvas2.toDataURL();
+            const modifiedDataURL3 = canvas3.toDataURL();
+            resolve([modifiedDataURL2, modifiedDataURL3]);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
 }
 
 function make1SidedWall(img, squareSize = 40){
