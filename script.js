@@ -79,9 +79,9 @@
                 "1.50050050": otherTiles[136].cloneNode(true),
                 "1.05505000": otherTiles[133].cloneNode(true),
                 "1.00550500": otherTiles[136].cloneNode(true),
-                "1.5000": null,
-                "1.0500": null,
-                "1.0050": null,
+                //"1.5000": null,
+                //"1.0500": null,
+                //"1.0050": null,
                 "1.0005": null,
                 "1.50000055": otherTiles[91].cloneNode(true),
                 "1.50000050": otherTiles[74].cloneNode(true),
@@ -95,8 +95,8 @@
                 "1.00050550": otherTiles[117].cloneNode(true),
                 "1.00050500": otherTiles[107].cloneNode(true),
                 "1.00050050": otherTiles[104].cloneNode(true),
-                "1.0000": null,          // None
-                "1.00005555": null,      // 4 corners
+                //"1.0000": null,          // None
+                //"1.00005555": null,      // 4 corners
                 "1.00005550": otherTiles[71].cloneNode(true),      // All but bottom left
                 "1.00005505": otherTiles[71].cloneNode(true),      // All but bottom right
                 "1.00005055": otherTiles[70].cloneNode(true),      // All but top right
@@ -107,10 +107,10 @@
                 "1.00000055": otherTiles[118].cloneNode(true),      // Both bot
                 "1.00005050": otherTiles[123].cloneNode(true),      // Top left bot right
                 "1.00000505": otherTiles[114].cloneNode(true),      // Top right bot left
-                "1.00005000": null,      // Top left
-                "1.00000500": null,      // Top Right
-                "1.00000050": null,      // Bot Right
-                "1.00000005": null       // Bot left
+                //"1.00005000": null,      // Top left
+                //"1.00000500": null,      // Top Right
+                //"1.00000050": null,      // Bot Right
+                //"1.00000005": null       // Bot left
 
             };
             doRotations(fullWalls);
@@ -159,7 +159,11 @@
                 img2.style.padding = '5px';
                 fullWalls['1.0000'] = img2;
                 document.body.appendChild(img2);
-                console.log(imgsrcs);
+                const img3 = new Image();
+                img3.src = imgsrcs[2];
+                img3.style.padding = '5px';
+                fullWalls['1.00005555'] = img3;
+                document.body.appendChild(img3);
             });
         });
     }).catch(error => {
@@ -188,6 +192,8 @@ function make0SidedWalls(img, squareSize = 40){
         const ctx2 = canvas2.getContext('2d');
         const canvas3 = document.createElement('canvas');
         const ctx3 = canvas3.getContext('2d');
+        const canvas4 = document.createElement('canvas');
+        const ctx4 = canvas4.getContext('2d');
 
 
         img.onload = () => {
@@ -202,6 +208,10 @@ function make0SidedWalls(img, squareSize = 40){
             canvas3.width = squareSize;
             canvas3.height = squareSize;
             ctx3.drawImage(img, 0, 0);
+
+            canvas4.width = squareSize;
+            canvas4.height = squareSize;
+            ctx4.drawImage(img, 0, 0);
             // Access pixel data
             const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
             const data = imageData.data;
@@ -211,6 +221,8 @@ function make0SidedWalls(img, squareSize = 40){
 
             const imageData3 = ctx3.getImageData(0, 0, squareSize, squareSize);
             const data3 = imageData3.data; //blank
+            const imageData4 = ctx4.getImageData(0, 0, squareSize, squareSize);
+            const data4 = imageData4.data; //4 corners
 
             for (let i = squareSize/2; i < squareSize; i ++) {
                 for (let j = 0; j < squareSize/2; j++) {
@@ -233,16 +245,35 @@ function make0SidedWalls(img, squareSize = 40){
                 }
             }
 
+            for (let i = squareSize/2; i < squareSize; i ++) {
+                for(let j = 0; j < squareSize/2; j++){
+                    data4[(i+squareSize*j)*4] = data[(squareSize-i+squareSize*j-1)*4];
+                    data4[(i+squareSize*j)*4+1] = data[(squareSize-i+squareSize*j-1)*4+1];
+                    data4[(i+squareSize*j)*4+3] = data[(squareSize-i+squareSize*j-1)*4+2];
+                    data4[(i+squareSize*j)*4+3] = data[(squareSize-i+squareSize*j-1)*4+3];
+                }
+            }
+            for (let i = squareSize/2; i < squareSize; i++) {
+                for(let j = squareSize/2; j < squareSize ; j++){
+                    data4[(squareSize-i+squareSize*j-1)*4] = data[(i+squareSize*j)*4];
+                    data4[(squareSize-i+squareSize*j-1)*4+1] = data[(i+squareSize*j)*4+1];
+                    data4[(squareSize-i+squareSize*j-1)*4+3] = data[(i+squareSize*j)*4+2];
+                    data4[(squareSize-i+squareSize*j-1)*4+3] = data[(i+squareSize*j)*4+3];
+                }
+            }
+
             // Put the modified data back on the canvas
             ctx.putImageData(imageData, 0, 0);
             ctx2.putImageData(imageData2, 0, 0);
             ctx3.putImageData(imageData3, 0, 0);
+            ctx4.putImageData(imageData4, 0, 0);
 
             // Convert the modified canvas back to a data URL
             const modifiedDataURL = canvas.toDataURL();
             const modifiedDataURL2 = canvas2.toDataURL();
             const modifiedDataURL3 = canvas3.toDataURL();
-            resolve([modifiedDataURL2, modifiedDataURL3]);
+            const modifiedDataURL4 = canvas4.toDataURL();
+            resolve([modifiedDataURL2, modifiedDataURL3, modifiedDataURL4]);
         };
 
         img.onerror = () => {
