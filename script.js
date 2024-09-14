@@ -12,30 +12,7 @@
 (function() {
     'use strict';
     allPartsConversion().then(parts => {
-        const diagWalls = parts[0];
-        const fullWalls = parts[1];
-        const nonWalls = parts[2];
-        for (const [key, value] of Object.entries(diagWalls)) {
-            if (value == null){
-                continue;
-            }
-            //console.log(value);
-            document.body.appendChild(value);
-        }
-        for (const [key, value] of Object.entries(fullWalls)) {
-            if (value == null){
-                continue;
-            }
-            //console.log(value);
-            document.body.appendChild(value);
-        }
-        for (const [key, value] of Object.entries(nonWalls)) {
-            if (value == null){
-                continue;
-            }
-            //console.log(value);
-            document.body.appendChild(value);
-        }
+        remakeTiles(parts);
     });
 
 
@@ -103,11 +80,9 @@ function allPartsConversion() {
                     images.forEach(imgsrc => {
                         const img = new Image();
                         img.src = imgsrc[0];
-                        img.style.padding = '5px';
                         walls.push(img);
                         const img2 = new Image();
                         img2.src = imgsrc[1];
-                        img2.style.padding = '5px';
                         walls.push(img2);
                     });
 
@@ -235,7 +210,6 @@ function allPartsConversion() {
                 return make1SidedWall(otherTiles[138].cloneNode(true)).then((imgsrc) => {
                     const img = new Image();
                     img.src = imgsrc;
-                    img.style.padding = '5px';
                     fullWalls['1.0050'] = img;
                     fullWalls['1.0500'] = img.cloneNode(true);
                     fullWalls['1.0005'] = img.cloneNode(true);
@@ -254,7 +228,6 @@ function allPartsConversion() {
                 return make4SidedWall(otherTiles[92].cloneNode(true)).then((imgsrc) => {
                     const img = new Image();
                     img.src = imgsrc;
-                    img.style.padding = '5px';
                     fullWalls['1.5555'] = img;
                 });
             }),
@@ -267,7 +240,6 @@ function allPartsConversion() {
                 return make0SidedWalls(otherTiles[123].cloneNode(true)).then((imgsrcs) => {
                     const img = new Image();
                     img.src = imgsrcs[0];
-                    img.style.padding = '5px';
                     fullWalls['1.00000050'] = img;
                     fullWalls['1.00000005'] = img.cloneNode(true);
                     fullWalls['1.00005000'] = img.cloneNode(true);
@@ -277,11 +249,9 @@ function allPartsConversion() {
                     fullWalls['1.00000500'].style.transform = 'rotate(' + 270 + 'deg)';
                     const img2 = new Image();
                     img2.src = imgsrcs[1];
-                    img2.style.padding = '5px';
                     fullWalls['1.0000'] = img2;
                     const img3 = new Image();
                     img3.src = imgsrcs[2];
-                    img3.style.padding = '5px';
                     fullWalls['1.00005555'] = img3;
                 })
             })
@@ -649,7 +619,6 @@ function texture(imgPath){
                     const dataURL = newCanvas.toDataURL();
                     const img = new Image();
                     img.src = dataURL;
-                    img.style.padding = '5px';
                     squares.push(img);
                 }
             }
@@ -663,58 +632,44 @@ function texture(imgPath){
     });
 }
 
-function remakeTiles(tiles){//probably turn this into a promise too
-    return new Promise((resolve, reject) => {
+function remakeTiles(parts){//probably turn this into a promise too
+    const diagWalls = parts[0];
+    const fullWalls = parts[1];
+    const nonWalls = parts[2];
 
-        //const walls = [0,1,2,5,41,25];
-        const walls = [41];
-        //const gates = [3,16,39,24];
-        //const backgroundTiles = [6,17,28,30,21,31];
-        console.log(tiles.length);
-        const fullTiles = [3,16,39,24,17,28,30,21,31, 0, 8,20,40,42,7,13,23,10,12,14,27,26,38,34,36,19, 43, 9];
-        const balls = [15,18]
-        const bombsBoosts30px = [8,20,40,42,7,13,23,10,12,14,26,27,26,38,34];
-        //const allTiles = fullTiles.concat(partialTiles);
-        //const partialTiles = [34];
-        const result = fullTiles.map(num => tiles[num]);
+    const canvas = document.createElement('canvas');
+    canvas.width = 40;
+    canvas.height = 45 * (Object.keys(diagWalls).length+Object.keys(fullWalls).length+Object.keys(nonWalls).length);
 
-        const promises = balls.map(num => makeBallTransparent(tiles[num])).concat(walls.map(num => makeTriangleTransparent(tiles[num])));
-        //.concat(gates.map(num => makeColorTransparent(tiles[num], [[0,1,1]]))).concat(backgroundTiles.map(num => makeColorTransparent(tiles[num], [dummyColor])))
-
-        Promise.all(promises)
-            .then((modifiedDataURLs) => {
-            console.log("test");
-
-            modifiedDataURLs.forEach(modifiedDataURL => {
-
-                const modifiedImage = new Image();
-                modifiedImage.src = modifiedDataURL;
-                //modifiedImage.style.padding = '5px';
-                result.push(modifiedImage);
-
-            });
-            const canvas = document.createElement('canvas');
-            canvas.width = 40;
-            canvas.height = 40 * result.length;
-            const ctx = canvas.getContext('2d');
-            let currenty = 0;
-
-            result.forEach(tile => {
-                ctx.drawImage(tile, 0, currenty, 40, 40);
-                currenty += 40;
-            });
-            //ctx.drawImage(modifiedImage, 0, currenty, 40, 40);
-            currenty += 40;
-            console.log(currenty);
-            document.body.appendChild(canvas);
-
-        })
-            .catch((error) => {
-            console.error("An error occurred:", error);
-        });
-
-        resolve(result); // Resolve the Promise with the squares array
-
-        //img.onerror = reject; // Handle errors (e.g., if the image fails to load)
-    });
+    const ctx = canvas.getContext('2d');
+    let currenty = 0;
+    for (const [key, tile] of Object.entries(diagWalls)) {
+        if (tile == null){
+            console.log(key);
+            continue;
+        }
+        ctx.drawImage(tile, 0, currenty, 40, 40);
+        currenty += 45;
+    }
+    for (const [key, tile] of Object.entries(fullWalls)) {
+        if (tile == null){
+            console.log(key);
+            continue;
+        }
+        ctx.drawImage(tile, 0, currenty, 40, 40);
+        currenty += 45;
+    }
+    for (const [key, tile] of Object.entries(nonWalls)) {
+        if (tile == null){
+            console.log(key);
+            continue;
+        }
+        //console.log(value);
+        ctx.drawImage(tile, 0, currenty, 40, 40);
+        currenty += 45;
+    }
+    //ctx.drawImage(modifiedImage, 0, currenty, 40, 40);
+    currenty += 40;
+    console.log(currenty);
+    document.body.appendChild(canvas);
 }
