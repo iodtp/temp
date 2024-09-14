@@ -11,8 +11,18 @@
 
 (function() {
     'use strict';
-    const imgPath = 'https://tagpro.koalabeast.com/textures/mtbad/tiles.png';
-    texture(imgPath).then(squares => {
+    const tilePath = 'https://tagpro.koalabeast.com/textures/mtbad/tiles.png';
+    const yellowBoost = 'https://tagpro.koalabeast.com/textures/mtbad/speedpad.png';
+    const redBoost = 'https://tagpro.koalabeast.com/textures/mtbad/speedpadred.png';
+    const blueBoost = 'https://tagpro.koalabeast.com/textures/mtbad/speedpadblue.png';
+    const portal = 'https://tagpro.koalabeast.com/textures/mtbad/portal.png';
+    const redPortal = 'https://tagpro.koalabeast.com/textures/mtbad/portalred.png';
+    const bluePortal = 'https://tagpro.koalabeast.com/textures/mtbad/portalblue.png';
+    const splats = 'https://tagpro.koalabeast.com/textures/mtbad/splats.png';
+    let diagWalls = {};
+    let fullWalls = {};
+    let nonWalls = {};
+    texture(tilePath).then(squares => {
         const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
                         squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
         const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
@@ -41,7 +51,7 @@
                 document.body.appendChild(p);
             }
 
-            const diagWalls = {
+            diagWalls = {
                 "1.1555": walls[60].cloneNode(true),
                 "1.2555": walls[0].cloneNode(true),
                 "1.3555": walls[33].cloneNode(true),
@@ -63,7 +73,7 @@
                 "1.3000": otherTiles[134].cloneNode(true),
                 "1.4000": walls[19].cloneNode(true)
             };
-            const fullWalls = {
+            fullWalls = {
                 '1.5555': null, //gotta make this one myself smh
                 '1.5550': otherTiles[92].cloneNode(true),
                 '1.5505': otherTiles[92].cloneNode(true),
@@ -113,7 +123,7 @@
                 //"1.00000005": null       // Bot left
 
             };
-            const nonWalls = {
+            nonWalls = {
                 "0": otherTiles[79].cloneNode(true),                // Empty space
                 "2": otherTiles[46].cloneNode(true),                // Regular floor
                 "3": otherTiles[20].cloneNode(true),        // Red flag
