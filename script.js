@@ -251,6 +251,19 @@ function allPartsConversion() {
                 const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
                                   squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
                 const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return make4SidedWall(otherTiles[92].cloneNode(true)).then((imgsrc) => {
+                    const img = new Image();
+                    img.src = imgsrc;
+                    img.style.padding = '5px';
+                    fullWalls['1.5555'] = img;
+                });
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
                 return make0SidedWalls(otherTiles[123].cloneNode(true)).then((imgsrcs) => {
                     const img = new Image();
                     img.src = imgsrcs[0];
@@ -347,11 +360,11 @@ function make0SidedWalls(img, squareSize = 40){
                 for (let j = 0; j < squareSize/2; j++) {
                     data2[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
                     data2[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
-                    data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+2];
+                    data2[(i-squareSize/2+squareSize*j)*4+2] = data[(i+squareSize*j)*4+2];
                     data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
                     data3[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
                     data3[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
-                    data3[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+2];
+                    data3[(i-squareSize/2+squareSize*j)*4+2] = data[(i+squareSize*j)*4+2];
                     data3[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
                 }
             }
@@ -400,7 +413,6 @@ function make0SidedWalls(img, squareSize = 40){
         };
     });
 }
-
 function make1SidedWall(img, squareSize = 40){
     return new Promise((resolve, reject) => {
         const canvas = document.createElement('canvas');
@@ -428,8 +440,55 @@ function make1SidedWall(img, squareSize = 40){
                 for (let j = 0; j < squareSize/2; j++) {
                     data2[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
                     data2[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
-                    data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+2];
+                    data2[(i-squareSize/2+squareSize*j)*4+2] = data[(i+squareSize*j)*4+2];
                     data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
+                }
+            }
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+            ctx2.putImageData(imageData2, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            const modifiedDataURL2 = canvas2.toDataURL();
+            resolve(modifiedDataURL2);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
+}
+function make4SidedWall(img, squareSize = 40){
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvas2 = document.createElement('canvas');
+        const ctx2 = canvas2.getContext('2d');
+
+
+        img.onload = () => {
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+
+            canvas2.width = squareSize;
+            canvas2.height = squareSize;
+            ctx2.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+
+            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
+            const data2 = imageData2.data;
+
+            for (let i = 0; i < squareSize/2; i ++) {
+                for (let j = 0; j < squareSize; j++) {
+                    data2[(i+squareSize*j)*4] = data[(squareSize-i-1+squareSize*j)*4];
+                    data2[(i+squareSize*j)*4+1] = data[(squareSize-i-1+squareSize*j)*4+1];
+                    data2[(i+squareSize*j)*4+2] = data[(squareSize-i-1+squareSize*j)*4+2];
+                    data2[(i+squareSize*j)*4+3] = data[(squareSize-i-1+squareSize*j)*4+3];
                 }
             }
 
