@@ -96,6 +96,22 @@ The general subtype of walls will be represented as 1., followed by up to 8 0s o
 
 ### No Sides
 * 1.0000
+* 1.00005555 4 corners
+* 1.00005550 All but bottom left
+* 1.00005505 All but bottom right
+* 1.00005055 All but top right
+* 1.00000555 All but top left
+* 1.00005500 Top 2
+* 1.00005050 Top left bot right
+* 1.00005005 Left 2
+* 1.00000550 Right 2
+* 1.00000505 Top right bot left
+* 1.00000055 Both bot
+* 1.00005000 Top left
+* 1.00000500 Top Right
+* 1.00000050 Bot Right
+* 1.00000005 Bot left
+
 
 
 
