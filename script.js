@@ -153,7 +153,7 @@ function allPartsConversion() {
                         //"1.5000": null,
                         //"1.0500": null,
                         //"1.0050": null,
-                        "1.0005": null,
+                        //"1.0005": null,
                         "1.50000055": otherTiles[91].cloneNode(true),
                         "1.50000050": otherTiles[74].cloneNode(true),
                         "1.50000005": otherTiles[67].cloneNode(true),
@@ -195,12 +195,15 @@ function allPartsConversion() {
                     nonWalls["6.1"] = otherTiles[45].cloneNode(true);        // Jukejuice/grip
                     nonWalls["6.11"] = otherTiles[45].cloneNode(true);                                 // Jukejuice/grip (respawn warning)
                     nonWalls["6.12"] = otherTiles[45].cloneNode(true);                                 // Jukejuice/grip (preview)
+                    nonWalls["6.12"].style.opacity = "0.5";
                     nonWalls["6.2"] = otherTiles[61].cloneNode(true);        // Rolling bomb
-                    nonWalls["6.21"] = null;                                 // Rolling bomb (respawn warning)
-                    nonWalls["6.22"] = null;                                 // Rolling bomb (preview)
+                    nonWalls["6.21"] = otherTiles[61].cloneNode(true);                                 // Rolling bomb (respawn warning)
+                    nonWalls["6.22"] = otherTiles[61].cloneNode(true);                                 // Rolling bomb (preview)
+                    nonWalls["6.22"].style.opacity = "0.5";
                     nonWalls["6.3"] = otherTiles[77].cloneNode(true);        // TagPro
-                    nonWalls["6.31"] = null;                                 // TagPro (respawn warning)
-                    nonWalls["6.32"] = null;                                 // TagPro (preview)
+                    nonWalls["6.31"] = otherTiles[77].cloneNode(true);                                 // TagPro (respawn warning)
+                    nonWalls["6.32"] = otherTiles[77].cloneNode(true);                                 // TagPro (preview)
+                    nonWalls["6.32"].style.opacity = "0.5";
                     nonWalls["7"] = otherTiles[10].cloneNode(true);          // Spike
                     nonWalls["8"] = otherTiles[78].cloneNode(true);          // Button
                     nonWalls["9"] = otherTiles[37].cloneNode(true);          // Inactive gate
@@ -209,7 +212,8 @@ function allPartsConversion() {
                     nonWalls["9.3"] = otherTiles[40].cloneNode(true);        // Blue gate
                     nonWalls["10"] = otherTiles[18].cloneNode(true);         // Bomb
                     nonWalls["10.1"] = otherTiles[27].cloneNode(true);       // Inactive bomb
-                    nonWalls["10.11"] = null;                                // Bomb (respawn warning)
+                    nonWalls["10.11"] = otherTiles[18].cloneNode(true);                                // Bomb (respawn warning)
+                    nonWalls["10.11"].style.opacity = "0.5";
                     nonWalls["11"] = otherTiles[47].cloneNode(true);         // Red teamtile
                     nonWalls["12"] = otherTiles[48].cloneNode(true);         // Blue teamtile
                     nonWalls["16"] = otherTiles[19].cloneNode(true);         // Yellow flag
@@ -219,6 +223,7 @@ function allPartsConversion() {
                     nonWalls["23"] = otherTiles[62].cloneNode(true);         // Yellow teamtile
                     nonWalls["redball"] = otherTiles[12].cloneNode(true);    // Red ball
                     nonWalls["blueball"] = otherTiles[13].cloneNode(true);   // Blue ball
+
                 });
             }),
             texture(tilePath).then(squares => {
@@ -272,7 +277,7 @@ function allPartsConversion() {
         // Wait for all texture-related promises to resolve
         Promise.all(texturePromises)
             .then(() => {
-
+            //makeTransparent(nonWalls);
             resolve([diagWalls, fullWalls, nonWalls]);
         })
         // Call resolve after all textures have been processed
@@ -297,9 +302,6 @@ function doRotations(fullWalls){
     fullWalls["1.00005505"].style.transform = 'rotate(' + 180 + 'deg)';
     fullWalls['1.00005500'].style.transform = 'rotate(' + 90 + 'deg)';
     fullWalls['1.00000055'].style.transform = 'rotate(' + 270 + 'deg)';
-}
-function makeTransparent(nonWalls){
-    nonWalls["6.12"].style.opacity = "0.5";
 }
 function make0SidedWalls(img, squareSize = 40){
     return new Promise((resolve, reject) => {
