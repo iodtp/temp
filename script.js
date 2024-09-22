@@ -112,9 +112,9 @@ function allPartsConversion() {
                     fullWalls = {
                         '1.5555': null, //gotta make this one myself smh
                         '1.5550': otherTiles[92].cloneNode(true),
-                        '1.5505': otherTiles[92].cloneNode(true),
+                        '1.5505': null,
                         '1.5055': otherTiles[81].cloneNode(true),
-                        '1.0555': otherTiles[92].cloneNode(true),
+                        '1.0555': null,
                         "1.5500": otherTiles[34].cloneNode(true),
                         "1.5050": otherTiles[132].cloneNode(true),
                         "1.5005": otherTiles[33].cloneNode(true),
@@ -199,8 +199,31 @@ function allPartsConversion() {
                     nonWalls["redball"] = otherTiles[12].cloneNode(true);    // Red ball
                     nonWalls["blueball"] = otherTiles[13].cloneNode(true);   // Blue ball
 
+
+
                 });
             }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate90(otherTiles[92].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.5505'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate90(otherTiles[81].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.0555'] = rotatedImage;
+            }),
+
             texture(tilePath).then(squares => {
                 const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
                                  squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
@@ -648,28 +671,97 @@ function remakeTiles(parts){//probably turn this into a promise too
             console.log(key);
             continue;
         }
-        ctx.drawImage(tile, 0, currenty, 40, 40);
-        currenty += 45;
+
+        //ctx.drawImage(tile, 0, currenty, 40, 40);
+        //currenty += 45;
     }
     for (const [key, tile] of Object.entries(fullWalls)) {
         if (tile == null){
             console.log(key);
             continue;
         }
+
         ctx.drawImage(tile, 0, currenty, 40, 40);
         currenty += 45;
+        //ctx.drawImage(tile, 0, currenty, 40, 40);
     }
     for (const [key, tile] of Object.entries(nonWalls)) {
         if (tile == null){
             console.log(key);
             continue;
         }
-        //console.log(value);
-        ctx.drawImage(tile, 0, currenty, 40, 40);
-        currenty += 45;
+        //ctx.drawImage(tile, 0, currenty, 40, 40);
+        //currenty += 45;
     }
     //ctx.drawImage(modifiedImage, 0, currenty, 40, 40);
     currenty += 40;
-    console.log(currenty);
     document.body.appendChild(canvas);
+}
+function rotate90(img, squareSize=40){
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvas2 = document.createElement('canvas');
+        const ctx2 = canvas2.getContext('2d');
+
+
+        img.onload = () => {
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+
+            canvas2.width = squareSize;
+            canvas2.height = squareSize;
+            ctx2.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+
+            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
+            const data2 = imageData2.data;
+
+            for (let i = 0; i < squareSize; i ++) {
+                for (let j = 0; j < squareSize; j++) {
+                    data2[(i+squareSize*j)*4] = data[(squareSize-j-1+squareSize*i)*4+0];
+                    data2[(i+squareSize*j)*4+1] = data[(squareSize-j-1+squareSize*i)*4+1];
+                    data2[(i+squareSize*j)*4+2] = data[(squareSize-j-1+squareSize*i)*4+2];
+                    data2[(i+squareSize*j)*4+3] = data[(squareSize-j-1+squareSize*i)*4+3];
+                }
+            }
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+            ctx2.putImageData(imageData2, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            const modifiedDataURL2 = canvas2.toDataURL();
+            const img3 = new Image();;
+            img3.src = modifiedDataURL2;
+            resolve(img3);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
+}
+function rotate180(ctx, tile, currenty){
+    ctx.save();
+    ctx.translate(20, currenty + 20);
+    const rotation = 180 * Math.PI / 180;
+    ctx.rotate(rotation);
+    // Draw the image, adjusting for the transformed origin
+    ctx.drawImage(tile, -20, -currenty/40-20, 40, 40);
+    ctx.restore();
+
+}
+function rotate270(ctx, tile, currenty){
+    ctx.save();
+    ctx.translate(20, currenty + 20);
+    const rotation = 270 * Math.PI / 180;
+    ctx.rotate(rotation);
+    // Draw the image, adjusting for the transformed origin
+    ctx.drawImage(tile, currenty/40-20, -20, 40, 40);
+    ctx.restore();
 }
