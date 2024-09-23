@@ -759,7 +759,7 @@ function remakeTiles(parts){//probably turn this into a promise too
 
     const canvas = document.createElement('canvas');
     canvas.width = 40;
-    canvas.height = 45 * (Object.keys(diagWalls).length+Object.keys(fullWalls).length+Object.keys(nonWalls).length);
+    canvas.height = 40 * (Object.keys(diagWalls).length+Object.keys(fullWalls).length+Object.keys(nonWalls).length);
 
     const ctx = canvas.getContext('2d');
     let currenty = 0;
@@ -770,7 +770,7 @@ function remakeTiles(parts){//probably turn this into a promise too
         }
 
         ctx.drawImage(tile, 0, currenty, 40, 40);
-        currenty += 45;
+        currenty += 40;
     }
     for (const [key, tile] of Object.entries(fullWalls)) {
         if (tile == null){
@@ -779,8 +779,7 @@ function remakeTiles(parts){//probably turn this into a promise too
         }
 
         ctx.drawImage(tile, 0, currenty, 40, 40);
-        currenty += 45;
-        ctx.drawImage(tile, 0, currenty, 40, 40);
+        currenty += 40;
     }
     for (const [key, tile] of Object.entries(nonWalls)) {
         if (tile == null){
@@ -788,7 +787,7 @@ function remakeTiles(parts){//probably turn this into a promise too
             continue;
         }
         ctx.drawImage(tile, 0, currenty, 40, 40);
-        currenty += 45;
+        currenty += 40;
     }
     document.body.appendChild(canvas);
 }
