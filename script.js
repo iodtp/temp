@@ -293,16 +293,7 @@ function allPartsConversion() {
             }).then(rotatedImage => {
                 fullWalls['1.00505500'] = rotatedImage;
             }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate180(otherTiles[71].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.00005505'] = rotatedImage;
-            }),
+
 
             texture(tilePath).then(squares => {
                 const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
@@ -313,13 +304,19 @@ function allPartsConversion() {
                 return make1SidedWall(otherTiles[138].cloneNode(true)).then((imgsrc) => {
                     const img = new Image();
                     img.src = imgsrc;
+
+                    // Create promises for each rotation
+                    const rotations = [
+                        rotate270(img.cloneNode(true)).then(rotatedImg270 => fullWalls['1.0500'] = rotatedImg270),
+                        rotate90(img.cloneNode(true)).then(rotatedImg90 => fullWalls['1.0005'] = rotatedImg90),
+                        rotate180(img.cloneNode(true)).then(rotatedImg180 => fullWalls['1.5000'] = rotatedImg180)
+                    ];
+
+                    // Store the unrotated image first
                     fullWalls['1.0050'] = img;
-                    fullWalls['1.0500'] = img.cloneNode(true);
-                    fullWalls['1.0005'] = img.cloneNode(true);
-                    fullWalls['1.5000'] = img.cloneNode(true);
-                    fullWalls['1.0500'].style.transform = 'rotate(' + 270 + 'deg)';
-                    fullWalls['1.0005'].style.transform = 'rotate(' + 90 + 'deg)';
-                    fullWalls['1.5000'].style.transform = 'rotate(' + 180 + 'deg)';
+
+                    // Wait for all rotations to complete
+                    return Promise.all(rotations);
                 });
             }),
             texture(tilePath).then(squares => {
@@ -343,19 +340,29 @@ function allPartsConversion() {
                 return make0SidedWalls(otherTiles[123].cloneNode(true)).then((imgsrcs) => {
                     const img = new Image();
                     img.src = imgsrcs[0];
+
+                    // Create promises for each rotation for the first image
+                    const rotations = [
+                        rotate90(img.cloneNode(true)).then(rotatedImg90 => fullWalls['1.00000005'] = rotatedImg90),
+                        rotate180(img.cloneNode(true)).then(rotatedImg180 => fullWalls['1.00005000'] = rotatedImg180),
+                        rotate270(img.cloneNode(true)).then(rotatedImg270 => fullWalls['1.00000500'] = rotatedImg270)
+                    ];
+
+                    // Store the base image without rotation
                     fullWalls['1.00000050'] = img;
-                    fullWalls['1.00000005'] = img.cloneNode(true);
-                    fullWalls['1.00005000'] = img.cloneNode(true);
-                    fullWalls['1.00000500'] = img.cloneNode(true);
-                    fullWalls['1.00000005'].style.transform = 'rotate(' + 90 + 'deg)';
-                    fullWalls['1.00005000'].style.transform = 'rotate(' + 180 + 'deg)';
-                    fullWalls['1.00000500'].style.transform = 'rotate(' + 270 + 'deg)';
+
+                    // Handle the second image (imgsrcs[1])
                     const img2 = new Image();
                     img2.src = imgsrcs[1];
                     fullWalls['1.0000'] = img2;
+
+                    // Handle the third image (imgsrcs[2])
                     const img3 = new Image();
                     img3.src = imgsrcs[2];
                     fullWalls['1.00005555'] = img3;
+
+                    // Wait for all the rotations to finish before resolving
+                    return Promise.all(rotations);
                 })
             })
         ];
