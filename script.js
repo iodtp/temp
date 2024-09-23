@@ -119,10 +119,10 @@ function allPartsConversion() {
                         "1.5050": otherTiles[132].cloneNode(true),
                         "1.5005": otherTiles[33].cloneNode(true),
                         "1.0550": otherTiles[34].cloneNode(true),
-                        "1.0055": otherTiles[34].cloneNode(true),
+                        "1.0055": null,
                         "1.0505": otherTiles[60].cloneNode(true),
-                        "1.55000005": otherTiles[136].cloneNode(true),
-                        "1.50050050": otherTiles[136].cloneNode(true),
+                        "1.55000005": null,
+                        "1.50050050": null,
                         "1.05505000": otherTiles[133].cloneNode(true),
                         "1.00550500": otherTiles[136].cloneNode(true),
                         //"1.5000": null,
@@ -135,7 +135,7 @@ function allPartsConversion() {
                         "1.05005005": otherTiles[120].cloneNode(true),
                         "1.05005000": otherTiles[98].cloneNode(true),
                         "1.05000005": otherTiles[101].cloneNode(true),
-                        "1.00505500": otherTiles[91].cloneNode(true),
+                        "1.00505500": null,
                         "1.00505000": otherTiles[138].cloneNode(true),
                         "1.00500500": otherTiles[131].cloneNode(true),
                         "1.00050550": otherTiles[117].cloneNode(true),
@@ -143,14 +143,14 @@ function allPartsConversion() {
                         "1.00050050": otherTiles[104].cloneNode(true),
                         //"1.0000": null,          // None
                         //"1.00005555": null,      // 4 corners
-                        "1.00005550": otherTiles[71].cloneNode(true),      // All but bottom left
-                        "1.00005505": otherTiles[71].cloneNode(true),      // All but bottom right
+                        "1.00005550": null,      // All but bottom left
+                        "1.00005505": null,      // All but bottom right
                         "1.00005055": otherTiles[70].cloneNode(true),      // All but top right
                         "1.00000555": otherTiles[71].cloneNode(true),      // All but top left
-                        "1.00005500": otherTiles[118].cloneNode(true),      // Top 2
+                        "1.00005500": null,      // Top 2
                         "1.00005005": otherTiles[118].cloneNode(true),      // Left 2
                         "1.00000550": otherTiles[119].cloneNode(true),      // Right 2
-                        "1.00000055": otherTiles[118].cloneNode(true),      // Both bot
+                        "1.00000055": null,      // Both bot
                         "1.00005050": otherTiles[123].cloneNode(true),      // Top left bot right
                         "1.00000505": otherTiles[114].cloneNode(true),      // Top right bot left
                         //"1.00005000": null,      // Top left
@@ -209,7 +209,7 @@ function allPartsConversion() {
                 const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
                                   squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
                 const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate90(otherTiles[92].cloneNode(true));
+                return rotate270(otherTiles[92].cloneNode(true));
             }).then(rotatedImage => {
                 fullWalls['1.5505'] = rotatedImage;
             }),
@@ -219,9 +219,89 @@ function allPartsConversion() {
                 const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
                                   squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
                 const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate90(otherTiles[81].cloneNode(true));
+                return rotate270(otherTiles[81].cloneNode(true));
             }).then(rotatedImage => {
                 fullWalls['1.0555'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate90(otherTiles[136].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.50050050'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate270(otherTiles[71].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.00005550'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate90(otherTiles[118].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.00005500'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate270(otherTiles[118].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.00000055'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate180(otherTiles[34].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.0055'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate180(otherTiles[136].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.55000005'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate180(otherTiles[91].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.00505500'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate180(otherTiles[71].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.00005505'] = rotatedImage;
             }),
 
             texture(tilePath).then(squares => {
@@ -697,7 +777,7 @@ function remakeTiles(parts){//probably turn this into a promise too
     currenty += 40;
     document.body.appendChild(canvas);
 }
-function rotate90(img, squareSize=40){
+function rotate270(img, squareSize=40){
     return new Promise((resolve, reject) => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -746,22 +826,102 @@ function rotate90(img, squareSize=40){
         };
     });
 }
-function rotate180(ctx, tile, currenty){
-    ctx.save();
-    ctx.translate(20, currenty + 20);
-    const rotation = 180 * Math.PI / 180;
-    ctx.rotate(rotation);
-    // Draw the image, adjusting for the transformed origin
-    ctx.drawImage(tile, -20, -currenty/40-20, 40, 40);
-    ctx.restore();
+function rotate180(img, squareSize = 40) {
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvas2 = document.createElement('canvas');
+        const ctx2 = canvas2.getContext('2d');
 
+        img.onload = () => {
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+
+            canvas2.width = squareSize;
+            canvas2.height = squareSize;
+            ctx2.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+
+            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
+            const data2 = imageData2.data;
+
+            for (let i = 0; i < squareSize; i++) {
+                for (let j = 0; j < squareSize; j++) {
+                    // Update for 180 degree rotation
+                    data2[(i + squareSize * j) * 4] = data[((squareSize - i - 1) + squareSize * (squareSize - j - 1)) * 4 + 0];
+                    data2[(i + squareSize * j) * 4 + 1] = data[((squareSize - i - 1) + squareSize * (squareSize - j - 1)) * 4 + 1];
+                    data2[(i + squareSize * j) * 4 + 2] = data[((squareSize - i - 1) + squareSize * (squareSize - j - 1)) * 4 + 2];
+                    data2[(i + squareSize * j) * 4 + 3] = data[((squareSize - i - 1) + squareSize * (squareSize - j - 1)) * 4 + 3];
+                }
+            }
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+            ctx2.putImageData(imageData2, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            const modifiedDataURL2 = canvas2.toDataURL();
+            const img3 = new Image();
+            img3.src = modifiedDataURL2;
+            resolve(img3);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
 }
-function rotate270(ctx, tile, currenty){
-    ctx.save();
-    ctx.translate(20, currenty + 20);
-    const rotation = 270 * Math.PI / 180;
-    ctx.rotate(rotation);
-    // Draw the image, adjusting for the transformed origin
-    ctx.drawImage(tile, currenty/40-20, -20, 40, 40);
-    ctx.restore();
+
+function rotate90(img, squareSize = 40) {
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvas2 = document.createElement('canvas');
+        const ctx2 = canvas2.getContext('2d');
+
+        img.onload = () => {
+            canvas.width = squareSize;
+            canvas.height = squareSize;
+            ctx.drawImage(img, 0, 0);
+
+            canvas2.width = squareSize;
+            canvas2.height = squareSize;
+            ctx2.drawImage(img, 0, 0);
+            // Access pixel data
+            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
+            const data = imageData.data;
+
+            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
+            const data2 = imageData2.data;
+
+            for (let i = 0; i < squareSize; i++) {
+                for (let j = 0; j < squareSize; j++) {
+                    // Update for 90 degree rotation
+                    data2[(i + squareSize * j) * 4] = data[(j + squareSize * (squareSize - i - 1)) * 4 + 0];
+                    data2[(i + squareSize * j) * 4 + 1] = data[(j + squareSize * (squareSize - i - 1)) * 4 + 1];
+                    data2[(i + squareSize * j) * 4 + 2] = data[(j + squareSize * (squareSize - i - 1)) * 4 + 2];
+                    data2[(i + squareSize * j) * 4 + 3] = data[(j + squareSize * (squareSize - i - 1)) * 4 + 3];
+                }
+            }
+
+            // Put the modified data back on the canvas
+            ctx.putImageData(imageData, 0, 0);
+            ctx2.putImageData(imageData2, 0, 0);
+
+            // Convert the modified canvas back to a data URL
+            const modifiedDataURL = canvas.toDataURL();
+            const modifiedDataURL2 = canvas2.toDataURL();
+            const img3 = new Image();
+            img3.src = modifiedDataURL2;
+            resolve(img3);
+        };
+
+        img.onerror = () => {
+            reject(new Error("Failed to load image."));
+        };
+    });
 }
