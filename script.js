@@ -125,10 +125,10 @@ function allPartsConversion() {
                         "1.50050050": null,
                         "1.05505000": otherTiles[133].cloneNode(true),
                         "1.00550500": otherTiles[136].cloneNode(true),
-                        //"1.5000": null,
-                        //"1.0500": null,
-                        //"1.0050": null,
-                        //"1.0005": null,
+                        "1.5000": null,
+                        "1.0500": null,
+                        "1.0050": null,
+                        "1.0005": null,
                         "1.50000055": otherTiles[91].cloneNode(true),
                         "1.50000050": otherTiles[74].cloneNode(true),
                         "1.50000005": otherTiles[67].cloneNode(true),
@@ -153,10 +153,10 @@ function allPartsConversion() {
                         "1.00000055": null,      // Both bot
                         "1.00005050": otherTiles[123].cloneNode(true),      // Top left bot right
                         "1.00000505": otherTiles[114].cloneNode(true),      // Top right bot left
-                        //"1.00005000": null,      // Top left
-                        //"1.00000500": null,      // Top Right
-                        //"1.00000050": null,      // Bot Right
-                        //"1.00000005": null       // Bot left
+                        "1.00005000": null,      // Top left
+                        "1.00000500": null,      // Top Right
+                        "1.00000050": null,      // Bot Right
+                        "1.00000005": null       // Bot left
 
                     };
 
@@ -262,6 +262,16 @@ function allPartsConversion() {
                 return rotate270(otherTiles[118].cloneNode(true));
             }).then(rotatedImage => {
                 fullWalls['1.00000055'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate270(otherTiles[71].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.00005505'] = rotatedImage;
             }),
             texture(tilePath).then(squares => {
                 const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
@@ -759,8 +769,8 @@ function remakeTiles(parts){//probably turn this into a promise too
             continue;
         }
 
-        //ctx.drawImage(tile, 0, currenty, 40, 40);
-        //currenty += 45;
+        ctx.drawImage(tile, 0, currenty, 40, 40);
+        currenty += 45;
     }
     for (const [key, tile] of Object.entries(fullWalls)) {
         if (tile == null){
@@ -770,18 +780,16 @@ function remakeTiles(parts){//probably turn this into a promise too
 
         ctx.drawImage(tile, 0, currenty, 40, 40);
         currenty += 45;
-        //ctx.drawImage(tile, 0, currenty, 40, 40);
+        ctx.drawImage(tile, 0, currenty, 40, 40);
     }
     for (const [key, tile] of Object.entries(nonWalls)) {
         if (tile == null){
-            console.log(key);
+            //console.log(key);
             continue;
         }
-        //ctx.drawImage(tile, 0, currenty, 40, 40);
-        //currenty += 45;
+        ctx.drawImage(tile, 0, currenty, 40, 40);
+        currenty += 45;
     }
-    //ctx.drawImage(modifiedImage, 0, currenty, 40, 40);
-    currenty += 40;
     document.body.appendChild(canvas);
 }
 function rotate270(img, squareSize=40){
