@@ -98,7 +98,6 @@ function training(tiles){
         for(let j = 0; j < map[i].length; j++){
             const current_tile = map[i][j];
             if(current_tile != '0'){ //blank space
-                console.log(regex11.test('1.1'));
                 const x = i * 40;
                 const y = j *40;
                 mapSprites[i].push(addSpriteToLocation(app, tiles, current_tile, x, y, map, i, j));
@@ -106,23 +105,6 @@ function training(tiles){
                 switch(current_tile) {
                     case '1':
                         createWall(x,y,40,40, world);
-                        break;
-                    case '1.1':
-                        console.log('regex works', current_tile);
-                        vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
-                        createNonSquareWall(x, y, vertices, world);
-                        break;
-                    case '1.2':
-                        vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0)];
-                        createNonSquareWall(x, y, vertices, world);
-                        break;
-                    case '1.3':
-                        vertices = [new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
-                        createNonSquareWall(x, y, vertices, world);
-                        break;
-                    case '1.4':
-                        vertices = [new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1), new Box2D.Common.Math.b2Vec2(0, 1)];
-                        createNonSquareWall(x, y, vertices, world);
                         break;
                     case '5':
                         createBoost(x,y,15,world, '5');
@@ -149,6 +131,21 @@ function training(tiles){
                         if(/(^1[.]1.*$)/.test(current_tile)){
                             vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
                             createNonSquareWall(x, y, vertices, world);
+                        }
+                        else if(/(^1[.]2.*$)/.test(current_tile)){
+                            vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0)];
+                            createNonSquareWall(x, y, vertices, world);
+                        }
+                        else if(/(^1[.]3.*$)/.test(current_tile)){
+                            vertices = [new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
+                            createNonSquareWall(x, y, vertices, world);
+                        }
+                        else if(/(^1[.]4.*$)/.test(current_tile)){
+                            vertices = [new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1), new Box2D.Common.Math.b2Vec2(0, 1)];
+                            createNonSquareWall(x, y, vertices, world);
+                        }
+                        else if(/^1[.](0|5).*$/.test(current_tile)){
+                            createWall(x,y,40,40, world);
                         }
                 }
             }
