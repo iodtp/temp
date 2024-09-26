@@ -26,68 +26,49 @@
             switch(map[i][j]){
                 case '1': //full wall
                     returnVal = '1.';
-                    //top wall
-                    if(j == 0 || !regex.test(map[i][j-1])){
-                        returnVal += '5';
-                    }
-                    else {
-                        returnVal += '0';
-                    }
-                    //right wall
-                    if(i == map.length-1 || !regex.test(map[i+1][j])){
-                        returnVal += '5';
-                    }
-                    else {
-                        returnVal += '0';
-                    }
-                    //bottom wall
-                    if(j == map[i].length-1 || !regex.test(map[i][j+1])){
-                        returnVal += '5';
-                    }
-                    else {
-                        returnVal += '0';
-                    }
-                    //left wall
-                    if(i == 0 || !regex.test(map[i-1][j])){
-                        returnVal += '5';
-                    }
-                    else {
-                        returnVal += '0';
-                    }
-
-
-                    row.push( returnVal);
+                    returnVal += top(map, i, j, regex);
+                    returnVal += right(map, i, j, regex);
+                    returnVal += bottom(map, i, j, regex);
+                    returnVal += left(map, i, j, regex);
+                    row.push(returnVal);
                     break;
                 case '1.1':
-                    /*returnVal = '1.1';
-                    //left
-                    if(i == 0 || !regex.test(map[i-1][j])){
-                        returnVal += '5';
-                    }
-                    else {
-                        returnVal += '0';
-                    }
-                    //bottom wall
-                    if(j == map[i].length-1 || !regex.test(map[i][j+1])){
-                        returnVal += '5';
-                    }
-                    else {
-                        returnVal += '0';
-                    }
+                    returnVal = '1.1';
+                    returnVal += left(map, i, j, regex);
+                    returnVal += bottom(map, i, j, regex);
 
                     //corner
                     returnVal += '0'; //TODO
-                    row.push(returnVal);*/
-                    row.push('1.1000');
+                    row.push(returnVal);
+
                     break;
                 case '1.2':
-                    row.push( '1.2000');
+                    returnVal = '1.2';
+                    returnVal += left(map, i, j, regex);
+                    returnVal += top(map, i, j, regex);
+
+
+                    //corner
+                    returnVal += '5'; //TODO
+                    row.push(returnVal);
                     break;
                 case '1.3':
-                    row.push( '1.3000');
+                    returnVal = '1.3';
+                    returnVal += top(map, i, j, regex);
+                    returnVal += right(map, i, j, regex);
+
+                    //corner
+                    returnVal += '5'; //TODO
+                    row.push(returnVal);
                     break;
                 case '1.4':
-                    row.push( '1.4000');
+                    returnVal = '1.4';
+                    returnVal += right(map, i, j, regex);
+                    returnVal += bottom(map, i, j, regex);
+
+                    //corner
+                    returnVal += '5'; //TODO
+                    row.push(returnVal);
                     break;
                 default:
                     row.push( map[i][j]);
@@ -172,3 +153,40 @@
     }
 
 })();
+
+function top(map, i, j, regex){
+    //top wall
+    if(j == 0 || !regex.test(map[i][j-1])){
+        return '5';
+    }
+    else {
+        return '0';
+    }
+}
+function right(map, i, j , regex){
+    //right wall
+    if(i == map.length-1 || !regex.test(map[i+1][j])){
+        return '5';
+    }
+    else {
+        return '0';
+    }
+}
+function bottom(map, i, j, regex){
+    //bottom wall
+    if(j == map[i].length-1 || !regex.test(map[i][j+1])){
+        return '5';
+    }
+    else {
+        return '0';
+    }
+}
+function left(map, i, j, regex){
+    //left wall
+    if(i == 0 || !regex.test(map[i-1][j])){
+        return '5';
+    }
+    else {
+        return '0';
+    }
+}
