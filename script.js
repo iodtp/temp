@@ -118,7 +118,7 @@ function allPartsConversion() {
                         "1.5500": otherTiles[34].cloneNode(true),
                         "1.5050": otherTiles[132].cloneNode(true),
                         "1.5005": otherTiles[33].cloneNode(true),
-                        "1.0550": otherTiles[34].cloneNode(true),
+                        "1.0550": null,
                         "1.0055": null,
                         "1.0505": otherTiles[60].cloneNode(true),
                         "1.55000005": null,
@@ -141,8 +141,8 @@ function allPartsConversion() {
                         "1.00050550": otherTiles[117].cloneNode(true),
                         "1.00050500": otherTiles[107].cloneNode(true),
                         "1.00050050": otherTiles[104].cloneNode(true),
-                        //"1.0000": null,          // None
-                        //"1.00005555": null,      // 4 corners
+                        "1.0000": null,          // None
+                        "1.00005555": null,      // 4 corners
                         "1.00005550": null,      // All but bottom left
                         "1.00005505": null,      // All but bottom right
                         "1.00005055": otherTiles[70].cloneNode(true),      // All but top right
@@ -282,6 +282,16 @@ function allPartsConversion() {
                 return rotate180(otherTiles[34].cloneNode(true));
             }).then(rotatedImage => {
                 fullWalls['1.0055'] = rotatedImage;
+            }),
+            texture(tilePath).then(squares => {
+                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
+                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
+                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
+                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
+                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
+                return rotate90(otherTiles[34].cloneNode(true));
+            }).then(rotatedImage => {
+                fullWalls['1.0550'] = rotatedImage;
             }),
             texture(tilePath).then(squares => {
                 const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
@@ -783,7 +793,7 @@ function remakeTiles(parts){//probably turn this into a promise too
     }
     for (const [key, tile] of Object.entries(nonWalls)) {
         if (tile == null){
-            //console.log(key);
+            console.log(key);
             continue;
         }
         ctx.drawImage(tile, 0, currenty, 40, 40);
