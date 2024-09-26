@@ -22,7 +22,8 @@
         const row = [];
         for(let j = 0; j < map[i].length; j++){
             let returnVal = "";
-            const corners = ['5','5','5','5'];
+            const corners = ['0','0','0','0'];
+            let cornerBool = false;
             switch(map[i][j]){
                 case '1': //full wall
                     returnVal = '1.';
@@ -30,6 +31,33 @@
                     returnVal += right(map, i, j, regex);
                     returnVal += bottom(map, i, j, regex);
                     returnVal += left(map, i, j, regex);
+                    if(returnVal[2] === '0' && returnVal[5] === '0'){
+                        corners[0] = topLeft(map, i, j, regex);
+                        if(corners[0] === '5'){
+                            cornerBool = true;
+                        }
+                    }
+                    if(returnVal[2] === '0' && returnVal[3] === '0'){
+                        corners[1] = topRight(map, i, j, regex);
+                        if(corners[1] === '5'){
+                            cornerBool = true;
+                        }
+                    }
+                    if(returnVal[3] === '0' && returnVal[4] === '0'){
+                        corners[2] = botRight(map, i, j, regex);
+                        if(corners[2] === '5'){
+                            cornerBool = true;
+                        }
+                    }
+                    if(returnVal[4] === '0' && returnVal[5] === '0'){
+                        corners[3] = botLeft(map, i, j, regex);
+                        if(corners[3] === '5'){
+                            cornerBool = true;
+                        }
+                    }
+                    if(cornerBool){
+                        returnVal += corners[0] + corners[1] + corners[2] + corners[3];
+                    }
                     row.push(returnVal);
                     break;
                 case '1.1':
