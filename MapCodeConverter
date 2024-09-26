@@ -38,7 +38,13 @@
                     returnVal += bottom(map, i, j, regex);
 
                     //corner
-                    returnVal += '0'; //TODO
+                    //there is a corner case(pun intended) with these in that it only matters if its a certain type of wall, but idc right now
+                    if(returnVal[3] === '0' && returnVal[4] === '0'){
+                        returnVal += botLeft(map, i, j, regex);
+                    }
+                    else{
+                        returnVal += '5';
+                    }
                     row.push(returnVal);
 
                     break;
@@ -49,7 +55,12 @@
 
 
                     //corner
-                    returnVal += '5'; //TODO
+                    if(returnVal[3] === '0' && returnVal[4] === '0'){
+                        returnVal += topLeft(map, i, j, regex);
+                    }
+                    else{
+                        returnVal += '5';
+                    }
                     row.push(returnVal);
                     break;
                 case '1.3':
@@ -58,7 +69,12 @@
                     returnVal += right(map, i, j, regex);
 
                     //corner
-                    returnVal += '5'; //TODO
+                    if(returnVal[3] === '0' && returnVal[4] === '0'){
+                        returnVal += topRight(map, i, j, regex);
+                    }
+                    else{
+                        returnVal += '5';
+                    }
                     row.push(returnVal);
                     break;
                 case '1.4':
@@ -67,7 +83,12 @@
                     returnVal += bottom(map, i, j, regex);
 
                     //corner
-                    returnVal += '5'; //TODO
+                    if(returnVal[3] === '0' && returnVal[4] === '0'){
+                        returnVal += botRight(map, i, j, regex);
+                    }
+                    else{
+                        returnVal += '5';
+                    }
                     row.push(returnVal);
                     break;
                 default:
@@ -184,6 +205,38 @@ function bottom(map, i, j, regex){
 function left(map, i, j, regex){
     //left wall
     if(i == 0 || !regex.test(map[i-1][j])){
+        return '5';
+    }
+    else {
+        return '0';
+    }
+}
+function topLeft(map, i, j, regex){
+    if(j == 0 || i== 0 || !regex.test(map[i-1][j-1])){
+        return '5';
+    }
+    else {
+        return '0';
+    }
+}
+function topRight(map, i, j, regex){
+    if(j == 0 || i == map.length-1 || !regex.test(map[i+1][j-1])){
+        return '5';
+    }
+    else {
+        return '0';
+    }
+}
+function botLeft(map, i, j, regex){
+    if(j == map[i].length-1 || i== 0 || !regex.test(map[i-1][j+1])){
+        return '5';
+    }
+    else {
+        return '0';
+    }
+}
+function botRight(map, i, j, regex){
+    if(j == map[i].length-1 || i == map.length-1 || !regex.test(map[i+1][j+1])){
         return '5';
     }
     else {
