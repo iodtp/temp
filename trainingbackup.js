@@ -10,7 +10,9 @@
 
 const TPU = 100;
 const ACCELERATION = 1.5;
-const DRAGCELERATION = 0.6;
+const DRAGCELERATION = 0.5;
+const MAINTENANCEDRAG = 0.6;
+const SUPERDRAG = 0.8;
 const PIXELS_PER_METER = 40;
 const WALL_FRICTION = 0.5;
 const MAX_SPEED = 6.25;
@@ -511,16 +513,29 @@ function applyForceToBall(keys, ball, dt=1/60) {
     let dragForceX = 0;
     let dragForceY = 0;
 
+
     if (velocity.x < 0) {
         dragForceX = -1 * velocity.x * DRAGCELERATION;
         if (velocity.x + dragForceX > 0) {
             dragForceX = -velocity.x;  // Don't overcompensate
         }
+        else if (velocity.x < -6.25 && velocity.x > -6.3){
+            dragForceX = -1 * velocity.x * MAINTENANCEDRAG;
+        }
+        else if (velocity.x < -6.3) {
+            dragForceX = -1 * velocity.x * SUPERDRAG;
+        }
     }
-    if (velocity.x > 0) {
+    else if (velocity.x > 0) {
         dragForceX =  -1  * velocity.x * DRAGCELERATION;
         if (velocity.x + dragForceX < 0) {
             dragForceX = -velocity.x;
+        }
+        else if (velocity.x > 6.25 && velocity.x < 6.3){
+            dragForceX = -1 * velocity.x * MAINTENANCEDRAG;
+        }
+        else if (velocity.x > 6.3) {
+            dragForceX = -1 * velocity.x * SUPERDRAG;
         }
     }
     if (velocity.y < 0) {
@@ -528,11 +543,23 @@ function applyForceToBall(keys, ball, dt=1/60) {
         if (velocity.y + dragForceY > 0) {
             dragForceY = -velocity.y;
         }
+        else if (velocity.y < -6.25 && velocity.y > -6.3){
+            dragForceY = -1 * velocity.y * MAINTENANCEDRAG;
+        }
+        else if (velocity.y < -6.3) {
+            dragForceY = -1 * velocity.y * SUPERDRAG;
+        }
     }
-    if (velocity.y > 0) {
+    else if (velocity.y > 0) {
         dragForceY =  -1 * velocity.y * DRAGCELERATION;
         if (velocity.y + dragForceY < 0) {
             dragForceY = -velocity.y;
+        }
+        else if (velocity.y > 6.25 && velocity.y < 6.3){
+            dragForceY = -1 * velocity.y * MAINTENANCEDRAG;
+        }
+        else if (velocity.x > 6.3) {
+            dragForceY = -1 * velocity.y * SUPERDRAG;
         }
     }
 
