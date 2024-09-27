@@ -598,10 +598,12 @@ function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
             return new PIXI.Sprite(PIXI.Texture.from(tiles['3']));
         case '4.1':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['4']));
-        case '5.1':
-            return new PIXI.Sprite(PIXI.Texture.from(tiles['5']));
-        case '5.11':
-            return new PIXI.Sprite(PIXI.Texture.from(tiles['5']));
+        case '5':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
         case '6.11':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['6.1']));
         case '6.12':
@@ -614,10 +616,52 @@ function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
             return new PIXI.Sprite(PIXI.Texture.from(tiles['6.3']));
         case '6.32':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['6.3']));
+        case '7':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '8':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '10':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
         case '10.11':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['10.1']));
+        case '13':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '13.1':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
         case '13.11':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['13']));
+        case '14':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '15':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
         case '24.1':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['24']));
         case '24.11':
@@ -634,8 +678,13 @@ function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
             return new PIXI.Sprite(PIXI.Texture.from(tiles['15']));
         case '15.11':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['15']));
-        case '16.1':
-            return new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
+        case '16':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+
         default:
             sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
             if(/(^1[.]1.*$)/.test(tileNum)){
