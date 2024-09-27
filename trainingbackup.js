@@ -163,6 +163,19 @@ function training(tiles){
     player.hasFlag = false;
     player.dead = false;
 
+    /*let groundBodyDef = new Box2D.Dynamics.b2BodyDef();
+    let groundBody = world.CreateBody(groundBodyDef);
+
+    let frictionJointDef = new Box2D.Dynamics.Joints.b2FrictionJointDef();
+    frictionJointDef.bodyA = groundBody;  // The ground body
+    frictionJointDef.bodyB = playerCollision; // The dynamic body
+    frictionJointDef.localAnchorA.Set(0, 0); // Ground's anchor (usually 0, 0)
+    frictionJointDef.localAnchorB.Set(0, 0); // Dynamic body's anchor (center)
+    frictionJointDef.maxForce = 0.6; // Adjust to control sliding friction
+    frictionJointDef.maxTorque = 0.6; // Adjust to control rotational friction*/
+
+    //let frictionJoint = world.CreateJoint(frictionJointDef);
+
     const keys = {
         up: false,
         down: false,
@@ -403,15 +416,17 @@ function createBall(x, y, radius, world) {
     bodyDef.position.Set(x / 40, y / 40);
 
     const dynamicBody = world.CreateBody(bodyDef);
+    //dynamicBody.SetAngularDamping(0.5);
 
     const circleShape = new Box2D.Collision.Shapes.b2CircleShape();
     circleShape.SetRadius(radius / 40);
 
     const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
     fixtureDef.shape = circleShape;
-    fixtureDef.density = 1.0;
-    fixtureDef.friction = 0;
+    fixtureDef.density = 1.75;
+    fixtureDef.friction = 0.1;
     fixtureDef.restitution = 0.2;
+
 
     fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
     fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM;
@@ -532,7 +547,7 @@ function applyForceToBall(keys, ball, dt=1/60) {
         ball.GetWorldCenter()
     );
 
-    //console.log(ball.GetLinearVelocity().x);
+    console.log(ball.GetLinearVelocity().x);
 
 }
 
@@ -648,11 +663,9 @@ function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
                 else{
                     sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
                 }
-                //sprite1.x -=2;
                 //weirdness happening with this tile
-                sprite1.width = PIXELS_PER_METER;
-                sprite1.height = PIXELS_PER_METER;
-
+                //sprite1.scale.x = 1.05;
+                //sprite1.x -= 2;
                 container.addChild(sprite2);
                 container.addChild(sprite1);
 
@@ -869,8 +882,8 @@ function texture(){
                 "13.1": squares[94],
                 "14": squares[80],
                 "15": squares[81],
-                "16": squares[94],
-                "16.1": squares[95],
+                "16": squares[82],
+                "16.1": squares[116],
                 "17": squares[83],
                 "18": squares[84],
                 "23": squares[85],
