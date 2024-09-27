@@ -84,7 +84,9 @@ function training(tiles){
         height: HEIGHT, // Height of the canvas
         backgroundColor: 0x000000, // Background color
         resolution: window.devicePixelRatio || 1, // Adjust resolution for HiDPI screens
+        //antialias: false // Disable anti-aliasing for wall gaps
     });
+
 
     const gravity = new Box2D.Common.Math.b2Vec2(0, 0); // No gravity
     const world = new Box2D.Dynamics.b2World(gravity, true); // Allow sleep
@@ -536,8 +538,8 @@ function applyForceToBall(keys, ball, dt=1/60) {
 
 function addSpriteToLocation(app, tiles, tileNum, x, y, map=[], i=0, j=0) {
     const sprite1 = getSpriteFromTileNum(tiles, tileNum, map, i ,j);
-    sprite1.position.x += x; //have to add to position currently because of issues when rotating
-    sprite1.position.y += y; //will probably adjust this to just be functions, only affects diagonal walls
+    sprite1.position.x = x;
+    sprite1.position.y = y;
     app.stage.addChild(sprite1);
     return sprite1;
 }
@@ -547,138 +549,9 @@ function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
     let sprite2;
     let container = new PIXI.Container();
     switch(tileNum) {
-        case '1.1': //botleft
-            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
-            if(i >= map.length-1 || j <= 0 || map[i][j-1] == '0' || map[i+1][j] == '0'){
-                return sprite1;
-            }
-            else if (map[i][j-1] == '17' || map[i+1][j] == '17') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
-            }
-            else if (map[i][j-1] == '18' || map[i+1][j] == '18') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
-            }
-            else if (map[i][j-1] == '11' || map[i+1][j] == '11') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
-            }
-            else if (map[i][j-1] == '12' || map[i+1][j] == '12') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
-            }
-            else if (map[i][j-1] == '23' || map[i+1][j] == '23') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
-            }
-            else{
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
-            }
-
-            container.addChild(sprite2);
-            container.addChild(sprite1);
-            return container;
-        case '1.2': //topleft
-            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
-            if(i >= map.length-1 || j >= map.length-1 || map[i][j+1] == '0' || map[i+1][j] == '0'){
-                sprite1.pivot.set(0.5,0.5);
-                sprite1.rotation = Math.PI / 2;
-                sprite1.position.x += 39; //this is weird...
-                return sprite1;
-            }
-            else if (map[i][j+1] == '17' || map[i+1][j] == '17') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
-            }
-            else if (map[i][j+1] == '18' || map[i+1][j] == '18') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
-            }
-            else if (map[i][j+1] == '11' || map[i+1][j] == '11') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
-            }
-            else if (map[i][j+1] == '12' || map[i+1][j] == '12') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
-            }
-            else if (map[i][j+1] == '23' || map[i+1][j] == '23') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
-            }
-            else{
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
-            }
-
-            container.addChild(sprite2);
-            container.addChild(sprite1);
-            container.pivot.set(0.5,0.5);
-            container.rotation = Math.PI/2;
-            container.pivot.set(0,0);
-            container.position.x += 40;
-            return container;
-        case '1.3': //topright
-            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
-            if(i <= 0 || j >= map.length-1 || map[i][j+1] == '0' || map[i-1][j] == '0'){
-                sprite1.anchor.set(0.5,0.5);
-                sprite1.rotation = Math.PI;
-                sprite1.position.x += 20;
-                sprite1.position.y += 20;
-                return sprite1;
-            }
-            else if (map[i][j+1] == '17' && map[i-1][j] == '17') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
-            }
-            else if (map[i][j+1] == '18' && map[i-1][j] == '18') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
-            }
-            else if (map[i][j+1] == '11' && map[i-1][j] == '11') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
-            }
-            else if (map[i][j+1] == '12' && map[i-1][j] == '12') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
-            }
-            else if (map[i][j+1] == '23' && map[i-1][j] == '23') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
-            }
-            else{
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
-            }
-
-            container.addChild(sprite2);
-            container.addChild(sprite1);
-            container.pivot.set(0.5,0.5);
-            container.rotation = Math.PI;
-            container.pivot.set(0,0);
-            container.position.x += 40;
-            container.position.y += 40;
-            return container;
         case '1.4': //botright
             sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
-            if(i <= 0 || j <= 0 || map[i][j-1] == '0' || map[i-1][j] == '0'){
-                sprite1.anchor.set(0.5,0.5);
-                sprite1.rotation = Math.PI * 1.5;
-                sprite1.position.x += 20;
-                sprite1.position.y += 20;
-                return sprite1;
-            }
-            else if (map[i][j-1] == '17' && map[i-1][j] == '17') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
-            }
-            else if (map[i][j-1] == '18' && map[i-1][j] == '18') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
-            }
-            else if (map[i][j-1] == '11' && map[i-1][j] == '11') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
-            }
-            else if (map[i][j-1] == '12' && map[i-1][j] == '12') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
-            }
-            else if (map[i][j-1] == '23' && map[i-1][j] == '23') {
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
-            }
-            else{
-                sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
-            }
 
-            container.addChild(sprite2);
-            container.addChild(sprite1);
-            container.pivot.set(0.5,0.5);
-            container.rotation = Math.PI * 1.5;
-            container.pivot.set(0,0);
-            container.position.y += 40;
-            return container;
         case '3.1':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['3']));
         case '4.1':
@@ -722,8 +595,129 @@ function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
         case '16.1':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
         default:
-            //console.log(tileNum);
-            return new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            if(/(^1[.]1.*$)/.test(tileNum)){
+                if(i >= map.length-1 || j <= 0 || map[i][j-1] == '0' || map[i+1][j] == '0'){
+                    return sprite1;
+                }
+                else if (map[i][j-1] == '17' || map[i+1][j] == '17') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
+                }
+                else if (map[i][j-1] == '18' || map[i+1][j] == '18') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
+                }
+                else if (map[i][j-1] == '11' || map[i+1][j] == '11') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
+                }
+                else if (map[i][j-1] == '12' || map[i+1][j] == '12') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
+                }
+                else if (map[i][j-1] == '23' || map[i+1][j] == '23') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
+                }
+                else{
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+                }
+
+                container.addChild(sprite2);
+                container.addChild(sprite1);
+                return container;
+            }
+            else if(/(^1[.]2.*$)/.test(tileNum)){
+                //sprite1.position.x -= 2;
+                //sprite1.position.y -=1;
+                if(i >= map.length-1 || j >= map.length-1 || map[i][j+1] == '0' || map[i+1][j] == '0'){
+                    //sprite1.position.x += 39; //this is weird...
+                    return sprite1;
+                }
+                else if (map[i][j+1] == '17' || map[i+1][j] == '17') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
+                }
+                else if (map[i][j+1] == '18' || map[i+1][j] == '18') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
+                }
+                else if (map[i][j+1] == '11' || map[i+1][j] == '11') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
+                }
+                else if (map[i][j+1] == '12' || map[i+1][j] == '12') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
+                }
+                else if (map[i][j+1] == '23' || map[i+1][j] == '23') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
+                }
+                else{
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+                }
+                //sprite1.x -=2;
+                //weirdness happening with this tile
+                sprite1.width = PIXELS_PER_METER;
+                sprite1.height = PIXELS_PER_METER;
+
+                container.addChild(sprite2);
+                container.addChild(sprite1);
+
+                return container;
+            }
+            else if(/(^1[.]3.*$)/.test(tileNum)){
+                if(i <= 0 || j >= map.length-1 || map[i][j+1] == '0' || map[i-1][j] == '0'){
+                    return sprite1;
+                }
+                else if (map[i][j+1] == '17' && map[i-1][j] == '17') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
+                }
+                else if (map[i][j+1] == '18' && map[i-1][j] == '18') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
+                }
+                else if (map[i][j+1] == '11' && map[i-1][j] == '11') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
+                }
+                else if (map[i][j+1] == '12' && map[i-1][j] == '12') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
+                }
+                else if (map[i][j+1] == '23' && map[i-1][j] == '23') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
+                }
+                else{
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+                }
+
+
+
+                container.addChild(sprite2);
+                container.addChild(sprite1);
+                return container;
+            }
+            else if(/(^1[.]4.*$)/.test(tileNum)){
+                if(i <= 0 || j <= 0 || map[i][j-1] == '0' || map[i-1][j] == '0'){
+                    return sprite1;
+                }
+                else if (map[i][j-1] == '17' && map[i-1][j] == '17') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
+                }
+                else if (map[i][j-1] == '18' && map[i-1][j] == '18') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
+                }
+                else if (map[i][j-1] == '11' && map[i-1][j] == '11') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
+                }
+                else if (map[i][j-1] == '12' && map[i-1][j] == '12') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
+                }
+                else if (map[i][j-1] == '23' && map[i-1][j] == '23') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
+                }
+                else{
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+                }
+
+                container.addChild(sprite2);
+                container.addChild(sprite1);
+                return container;
+            }
+            else if(/^1[.](0|5).*$/.test(tileNum)){
+                //1
+            }
+            return sprite1;
     }
 }
 
