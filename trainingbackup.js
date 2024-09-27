@@ -16,7 +16,7 @@ const SUPERDRAG = 0.8;
 const PIXELS_PER_METER = 40;
 const WALL_FRICTION = 0.5;
 const MAX_SPEED = 6.25;
-const BOOST_SPEED = 100;
+const BOOST_SPEED = 0.2;
 
 
 const WIDTH = Math.min(1280, window.innerWidth);
@@ -449,6 +449,7 @@ function createBall(x, y, radius, world) {
 
 function applyExtraForceToBall(ball, dt=1/60) {
     //maybe turn velocity into unit vectors first? Always apply set amount of boost
+    //were just gonna assume boosts for now
 
 
     const body = ball.body; 
@@ -458,18 +459,21 @@ function applyExtraForceToBall(ball, dt=1/60) {
 
     let forceX = 0;
     let forceY = 0;
+    const totalSpeed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+    const magnitudeX = velocity.x / totalSpeed;
+    const magnitudeY = velocity.y / totalSpeed;
 
     if (velocity.x > 0) {
-        forceX += PIXELS_PER_METER * TPU * velocity.x * BOOST_SPEED * dt * dt;
+        forceX += PIXELS_PER_METER * TPU * magnitudeX * BOOST_SPEED;
     }
     else if (velocity.x < 0) {
-        forceX += PIXELS_PER_METER * TPU * velocity.x * BOOST_SPEED * dt * dt;
+        forceX += PIXELS_PER_METER * TPU * magnitudeX * BOOST_SPEED;
     }
     if (velocity.y > 0) {
-        forceY += PIXELS_PER_METER * TPU * velocity.y * BOOST_SPEED * dt * dt;
+        forceY += PIXELS_PER_METER * TPU * magnitudeY * BOOST_SPEED;
     }
     else if (velocity.y < 0) {
-        forceY += PIXELS_PER_METER * TPU * velocity.y * BOOST_SPEED * dt * dt;
+        forceY += PIXELS_PER_METER * TPU * magnitudeY * BOOST_SPEED;
     }
 
 
