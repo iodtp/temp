@@ -574,7 +574,7 @@ function applyForceToBall(keys, ball, dt=1/60) {
         ball.GetWorldCenter()
     );
 
-    console.log(ball.GetLinearVelocity().x);
+    //console.log(ball.GetLinearVelocity().x);
 
 }
 
