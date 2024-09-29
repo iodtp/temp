@@ -162,10 +162,14 @@ function training(tiles){
     }
 
     const playerSprite = addSpriteToLocation(app, tiles, 'redball', 120, 120);
+    const playerFlag = new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
+    playerFlag.visible = false;
     const playerCollision = createBall(120, 120, 19, world);
     const player = {};
     playerSprite.anchor.set(0.5,0.5);
     player.playerSprite = playerSprite;
+    player.playerFlagYellow = playerFlag;
+    player.playerFlag = null;
     player.playerCollision = playerCollision;
     player.hasFlag = false;
     player.flagLoc = null;
@@ -268,6 +272,8 @@ function training(tiles){
                     }
                     player.hasFlag = true;
                     player.flagLoc = pixelsToLoc(data2.x, data2.y);
+                    player.playerFlag = player.playerFlagYellow;
+                    player.playerFlag.visible = true;
                     mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
                     break;
             }
@@ -298,6 +304,8 @@ function training(tiles){
                     }
                     player.hasFlag = true;
                     player.flagLoc = pixelsToLoc(data1.x, data1.y);
+                    player.playerFlag = player.playerFlagYellow;
+                    player.playerFlag.visible = true;
                     mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
                     break;
             }
@@ -318,6 +326,7 @@ function playerDeath(player, mapSprites){
     player.dead = true;
     if(player.hasFlag){
         player.hasFlag = false;
+        player.playerFlag.visible = false;
         mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
     }
 }
@@ -1082,6 +1091,11 @@ function loop(delta, player, world, keys, app) {
         player.playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
         player.playerSprite.y = position.y * 40;
         player.playerSprite.rotation = angle;
+        if(player.hasFlag){
+            player.playerFlag.position.x = position.x * 40;
+            player.playerFlag.position.y = position.y * 40;
+            app.stage.addChild(player.playerFlag);
+        }
 
     }
 
