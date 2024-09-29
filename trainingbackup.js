@@ -26,6 +26,8 @@ const LEADERBOARD_LENGTH = 10;
 const WIDTH = Math.min(1280, window.innerWidth);
 const HEIGHT = Math.min(800, window.innerHeight);
 
+let tilesExtracted = {};
+
 const entityCategory = { //who collides with me?
     EVERYONE : 0x0001,
     RED_TEAM : 0x0002,
@@ -62,7 +64,8 @@ function startTraining() {
                 squares[key] = img;
             }
         }
-        training(squares);
+        tilesExtracted = squares;
+        training(tilesExtracted);
     }).catch(error => {
         console.error('Error loading texture:', error);
     });
@@ -461,15 +464,73 @@ function addSelection(container){
 
     // Optionally handle dropdown changes
     select.addEventListener('change', function() {
-        if(select.value === "Leaderboard"){
-            window.alert(JSON.parse(GM_getValue('leaderboard', '[]')))
+        switch(select.value){
+            case "Leaderboard":
+                leaderboardScreen();
+                break;
+            case "Spike Maze (Easy)":
+                training(tilesExtracted);
+                break;
         }
     });
     return select;
 }
 
 function leaderboardScreen(){
+    document.body.innerHTML = '';
+    const leaderboardData = JSON.parse(GM_getValue('leaderboard', '[]'));
+    createLeaderboard('Spike Maze (Easy)', leaderboardData);
+    const select = addSelection(document.body);
+    select.value = 'Leaderboard';
+}
 
+function createLeaderboard(titleName, leaderboardData){
+    const leaderboardContainer = document.createElement('div');
+    leaderboardContainer.style.width = '300px';
+    leaderboardContainer.style.margin = '5px auto';
+    leaderboardContainer.style.padding = '20px';
+    leaderboardContainer.style.backgroundColor = '#fff';
+    leaderboardContainer.style.borderRadius = '10px';
+    leaderboardContainer.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+
+
+    // Create a title
+    const title = document.createElement('h2');
+    title.textContent = `${titleName}`;
+    title.style.textAlign = 'center';
+    title.style.marginBottom = '20px';
+    title.style.fontSize = '24px';
+    title.style.color = '#333333';
+    leaderboardContainer.appendChild(title);
+
+    // Create a list to hold leaderboard items
+    const leaderboardList = document.createElement('ul');
+    leaderboardList.style.listStyle = 'none';
+    leaderboardList.style.padding = '0';
+    leaderboardContainer.appendChild(leaderboardList);
+
+
+    let cnt = 1;
+
+    leaderboardData.forEach(player => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${cnt}: ${player}`;
+        listItem.style.display = 'flex';
+        listItem.style.justifyContent = 'space-between';
+        listItem.style.padding = '10px';
+        listItem.style.backgroundColor = '#f9f9f9';
+        listItem.style.marginBottom = '10px';
+        listItem.style.borderRadius = '5px';
+        listItem.style.fontSize = '18px';
+        listItem.style.color = '#333333';
+
+        // Alternate background color for odd/even rows
+        listItem.style.backgroundColor = cnt % 2 === 0 ? '#e9e9e9' : '#f9f9f9';
+
+        leaderboardList.appendChild(listItem);
+        cnt++;
+    });
+    document.body.append(leaderboardContainer);
 }
 
 function createWall(x, y, width, height, world) {
