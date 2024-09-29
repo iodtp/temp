@@ -131,6 +131,8 @@ function training(tiles){
                     case '9.3':
                         createGate(x,y,40,40, world, '9.3');
                         break;
+                    case '16':
+                        createFlag(x,y,15, world, '16');
                     default:
                         if(/(^1[.]1.*$)/.test(current_tile)){
                             vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
@@ -153,6 +155,9 @@ function training(tiles){
                         }
                 }
             }
+            else{
+                mapSprites[i].push(null);
+            }
         }
     }
 
@@ -163,6 +168,7 @@ function training(tiles){
     player.playerSprite = playerSprite;
     player.playerCollision = playerCollision;
     player.hasFlag = false;
+    player.flagLoc = null;
     player.dead = false;
 
     /*let groundBodyDef = new Box2D.Dynamics.b2BodyDef();
@@ -232,8 +238,10 @@ function training(tiles){
 
 
         // Check if both of the fixtures are
-        let type1 = fixtureA.GetBody().GetUserData().type;
-        let type2 = fixtureB.GetBody().GetUserData().type;
+        let data1 = fixtureA.GetBody().GetUserData();
+        let data2 = fixtureB.GetBody().GetUserData();
+        let type1 = data1.type;
+        let type2 = data2.type;
         if(type1 === 'redball') {
             //console.log('2', type2);
             switch(type2){
@@ -247,12 +255,21 @@ function training(tiles){
                     break;
                 case '7':
                     player.dead = true;
+                    player.hasFlag = false;
                     break;
                 case '9.1':
                     player.dead = true;
+                    player.hasFlag = false;
                     break;
                 case '9.3':
                     player.dead = true;
+                    player.hasFlag = false;
+                    break;
+                case '16':
+                    player.hasFlag = true;
+                    console.log("FLAG");
+                    console.log(mapSprites[pixelsToLoc(data2.x, data2.y)[0]][pixelsToLoc(data2.x, data2.y)[1]]);
+                    mapSprites[pixelsToLoc(data2.x, data2.y)[0]][pixelsToLoc(data2.x, data2.y)[1]].visible = false;
                     break;
             }
         }
@@ -269,12 +286,21 @@ function training(tiles){
                     break;
                 case '7':
                     player.dead = true;
+                    player.hasFlag = false;
                     break;
                 case '9.1':
                     player.dead = true;
+                    player.hasFlag = false;
                     break;
                 case '9.3':
                     player.dead = true;
+                    player.hasFlag = false;
+                    break;
+                case '16':
+                    player.hasFlag = true;
+                    console.log("FLAG");
+                    console.log(mapSprites[pixelsToLoc(data1.x, data1.y)[0]][pixelsToLoc(data1.x, data1.y)[1]]);
+                    mapSprites[pixelsToLoc(data1.x, data1.y)[0]][pixelsToLoc(data1.x, data1.y)[1]].visible = false;
                     break;
             }
         }
@@ -284,6 +310,10 @@ function training(tiles){
     world.SetContactListener(listener);
 
     app.ticker.add(delta => loop(delta, player, world, keys, app));
+}
+
+function pixelsToLoc(x,y){
+    return [x/40, y/40];
 }
 
 function createWall(x, y, width, height, world) {
@@ -410,6 +440,31 @@ function createBoost(x, y, radius, world, type) {
     wallBody.CreateFixture(fixtureDef);
 
     wallBody.SetUserData({type: type});
+}
+
+function createFlag(x, y, radius, world, type) {
+    const bodyDef = new Box2D.Dynamics.b2BodyDef();
+    bodyDef.position.Set((x+20) / 40, (y+20) / 40);
+    bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(bodyDef);
+
+    const circleShape = new Box2D.Collision.Shapes.b2CircleShape();
+    circleShape.SetRadius(radius / 40);
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = circleShape;
+
+    //yellow flag
+    fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: type, x: x, y: y});
+
+    return wallBody;
 }
 
 function createBall(x, y, radius, world) {
@@ -586,6 +641,12 @@ function addSpriteToLocation(app, tiles, tileNum, x, y, map=[], i=0, j=0) {
     const sprite1 = getSpriteFromTileNum(tiles, tileNum, map, i ,j);
     sprite1.position.x = x;
     sprite1.position.y = y;
+    if(tileNum === '16'){
+        const sprite2 = getSpriteFromTileNum(tiles, '16.1', map, i ,j);
+        sprite2.position.x = x;
+        sprite2.position.y = y;
+        app.stage.addChild(sprite2);
+    }
     app.stage.addChild(sprite1);
     return sprite1;
 }
@@ -683,6 +744,12 @@ function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
         case '15.11':
             return new PIXI.Sprite(PIXI.Texture.from(tiles['15']));
         case '16':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '16.1':
             sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
             sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
             container.addChild(sprite2);
