@@ -1092,8 +1092,8 @@ function loop(delta, player, world, keys, app) {
         player.playerSprite.y = position.y * 40;
         player.playerSprite.rotation = angle;
         if(player.hasFlag){
-            player.playerFlag.position.x = position.x * 40;
-            player.playerFlag.position.y = position.y * 40;
+            player.playerFlag.position.x = position.x * 40 - 5;
+            player.playerFlag.position.y = position.y * 40 - 45;
             app.stage.addChild(player.playerFlag);
         }
 
