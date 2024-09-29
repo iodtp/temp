@@ -254,22 +254,21 @@ function training(tiles){
                     //console.log('boost');
                     break;
                 case '7':
-                    player.dead = true;
-                    player.hasFlag = false;
+                    playerDeath(player, mapSprites);
                     break;
                 case '9.1':
-                    player.dead = true;
-                    player.hasFlag = false;
+                    playerDeath(player, mapSprites);
                     break;
                 case '9.3':
-                    player.dead = true;
-                    player.hasFlag = false;
+                    playerDeath(player, mapSprites);
                     break;
                 case '16':
+                    if(player.hasFlag){
+                        break;
+                    }
                     player.hasFlag = true;
-                    console.log("FLAG");
-                    console.log(mapSprites[pixelsToLoc(data2.x, data2.y)[0]][pixelsToLoc(data2.x, data2.y)[1]]);
-                    mapSprites[pixelsToLoc(data2.x, data2.y)[0]][pixelsToLoc(data2.x, data2.y)[1]].visible = false;
+                    player.flagLoc = pixelsToLoc(data2.x, data2.y);
+                    mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
                     break;
             }
         }
@@ -285,22 +284,21 @@ function training(tiles){
                     //console.log('boost');
                     break;
                 case '7':
-                    player.dead = true;
-                    player.hasFlag = false;
+                    playerDeath(player, mapSprites);
                     break;
                 case '9.1':
-                    player.dead = true;
-                    player.hasFlag = false;
+                    playerDeath(player, mapSprites);
                     break;
                 case '9.3':
-                    player.dead = true;
-                    player.hasFlag = false;
+                    playerDeath(player, mapSprites);
                     break;
                 case '16':
+                    if(player.hasFlag){
+                        break;
+                    }
                     player.hasFlag = true;
-                    console.log("FLAG");
-                    console.log(mapSprites[pixelsToLoc(data1.x, data1.y)[0]][pixelsToLoc(data1.x, data1.y)[1]]);
-                    mapSprites[pixelsToLoc(data1.x, data1.y)[0]][pixelsToLoc(data1.x, data1.y)[1]].visible = false;
+                    player.flagLoc = pixelsToLoc(data1.x, data1.y);
+                    mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
                     break;
             }
         }
@@ -314,6 +312,14 @@ function training(tiles){
 
 function pixelsToLoc(x,y){
     return [x/40, y/40];
+}
+
+function playerDeath(player, mapSprites){
+    player.dead = true;
+    if(player.hasFlag){
+        player.hasFlag = false;
+        mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
+    }
 }
 
 function createWall(x, y, width, height, world) {
