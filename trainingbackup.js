@@ -6,6 +6,8 @@
 // @match        https://tagpro.koalabeast.com/playersearch
 // @require      https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.2/pixi.min.js
 // @require      https://raw.githubusercontent.com/hecht-software/box2dweb/master/Box2d.min.js
+// @grant       GM_getValue
+// @grant       GM_setValue
 // ==/UserScript==
 
 const TPU = 100;
@@ -17,6 +19,8 @@ const PIXELS_PER_METER = 40;
 const WALL_FRICTION = 0.5;
 const MAX_SPEED = 6.25;
 const BOOST_SPEED = 0.2;
+
+const LEADERBOARD_LENGTH = 10;
 
 
 const WIDTH = Math.min(1280, window.innerWidth);
@@ -87,6 +91,7 @@ function training(tiles){
     gameDiv.style.height = Math.min(800, window.innerHeight) + 'px';
     gameDiv.style.marginTop = '1vh';
     document.body.appendChild(gameDiv);
+    const select = addSelection(gameDiv);
 
     const app = new PIXI.Application({
         width: WIDTH, // Width of the canvas
@@ -296,6 +301,17 @@ function training(tiles){
                         mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
                         if(spikeMaze){
                             window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
+                            let leaderboard = JSON.parse(GM_getValue('leaderboard', '[]'));
+                            if(leaderboard.length < LEADERBOARD_LENGTH){
+                                leaderboard.push(Math.round(player.hold * 100) / 100);
+                                leaderboard.sort();
+                            }
+                            else{
+                                leaderboard.push(Math.round(player.hold * 100) / 100);
+                                leaderboard.sort();
+                                leaderboard = leaderboard.slice(0, 10);
+                            }
+                            GM_setValue('leaderboard', JSON.stringify(leaderboard));
                             playerDeath(player, mapSprites, keys);
                         }
                     }
@@ -338,6 +354,17 @@ function training(tiles){
                         mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
                         if(spikeMaze){
                             window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
+                            let leaderboard = JSON.parse(GM_getValue('leaderboard', '[]'));
+                            if(leaderboard.length < LEADERBOARD_LENGTH){
+                                leaderboard.push(Math.round(player.hold * 100) / 100);
+                                leaderboard.sort();
+                            }
+                            else{
+                                leaderboard.push(Math.round(player.hold * 100) / 100);
+                                leaderboard.sort();
+                                leaderboard = leaderboard.slice(0, 10);
+                            }
+                            GM_setValue('leaderboard', JSON.stringify(leaderboard));
                             playerDeath(player, mapSprites, keys);
                         }
                     }
@@ -366,6 +393,83 @@ function playerDeath(player, mapSprites, keys){
     keys.down = false;
     keys.right = false;
     keys.left = false;
+}
+
+function addSelection(container){
+    // Create the "X" button
+    const button = document.createElement('button');
+    button.textContent = '✖';
+    button.style.display = 'flex';
+    button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
+    button.style.width = '50px';
+    button.style.height = '50px';
+    button.style.borderRadius = '50%'; // Makes the element a circle
+    button.style.backgroundColor = '#1a1918';
+    button.style.color = 'white';
+    button.style.fontSize = '24px';
+    button.style.border = 'none';
+    button.style.cursor = 'pointer';
+    button.style.fontFamily = 'Arial, sans-serif';
+    button.style.textAlign = 'center';
+    button.style.lineHeight = '50px'; // Centers text vertically
+    button.style.position = 'absolute';
+    button.style.top = '20px';
+    button.style.left = '15px';
+
+    // Create the dropdown (hidden initially)
+    const select = document.createElement('select');
+    select.style.padding = '10px';
+    select.style.border = '2px solid #007BFF';
+    select.style.borderRadius = '5px';
+    select.style.backgroundColor = '#f0f8ff';
+    select.style.fontSize = '16px';
+    select.style.cursor = 'pointer';
+    select.style.outline = 'none';
+    select.style.width = '200px';
+    select.style.color = '#333';
+    select.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    select.style.display = 'none'; // Hidden by default
+    select.style.position = 'absolute';
+    select.style.top = '30px';
+    select.style.left = '5px';
+
+    // Create and append options
+    const options = ['Spike Maze (Easy)', 'Spike Maze (Medium)', 'Spike Maze (Hard)', 'Leaderboard'];
+    options.forEach(optionText => {
+        const option = document.createElement('option');
+        option.value = optionText;
+        option.textContent = optionText;
+        select.appendChild(option);
+    });
+
+    // Append the button and dropdown to the container
+    container.appendChild(button);
+    container.appendChild(select);
+
+    // Show dropdown on hover over button
+    button.addEventListener('mouseover', function() {
+        button.style.display = 'none';  // Hide the button
+        select.style.display = 'block'; // Show the dropdown
+    });
+
+    // Hide dropdown and show button again when mouse leaves dropdown
+    select.addEventListener('mouseleave', function() {
+        select.style.display = 'none';  // Hide the dropdown
+        button.style.display = 'block'; // Show the button
+    });
+
+    // Optionally handle dropdown changes
+    select.addEventListener('change', function() {
+        if(select.value === "Leaderboard"){
+            window.alert(JSON.parse(GM_getValue('leaderboard', '[]')))
+        }
+    });
+    return select;
+}
+
+function leaderboardScreen(){
+
 }
 
 function createWall(x, y, width, height, world) {
