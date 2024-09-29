@@ -133,6 +133,8 @@ function training(tiles){
                         break;
                     case '16':
                         createFlag(x,y,15, world, '16');
+                    case '17':
+                        createEndzone(x,y,40,40, world, '17');
                     default:
                         if(/(^1[.]1.*$)/.test(current_tile)){
                             vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
@@ -266,7 +268,7 @@ function training(tiles){
                 case '9.3':
                     playerDeath(player, mapSprites);
                     break;
-                case '16':
+                case '16': //nf
                     if(player.hasFlag){
                         break;
                     }
@@ -276,6 +278,13 @@ function training(tiles){
                     player.playerFlag.visible = true;
                     mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
                     break;
+                case '17': //red endzone
+                    if(player.hasFlag){
+                        player.hasFlag = false;
+                        player.playerFlag.visible = false;
+                        mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
+                        window.alert("CAPPPPPP");
+                    }
             }
         }
         else if (type2 === 'redball') {
@@ -308,6 +317,13 @@ function training(tiles){
                     player.playerFlag.visible = true;
                     mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
                     break;
+                case '17': //red endzone
+                    if(player.hasFlag){
+                        player.hasFlag = false;
+                        player.playerFlag.visible = false;
+                        mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
+                        window.alert("CAPPPPPP");
+                    }
             }
         }
     };
@@ -351,6 +367,28 @@ function createWall(x, y, width, height, world) {
     wallBody.CreateFixture(fixtureDef);
 
     wallBody.SetUserData({type: "1"});
+}
+
+function createEndzone(x, y, width, height, world, type) {
+    const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
+    wallBodyDef.position.Set((x + width/2) / 40, (y+height/2) / 40); //have to get center point
+    wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(wallBodyDef);
+
+    const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
+    wallShape.SetAsBox(width / 2 / 40, height / 2 / 40); //40px per meter, starts at center
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = wallShape;
+
+    fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM;
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: type});
+    return wallBody;
 }
 
 function createGate(x, y, width, height, world, type) {
