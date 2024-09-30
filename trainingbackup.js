@@ -94,7 +94,7 @@ function training(tiles, spawn, map, value){
     gameDiv.style.height = Math.min(800, window.innerHeight) + 'px';
     gameDiv.style.marginTop = '1vh';
     document.body.appendChild(gameDiv);
-    const select = addSelection(gameDiv);
+    const select = addSelection(gameDiv, value);
 
     const app = new PIXI.Application({
         width: WIDTH, // Width of the canvas
@@ -306,19 +306,37 @@ function training(tiles, spawn, map, value){
                             window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
                             let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
                             let mazeLeader = leaderboard.spikeMazeEasy;
-                            if (mazeLeader == null){
-                                mazeLeader = [];
-                            }
 
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
                             }
                             else{
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
                                 mazeLeader = mazeLeader.slice(0, 10);
                             }
+                            leaderboard.spikeMazeEasy = mazeLeader;
+                            GM_setValue('leaderboard', JSON.stringify(leaderboard));
+                            playerDeath(player, mapSprites, keys);
+                        }
+                        else if(value === "Spike Maze (Medium)"){
+                            window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let mazeLeader = leaderboard.spikeMazeMed;
+
+                            if(mazeLeader.length < LEADERBOARD_LENGTH){
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            else{
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            leaderboard.spikeMazeMed = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
                             playerDeath(player, mapSprites, keys);
                         }
@@ -365,19 +383,37 @@ function training(tiles, spawn, map, value){
                             window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
                             let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
                             let mazeLeader = leaderboard.spikeMazeEasy;
-                            if (mazeLeader == null){
-                                mazeLeader = [];
-                            }
 
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
                             }
                             else{
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
                                 mazeLeader = mazeLeader.slice(0, 10);
                             }
+                            leaderboard.spikeMazeEasy = mazeLeader;
+                            GM_setValue('leaderboard', JSON.stringify(leaderboard));
+                            playerDeath(player, mapSprites, keys);
+                        }
+                        else if(value === "Spike Maze (Medium)"){
+                            window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let mazeLeader = leaderboard.spikeMazeMed;
+
+                            if(mazeLeader.length < LEADERBOARD_LENGTH){
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            else{
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            leaderboard.spikeMazeMed = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
                             playerDeath(player, mapSprites, keys);
                         }
@@ -410,7 +446,7 @@ function playerDeath(player, mapSprites, keys){
     keys.left = false;
 }
 
-function addSelection(container){
+function addSelection(container, val){
     // Create the "X" button
     const button = document.createElement('button');
     button.textContent = '✖';
@@ -449,6 +485,7 @@ function addSelection(container){
     select.style.top = '30px';
     select.style.left = '5px';
 
+
     const options = ['Spike Maze (Easy)', 'Spike Maze (Medium)', 'Spike Maze (Hard)', 'Leaderboard'];
     options.forEach(optionText => {
         const option = document.createElement('option');
@@ -486,23 +523,30 @@ function addSelection(container){
 
                 training(tilesExtracted, spawn, map, select.value);
                 break;
+            case "Spike Maze (Medium)":
+                spawn = [80, 1000];
+                map = [['7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7'],['7','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','7','7','7','2','2','2','2','2','2','7'],['7','2','2','2','2','7','7','7','7','7','7','7','7','2','2','2','2','2','7','2','2','16','2','2','2','2','2','2','7'],['7','2','2','7','7','2','2','2','2','2','2','7','17','2','2','2','2','2','7','2','7','7','2','2','2','2','2','2','7'],['7','2','7','2','2','2','7','7','7','7','2','7','2','2','2','2','2','2','7','2','7','7','7','7','7','7','7','7','7'],['7','7','2','2','7','7','2','2','2','7','2','7','2','7','2','7','7','7','7','2','7','7','11','11','11','11','7','7','7'],['7','7','2','7','2','2','2','7','2','7','2','7','2','7','7','2','2','2','7','2','7','7','7','7','7','7','7','7','7'],['7','7','2','2','2','7','7','2','2','7','2','7','2','7','7','2','7','2','7','2','2','7','7','7','7','7','7','7','0'],['7','2','7','7','7','2','2','2','7','7','2','2','2','7','7','2','7','2','2','7','2','7','2','2','2','2','7','7','0'],['7','2','2','7','2','2','7','7','7','7','7','7','7','7','7','2','2','7','2','2','2','7','2','7','7','2','7','7','0'],['7','2','2','7','2','7','23','23','23','23','23','7','2','2','2','7','2','7','7','7','7','2','2','7','2','2','7','7','0'],['7','2','7','2','2','7','23','11','11','11','23','7','2','7','2','2','2','7','2','2','2','2','7','2','2','7','7','7','0'],['7','2','7','2','7','7','23','23','23','23','23','7','2','2','7','7','7','2','2','7','7','7','7','2','7','7','7','7','0'],['7','2','7','2','7','7','7','7','7','7','7','7','7','2','2','2','7','2','7','2','2','2','7','2','2','2','7','7','0'],['7','2','7','2','7','2','2','2','7','2','2','2','7','7','7','2','7','2','7','2','7','2','2','7','7','2','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','2','2','7','2','7','2','2','7','2','2','2','2','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','7','7','7','2','7','7','2','2','7','7','7','7','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','2','2','2','2','7','7','7','2','2','2','2','2','7','7','0'],['7','2','7','2','2','2','7','2','2','2','7','2','2','7','7','7','7','7','7','7','7','7','7','7','7','2','7','7','0'],['7','2','7','7','7','7','7','7','7','7','7','7','2','2','2','2','2','2','2','2','2','2','2','2','2','2','7','7','0'],['7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','0']];    document.body.innerHTML = '';
+
+
+                training(tilesExtracted, spawn, map, select.value);
+                break;
         }
     });
+    select.value = val;
     return select;
 }
 
 function leaderboardScreen(){
     document.body.innerHTML = '';
-    const div = document.createElement('div');
-    div.style.display = 'flex';
-    div.style.gap = '20px';
+    const spikeMazeDiv = document.createElement('div');
+    spikeMazeDiv.style.display = 'flex';
+    spikeMazeDiv.style.gap = '20px';
     const leaderboardData = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
-    div.appendChild(createLeaderboard('Spike Maze (Easy)', leaderboardData.spikeMazeEasy));
-    div.appendChild(createLeaderboard('Spike Maze (Medium)', leaderboardData.spikeMazeMed));
-    div.appendChild(createLeaderboard('Spike Maze (Hard)', leaderboardData.spikeMazeHard));
-    document.body.appendChild(div);
-    const select = addSelection(document.body);
-    select.value = 'Leaderboard';
+    spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Easy)', leaderboardData.spikeMazeEasy));
+    spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Medium)', leaderboardData.spikeMazeMed));
+    spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Hard)', leaderboardData.spikeMazeHard));
+    document.body.appendChild(spikeMazeDiv);
+    const select = addSelection(document.body, "Leaderboard");
 }
 
 function createLeaderboard(titleName, leaderboardData){
