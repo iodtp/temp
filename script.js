@@ -187,6 +187,7 @@ function training(tiles, spawn, map, value){
     player.hasFlag = false;
     player.flagLoc = null;
     player.dead = false;
+    player.lost = false; //only set when we hit a spike
     player.hold = 0.0;
     player.tags = 0;
 
@@ -277,6 +278,7 @@ function training(tiles, spawn, map, value){
                     break;
                 case '7':
                     playerDeath(player, mapSprites, keys);
+                    player.lost = true;
                     break;
                 case '9.1':
                     playerDeath(player, mapSprites, keys);
@@ -379,6 +381,7 @@ function training(tiles, spawn, map, value){
                     break;
                 case '7':
                     playerDeath(player, mapSprites, keys);
+                    player.lost = true;
                     break;
                 case '9.1':
                     playerDeath(player, mapSprites, keys);
@@ -504,6 +507,55 @@ function addWinningText(app, holdTime){
     }, "3000");
 }
 
+function gameOver(app, score){
+    const style = new PIXI.TextStyle({
+        fontFamily: 'Arial',         // Font family similar to the image
+        fontSize: 100,               // Large font size to match the "Red Wins!" size
+        fill: 'red',                 // Red text color
+        fontWeight: 'bold',          // Bold font style
+        stroke: 'black',             // Black outline
+        strokeThickness: 8,          // Thickness of the outline
+        align: 'center',             // Center alignment for the text
+    });
+    const text = new PIXI.Text(`Score: ${score}`, style);
+    text.x = (app.screen.width - text.width) / 2;
+    text.y = (app.screen.height - text.height) / 2;
+    app.stage.addChild(text);
+
+    const button = new PIXI.Graphics();
+    button.beginFill(0x3498db); // Button color
+    button.drawRoundedRect(0, 0, 200, 60, 10); // Draw a rounded rectangle
+    button.endFill();
+
+    // Position the button
+    button.x = (app.screen.width - 200) / 2;
+    button.y = (app.screen.height - 20);
+
+    // Create text for the button
+    const buttonText = new PIXI.Text('Play Again', {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0xffffff,
+    });
+    buttonText.x = button.x + 50;
+    buttonText.y = button.y + 15;
+
+    // Add button and text to stage
+    app.stage.addChild(button);
+    app.stage.addChild(buttonText);
+
+    button.interactive = true;
+    button.buttonMode = true;
+
+    // Add a click event listener
+    button.on('pointerdown', playAgain);
+
+}
+
+function playAgain() {
+    console.log("Playing again!");
+
+}
 function pixelsToLoc(x,y){
     return [x/40, y/40];
 }
@@ -692,7 +744,6 @@ function createLeaderboard(titleName, leaderboardData){
 
 
     let cnt = 1;
-    console.log(leaderboardData);
 
     leaderboardData.forEach(player => {
         const listItem = document.createElement('li');
@@ -1488,7 +1539,6 @@ function spikeLoop(delta, player, world, keys, app, spawn) {
                 player.playerSprite.x = spawn[0];
                 player.playerSprite.y = spawn[1];
                 player.playerSprite.rotation = 0;
-                console.log(player.playerCollision.m_xf.position);
                 player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(spawn[0]/40,spawn[1]/40));
                 player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
             }, 3000);
@@ -1536,7 +1586,11 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn) {
     const enemyPos = enemy.playerCollision.GetPosition();
     const enemyAngle = enemy.playerCollision.GetAngle();
 
-    if(player.dead){
+    if(player.lost){
+        player.playerSprite.visible = false;
+        gameOver(app, player.tags);
+    }
+    else if(player.dead){
         if(player.playerSprite.visible){ //we only want to start the countdown once
             player.playerSprite.visible = false;
             setTimeout(() => {
@@ -1545,10 +1599,9 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn) {
                 player.playerSprite.x = spawn[0];
                 player.playerSprite.y = spawn[1];
                 player.playerSprite.rotation = 0;
-                console.log(player.playerCollision.m_xf.position);
                 player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(spawn[0]/40,spawn[1]/40));
                 player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
-            }, 3000);
+            }, 1000);
         }
     }
     else{
@@ -1564,10 +1617,10 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn) {
         if(enemy.dead){
             if(enemy.playerSprite.visible){ //we only want to start the countdown once
                 enemy.playerSprite.visible = false;
+                player.dead = true;
                 setTimeout(() => {
-                    const enemySpawnY = 320 + (Math.random()*2 -1) * 100;
-                    const enemySpawnX = 500 + (Math.random()*2 -1) * 100;
-                    console.log(enemySpawnX);
+                    const enemySpawnY = 420 + (Math.random()*2 -1) * 100;
+                    const enemySpawnX = 500 + (Math.random()*2 -1) * 300;
                     enemy.playerSprite.visible = true;
                     enemy.dead = false;
                     enemy.playerSprite.x = enemySpawnX;
@@ -1577,7 +1630,8 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn) {
                     enemy.playerSprite.rotation = 0;
                     enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
                     enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
-                }, 3000);
+                    player.tags++;
+                }, 1000);
             }
         }
         else{
