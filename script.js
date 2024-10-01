@@ -1565,14 +1565,17 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn) {
             if(enemy.playerSprite.visible){ //we only want to start the countdown once
                 enemy.playerSprite.visible = false;
                 setTimeout(() => {
+                    const enemySpawnY = 320 + (Math.random()*2 -1) * 100;
+                    const enemySpawnX = 500 + (Math.random()*2 -1) * 100;
+                    console.log(enemySpawnX);
                     enemy.playerSprite.visible = true;
                     enemy.dead = false;
-                    enemy.playerSprite.x = spawn[0]+40;
-                    enemy.playerSprite.y = spawn[1]+40;
+                    enemy.playerSprite.x = enemySpawnX;
+                    enemy.playerSprite.y = enemySpawnY;
                     enemy.playerFlag.visible = true;
                     enemy.hasFlag = true;
                     enemy.playerSprite.rotation = 0;
-                    enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(spawn[0]/40+1,spawn[1]/40+1));
+                    enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
                     enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
                 }, 3000);
             }
