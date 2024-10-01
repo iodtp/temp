@@ -1,721 +1,1211 @@
 // ==UserScript==
-// @name         Easy Texture Pack
-// @namespace    http://tampermonkey.net/
-// @version      2024-08-28
-// @description  Convert TP texture packs into easy to use ones
+// @name         TagPro Training Mode
+// @version      1.0
+// @description  TP practice while waiting for games
 // @author       Iodized Salt
 // @match        https://tagpro.koalabeast.com/playersearch
-
-// @grant        none
+// @require      https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.2/pixi.min.js
+// @require      https://raw.githubusercontent.com/hecht-software/box2dweb/master/Box2d.min.js
+// @grant       GM_getValue
+// @grant       GM_setValue
 // ==/UserScript==
+
+const TPU = 100;
+const ACCELERATION = 1.5;
+const DRAGCELERATION = 0.5;
+const MAINTENANCEDRAG = 0.6;
+const SUPERDRAG = 0.7;
+const PIXELS_PER_METER = 40;
+const WALL_FRICTION = 0.5;
+const MAX_SPEED = 6.25;
+const BOOST_SPEED = 0.3;
+
+const LEADERBOARD_LENGTH = 10;
+
+
+const WIDTH = Math.min(1280, window.innerWidth);
+const HEIGHT = Math.min(800, window.innerHeight);
+
+let tilesExtracted = {};
+//let frames = [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":1},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"left":2},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"left":-3},null,{"id":1,"right":4},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":-5},null,null,null,null,null,null,null,{"id":1,"down":6},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"down":-7},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":8,"rx":4.64,"ry":3.69,"lx":1.42,"ly":0.95,"a":-1.12,"ra":-1.5},null,null,null,null,{"id":1,"up":-9},null,null,null,null,null,null,null,null,null,{"id":1,"down":10,"rx":5.02,"ry":3.89,"lx":1.61,"ly":0.78,"a":-0.98,"ra":-1.76},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"down":-11,"rx":5.92,"ry":4.41,"lx":1.23,"ly":-0.25,"a":6.45,"ra":-2.15},null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":12},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":-13},null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":14},null,null,{"id":1,"up":-15},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"down":16},null,null,null,null,null,null,{"id":1,"down":-17},null,null,null,null,null,null,null,null,null,{"id":1,"right":-18,"rx":8.81,"ry":3.37,"lx":-0.31,"ly":-0.77,"a":3.82,"ra":5.01},null,{"id":1,"left":19},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"left":-20},null,null,null,{"id":1,"up":21,"rx":8.43,"ry":2.97,"lx":-0.87,"ly":-0.59,"a":2.83,"ra":6.98},null,{"id":1,"right":22},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"right":-23},null,{"id":1,"up":-24},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
+//let frames = [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":1},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":-2},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
+//let frames = [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"right":1},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"down":2},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"down":-4,"right":-3},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":5},null,null,{"id":1,"left":6},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,{"id":1,"up":-7},{"id":1,"left":-8},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
+const entityCategory = { //who collides with me?
+    EVERYONE : 0x0001,
+    RED_TEAM : 0x0002,
+    BLUE_TEAM : 0x0004,
+    NO_ONE : 0x0008,
+};
 
 (function() {
     'use strict';
-    allPartsConversion().then(parts => {
-        remakeTiles(parts);
-    });
+    const nav = document.getElementById('nav-feedback');
+    if(nav)
+    {
+        const newButton = document.createElement('li');
+        newButton.id = 'training';
+
+        const link = document.createElement('a');
+        link.innerText = 'TRAINING';
+        newButton.appendChild(link);
+        newButton.onclick = startTraining;
+        nav.insertAdjacentElement('afterend',newButton);
+    }
 
 
 })();
 
-function allPartsConversion() {
-    return new Promise((resolve, reject) => {
-        const tilePath = 'https://tagpro.koalabeast.com/textures/mtbad/tiles.png';
-        const yellowBoost = 'https://tagpro.koalabeast.com/textures/mtbad/speedpad.png';
-        const redBoost = 'https://tagpro.koalabeast.com/textures/mtbad/speedpadred.png';
-        const blueBoost = 'https://tagpro.koalabeast.com/textures/mtbad/speedpadblue.png';
-        const portal = 'https://tagpro.koalabeast.com/textures/mtbad/portal.png';
-        const redPortal = 'https://tagpro.koalabeast.com/textures/mtbad/portalred.png';
-        const bluePortal = 'https://tagpro.koalabeast.com/textures/mtbad/portalblue.png';
-        const splats = 'https://tagpro.koalabeast.com/textures/mtbad/splats.png';
+function startTraining() {
 
-        let diagWalls = {};
-        let fullWalls = {};
-        let nonWalls = {};
-
-        // Create an array of promises for each texture
-        const texturePromises = [
-            texture(yellowBoost).then(squares => {
-                nonWalls['5'] = squares[0];
-                nonWalls['5.1'] = squares[4];
-                nonWalls['5.11'] = squares[1];
-            }),
-            texture(redBoost).then(squares => {
-                nonWalls['14'] = squares[0];
-                nonWalls['14.1'] = squares[4];
-                nonWalls['14.11'] = squares[1];
-            }),
-            texture(blueBoost).then(squares => {
-                nonWalls['15'] = squares[0];
-                nonWalls['15.1'] = squares[4];
-                nonWalls['15.11'] = squares[1];
-            }),
-            texture(portal).then(squares => {
-                nonWalls['13'] = squares[0];
-                nonWalls['13.1'] = squares[4];
-                nonWalls['13.11'] = squares[1];
-            }),
-            texture(redPortal).then(squares => {
-                nonWalls['24'] = squares[0];
-                nonWalls['24.1'] = squares[4];
-                nonWalls['24.11'] = squares[1];
-            }),
-            texture(bluePortal).then(squares => {
-                nonWalls['25'] = squares[0];
-                nonWalls['25.1'] = squares[4];
-                nonWalls['25.11'] = squares[1];
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-
-                const promises = botLeft.map(img => separateHalvesBotLeftTopRight(img))
-                .concat(botRight.map(img => separateHalvesBotRightTopLeft(img)));
-
-                return Promise.all(promises).then((images) => {
-                    const walls = [];
-                    images.forEach(imgsrc => {
-                        const img = new Image();
-                        img.src = imgsrc[0];
-                        walls.push(img);
-                        const img2 = new Image();
-                        img2.src = imgsrc[1];
-                        walls.push(img2);
-                    });
-
-
-                    diagWalls = {
-                        "1.1555": walls[60].cloneNode(true),
-                        "1.2555": walls[0].cloneNode(true),
-                        "1.3555": walls[33].cloneNode(true),
-                        "1.4555": walls[25].cloneNode(true),
-                        "1.1055": walls[32].cloneNode(true),
-                        "1.2055": walls[8].cloneNode(true),
-                        "1.3055": walls[59].cloneNode(true),
-                        "1.4055": walls[21].cloneNode(true),
-                        "1.1505": walls[58].cloneNode(true),
-                        "1.2505": walls[2].cloneNode(true),
-                        "1.3505": walls[57].cloneNode(true),
-                        "1.4505": walls[1].cloneNode(true),
-                        "1.1005": walls[56].cloneNode(true),
-                        "1.2005": walls[30].cloneNode(true),
-                        "1.3005": walls[55].cloneNode(true),
-                        "1.4005": walls[3].cloneNode(true),
-                        "1.1000": walls[52].cloneNode(true),
-                        "1.2000": otherTiles[139].cloneNode(true),
-                        "1.3000": otherTiles[134].cloneNode(true),
-                        "1.4000": walls[19].cloneNode(true)
-                    };
-                    fullWalls = {
-                        '1.5555': null, //gotta make this one myself smh
-                        '1.5550': otherTiles[92].cloneNode(true),
-                        '1.5505': null,
-                        '1.5055': otherTiles[81].cloneNode(true),
-                        '1.0555': null,
-                        "1.5500": otherTiles[34].cloneNode(true),
-                        "1.5050": otherTiles[132].cloneNode(true),
-                        "1.5005": otherTiles[33].cloneNode(true),
-                        "1.0550": null,
-                        "1.0055": null,
-                        "1.0505": otherTiles[60].cloneNode(true),
-                        "1.55000005": null,
-                        "1.50050050": null,
-                        "1.05505000": otherTiles[133].cloneNode(true),
-                        "1.00550500": otherTiles[136].cloneNode(true),
-                        "1.5000": null,
-                        "1.0500": null,
-                        "1.0050": null,
-                        "1.0005": null,
-                        "1.50000055": otherTiles[91].cloneNode(true),
-                        "1.50000050": otherTiles[74].cloneNode(true),
-                        "1.50000005": otherTiles[67].cloneNode(true),
-                        "1.05005005": otherTiles[120].cloneNode(true),
-                        "1.05005000": otherTiles[98].cloneNode(true),
-                        "1.05000005": otherTiles[101].cloneNode(true),
-                        "1.00505500": null,
-                        "1.00505000": otherTiles[138].cloneNode(true),
-                        "1.00500500": otherTiles[131].cloneNode(true),
-                        "1.00050550": otherTiles[117].cloneNode(true),
-                        "1.00050500": otherTiles[107].cloneNode(true),
-                        "1.00050050": otherTiles[104].cloneNode(true),
-                        "1.0000": null,          // None
-                        "1.00005555": null,      // 4 corners
-                        "1.00005550": null,      // All but bottom left
-                        "1.00005505": null,      // All but bottom right
-                        "1.00005055": otherTiles[70].cloneNode(true),      // All but top right
-                        "1.00000555": otherTiles[71].cloneNode(true),      // All but top left
-                        "1.00005500": null,      // Top 2
-                        "1.00005005": otherTiles[118].cloneNode(true),      // Left 2
-                        "1.00000550": otherTiles[119].cloneNode(true),      // Right 2
-                        "1.00000055": null,      // Both bot
-                        "1.00005050": otherTiles[123].cloneNode(true),      // Top left bot right
-                        "1.00000505": otherTiles[114].cloneNode(true),      // Top right bot left
-                        "1.00005000": null,      // Top left
-                        "1.00000500": null,      // Top Right
-                        "1.00000050": null,      // Bot Right
-                        "1.00000005": null       // Bot left
-
-                    };
-
-                    nonWalls["0"] = otherTiles[79].cloneNode(true);          // Empty space
-                    nonWalls["2"] = otherTiles[46].cloneNode(true);          // Regular floor
-                    nonWalls["3"] = otherTiles[20].cloneNode(true);          // Red flag
-                    nonWalls["3.1"] = otherTiles[29].cloneNode(true);        // Red flag (taken)
-                    nonWalls["4"] = otherTiles[21].cloneNode(true);          // Blue flag
-                    nonWalls["4.1"] = otherTiles[30].cloneNode(true);        // Blue flag (taken)
-                    nonWalls["6"] = otherTiles[109].cloneNode(true);         // Powerup subgroup
-                    nonWalls["6.1"] = otherTiles[45].cloneNode(true);        // Jukejuice/grip
-                    nonWalls["6.11"] = otherTiles[45].cloneNode(true);                                 // Jukejuice/grip (respawn warning)
-                    nonWalls["6.12"] = otherTiles[45].cloneNode(true);                                 // Jukejuice/grip (preview)
-                    nonWalls["6.12"].style.opacity = "0.5";
-                    nonWalls["6.2"] = otherTiles[61].cloneNode(true);        // Rolling bomb
-                    nonWalls["6.21"] = otherTiles[61].cloneNode(true);                                 // Rolling bomb (respawn warning)
-                    nonWalls["6.22"] = otherTiles[61].cloneNode(true);                                 // Rolling bomb (preview)
-                    nonWalls["6.22"].style.opacity = "0.5";
-                    nonWalls["6.3"] = otherTiles[77].cloneNode(true);        // TagPro
-                    nonWalls["6.31"] = otherTiles[77].cloneNode(true);                                 // TagPro (respawn warning)
-                    nonWalls["6.32"] = otherTiles[77].cloneNode(true);                                 // TagPro (preview)
-                    nonWalls["6.32"].style.opacity = "0.5";
-                    nonWalls["7"] = otherTiles[10].cloneNode(true);          // Spike
-                    nonWalls["8"] = otherTiles[78].cloneNode(true);          // Button
-                    nonWalls["9"] = otherTiles[37].cloneNode(true);          // Inactive gate
-                    nonWalls["9.1"] = otherTiles[38].cloneNode(true);        // Green gate
-                    nonWalls["9.2"] = otherTiles[39].cloneNode(true);        // Red gate
-                    nonWalls["9.3"] = otherTiles[40].cloneNode(true);        // Blue gate
-                    nonWalls["10"] = otherTiles[18].cloneNode(true);         // Bomb
-                    nonWalls["10.1"] = otherTiles[27].cloneNode(true);       // Inactive bomb
-                    nonWalls["10.11"] = otherTiles[18].cloneNode(true);                                // Bomb (respawn warning)
-                    nonWalls["10.11"].style.opacity = "0.5";
-                    nonWalls["11"] = otherTiles[47].cloneNode(true);         // Red teamtile
-                    nonWalls["12"] = otherTiles[48].cloneNode(true);         // Blue teamtile
-                    nonWalls["16"] = otherTiles[19].cloneNode(true);         // Yellow flag
-                    nonWalls["16.1"] = otherTiles[28].cloneNode(true);       // Yellow flag (taken)
-                    nonWalls["17"] = otherTiles[63].cloneNode(true);         // Red endzone
-                    nonWalls["18"] = otherTiles[64].cloneNode(true);         // Blue endzone
-                    nonWalls["23"] = otherTiles[62].cloneNode(true);         // Yellow teamtile
-                    nonWalls["redball"] = otherTiles[12].cloneNode(true);    // Red ball
-                    nonWalls["blueball"] = otherTiles[13].cloneNode(true);   // Blue ball
-
-
-
-                });
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate270(otherTiles[92].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.5505'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate270(otherTiles[81].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.0555'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate90(otherTiles[136].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.50050050'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate270(otherTiles[71].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.00005550'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate90(otherTiles[118].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.00005500'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate270(otherTiles[118].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.00000055'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate270(otherTiles[71].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.00005505'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate180(otherTiles[34].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.0055'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate90(otherTiles[34].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.0550'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate180(otherTiles[136].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.55000005'] = rotatedImage;
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return rotate180(otherTiles[91].cloneNode(true));
-            }).then(rotatedImage => {
-                fullWalls['1.00505500'] = rotatedImage;
-            }),
-
-
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return make1SidedWall(otherTiles[138].cloneNode(true)).then((imgsrc) => {
-                    const img = new Image();
-                    img.src = imgsrc;
-
-                    // Create promises for each rotation
-                    const rotations = [
-                        rotate270(img.cloneNode(true)).then(rotatedImg270 => fullWalls['1.0500'] = rotatedImg270),
-                        rotate90(img.cloneNode(true)).then(rotatedImg90 => fullWalls['1.0005'] = rotatedImg90),
-                        rotate180(img.cloneNode(true)).then(rotatedImg180 => fullWalls['1.5000'] = rotatedImg180)
-                    ];
-
-                    // Store the unrotated image first
-                    fullWalls['1.0050'] = img;
-
-                    // Wait for all rotations to complete
-                    return Promise.all(rotations);
-                });
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return make4SidedWall(otherTiles[92].cloneNode(true)).then((imgsrc) => {
-                    const img = new Image();
-                    img.src = imgsrc;
-                    fullWalls['1.5555'] = img;
-                });
-            }),
-            texture(tilePath).then(squares => {
-                const botLeft = [squares[0], squares[17], squares[18], squares[19], squares[20], squares[33], squares[35], squares[39],
-                                 squares[41], squares[54], squares[57], squares[58], squares[66], squares[67], squares[74], squares[75]];
-                const botRight = [squares[11], squares[23], squares[24], squares[25], squares[26], squares[34], squares[36],
-                                  squares[40], squares[49], squares[50], squares[53], squares[64], squares[65], squares[72],squares[73]];
-                const otherTiles = squares.filter((square) => !botLeft.includes(square) && !botRight.includes(square));
-                return make0SidedWalls(otherTiles[123].cloneNode(true)).then((imgsrcs) => {
-                    const img = new Image();
-                    img.src = imgsrcs[0];
-
-                    // Create promises for each rotation for the first image
-                    const rotations = [
-                        rotate90(img.cloneNode(true)).then(rotatedImg90 => fullWalls['1.00000005'] = rotatedImg90),
-                        rotate180(img.cloneNode(true)).then(rotatedImg180 => fullWalls['1.00005000'] = rotatedImg180),
-                        rotate270(img.cloneNode(true)).then(rotatedImg270 => fullWalls['1.00000500'] = rotatedImg270)
-                    ];
-
-                    // Store the base image without rotation
-                    fullWalls['1.00000050'] = img;
-
-                    // Handle the second image (imgsrcs[1])
-                    const img2 = new Image();
-                    img2.src = imgsrcs[1];
-                    fullWalls['1.0000'] = img2;
-
-                    // Handle the third image (imgsrcs[2])
-                    const img3 = new Image();
-                    img3.src = imgsrcs[2];
-                    fullWalls['1.00005555'] = img3;
-
-                    // Wait for all the rotations to finish before resolving
-                    return Promise.all(rotations);
-                })
-            })
-        ];
-
-        // Wait for all texture-related promises to resolve
-        Promise.all(texturePromises)
-            .then(() => {
-            //makeTransparent(nonWalls);
-            resolve([diagWalls, fullWalls, nonWalls]);
-        })
-        // Call resolve after all textures have been processed
-
-            .catch(error => {
-            console.error('Error loading textures:', error);
-            reject(error);  // In case any texture loading fails
-        });
+    texture().then(squares => {
+        for (const [key, value] of Object.entries(squares)) {
+            //turn all those data urls into image objects for easier times later on
+            if(value[0] === 'd' && value[1] === 'a'){
+                const img = new Image();
+                img.src = value;
+                squares[key] = img;
+            }
+        }
+        tilesExtracted = squares;
+        //const spawn = [80, 680];
+        //const map = [["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"],["7","2","2","2","2","2","2","7","7","7","7","7","7","7","7","7","2","2","2","7"],["7","2","2","2","2","7","7","7","2","2","2","2","2","2","2","16","2","2","2","7"],["7","2","2","2","7","7","2","2","2","2","7","7","7","7","7","7","2","2","2","7"],["7","2","2","2","7","2","2","2","2","2","7","2","2","2","2","7","7","7","7","7"],["7","2","2","7","7","2","2","2","7","7","2","2","2","2","2","2","2","2","2","7"],["7","2","2","7","2","2","2","7","7","2","2","2","2","2","2","2","2","2","2","7"],["7","2","7","7","2","2","2","7","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","7","2","2","2","7","7","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","2","2","7","7","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","2","2","7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","2","2","2","7","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","2","2","2","7","2","7","7","7","7","7","7","7","2","2","2","2","2","7"],["7","7","2","2","2","7","7","7","2","2","2","2","2","2","7","2","2","2","2","7"],["7","7","2","2","2","2","2","2","2","2","2","2","2","2","7","2","2","2","2","7"],["7","7","7","2","2","2","2","2","2","2","2","2","2","2","7","7","7","7","7","7"],["7","2","7","7","7","7","7","2","2","2","2","2","2","2","2","17","18","17","18","7"],["7","2","2","2","2","2","7","7","7","7","2","2","2","2","2","18","17","18","17","7"],["7","2","2","2","2","2","2","2","2","7","7","7","7","7","2","17","18","17","18","7"],["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"]];
+        const map = [["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","16"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","17"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","18"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"],["2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2"]];
+        const spawn = [60,60];
+        training(tilesExtracted, spawn, map, "Spike Maze (Easy)");
+    }).catch(error => {
+        console.error('Error loading texture:', error);
     });
 }
 
+function training(tiles, spawn, map, value){
+    //moonbase
+    //const map =  [['0','0','0','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','0','1','1','5.1','2','2','1.1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1','1.2','13.1','2','2','2','2','1.1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['1','1.2','5.1','2','2','2','2','2','13','1','1','1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','1.1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','2','1','1','1','1','0','0','0','0','0','0','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1.1','1','0','0','0','0','0','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','3.1','2','2','2','2','2','2','2','2','2','1','1','0','0','0','0','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','0','0','0','0','0','0','0','0','0','0'],['1','10.1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','7','1','0','0','0','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','8','1','0','0','0','0','0','0','0','0','0','0'],['1','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','7','1','0','0','0','0','0','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','0','0','0','0','0','0','0','0','0','0'],['0','0','1','1.3','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1.1','1','0','0','0','0','0','0','0','0','0'],['0','0','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','0','0','0','0','0','0','0','0','0'],['0','0','0','1','2','2','9','9','2','2','2','2','2','2','2','2','2','2','5','2','1.1','1','1','1','0','0','0','0','0','0'],['0','0','0','1','23','2','6.22','2','9','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','0','0','0','0','0','0'],['0','0','0','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','0','0','0','0','0'],['0','0','0','0','1','2','2','8','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','0','0','0','1','2','2','2','2','2','2','2','2','5','2','2','2','2','2','2','2','2','2','2','1.1','1','0','0','0','0'],['0','0','0','0','1','2','2','2','2','2','2','2','2','2','1','1.3','2','2','2','2','2','2','2','2','2','1','0','0','0','0'],['0','0','0','0','1','2','2','2','2','2','2','2','2','2','1.1','1','2','2','2','2','2','2','2','2','2','1','0','0','0','0'],['0','0','0','0','1','1.3','2','2','2','2','2','2','2','2','2','2','5.1','2','2','2','2','2','2','2','2','1','0','0','0','0'],['0','0','0','0','0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','8','2','2','1','0','0','0','0'],['0','0','0','0','0','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','0','0','0'],['0','0','0','0','0','0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','9','2','6.12','2','23','1','0','0','0'],['0','0','0','0','0','0','1','1','1','1.3','2','5.1','2','2','2','2','2','2','2','2','2','2','9','9','2','2','1','0','0','0'],['0','0','0','0','0','0','0','0','0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','0','0'],['0','0','0','0','0','0','0','0','0','1','1.3','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1.1','1','0','0'],['0','0','0','0','0','0','0','0','0','0','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','0','0'],['0','0','0','0','0','0','0','0','0','0','1','7','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','1'],['0','0','0','0','0','0','0','0','0','0','1','8','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1'],['0','0','0','0','0','0','0','0','0','0','1','7','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','10.1','1'],['0','0','0','0','0','0','0','0','0','0','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1'],['0','0','0','0','0','0','0','0','0','0','0','1','1','2','2','2','2','2','2','2','2','2','4.1','2','2','2','2','2','2','1'],['0','0','0','0','0','0','0','0','0','0','0','0','1','1.3','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1'],['0','0','0','0','0','0','0','0','0','0','0','0','0','1','1','1','1','2','2','2','2','2','2','2','2','2','2','2','2','1'],['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','1.3','2','2','2','2','2','2','2','2','2','2','2','1'],['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','1','1','1','13.11','2','2','2','2','2','5.1','1.4','1'],['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','1.3','2','2','2','2','13.1','1.4','1','0'],['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','1.3','2','2','5','1','1','0','0'],['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','1','1','1','1','0','0','0']];
+    //bulldog
+    //const map = [['1.4','1','1','1','1','1','1','1','1','1','1.3','0','0','1','1','1','1','1','1','1','1','1','1','1','1','1','0','0','0','0','0','0','0','0','0'],['1','1.2','2','2','2','2','2','2','2','1.1','1','1','1','1','2','2','2','2','12','12','12','2','2','2','2','1','1','0','0','0','0','0','0','0','0'],['1','2','2','5','2','2','2','2','2','2','2','2','2','2','2','2','2','2','12','12','12','2','14','2','2','2','1','1','0','0','0','0','0','0','0'],['1','2','5','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','12','12','12','2','2','2','2','2','2','1','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','12','12','12','2','2','2','2','2','2','1','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','12','12','12','2','2','2','2','2','2','1','0','0','0','0','0','0','0'],['1','2','2','2','2','2','1.4','1','1','1.3','2','2','2','2','2','2','2','2','12','12','12','2','2','2','2','15','2','1','1.3','0','0','0','0','0','0'],['1','2','2','2','2','2','1','13.1','2','2','2','2','2','2','2','2','2','2','12','12','12','2','2','2','2','2','2','1.1','1','1','0','0','0','0','0'],['1','2','2','2','2','2','1','2','2','2','2','2','2','2','2','2','1','1','1','1','1','1.3','2','2','2','2','2','2','2','1','0','0','0','0','0'],['1','1.3','2','2','2','2','1','2','2','2','2','2','2','2','2','2','1','25','25','1','0','1','2','2','2','2','2','2','2','1','0','0','0','0','0'],['1.1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','9.3','9.3','1','1','1','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','11','18','18','11','11','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','11','18','18','11','11','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','11','18','18','11','11','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1','1.3','2','2','2','2','2','2','2','2','2','2','2','2','2','11','18','18','11','11','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1.1','1','2','2','2','2','2','2','2','2','2','1','2','2','2','11','18','18','11','11','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','2','2','2','2','9.2','2','2','11','18','18','11','11','2','1','1','2','2','2','2','2','1','0','0','0','0','0'],['0','0','1','1','1','2','2','2','2','2','2','2','2','2','9.2','2','11','18','18','11','11','2','2','2','2','2','2','1.4','1','1','0','0','0','0','0'],['0','0','0','0','1','2','5','2','2','2','2','2','2','2','2','1','1','18','18','11','11','2','2','2','2','2','2','1','10','1','0','0','0','0','0'],['0','0','0','1.4','1','2','2','2','2','2','2','2','2','2','2','2','1.1','1.3','18','11','11','2','2','2','8','2','1.4','1','1','1.2','0','0','0','0','0'],['0','0','1.4','1','1.2','2','2','2','2','2','2','2','2','2','2','8','2','1.1','1','1','1','1','1','1','1','1','1','1.2','0','0','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1.1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','1.3','2','2','2','2','2','2','2','2','2','1','1.3','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1.4','1','2','2','2','2','2','2','1.2','2','2','2','2','2','2','2','2','2','1.1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1','1.2','2','2','2','2','2','2','2','2','2','2','1.3','2','2','2','2','2','8','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','1','1.3','2','2','2','2','2','1','1.3','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','1','7','2','2','2','2','2','1.1','1','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','16','2','2','2','1','7','2','2','6.22','2','2','10','1','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','1','7','2','2','2','2','2','1.4','1','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','1','1.2','2','2','2','2','2','1','1.2','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1','1.3','2','2','2','2','2','2','2','2','2','2','1.2','2','2','2','2','2','8','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','1.1','1','2','2','2','2','2','2','1.3','2','2','2','2','2','2','2','2','2','1.4','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','1.2','2','2','2','2','2','2','2','2','2','1','1.2','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1.4','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],['0','0','1.1','1','1.3','2','2','2','2','2','2','2','2','2','2','8','2','1.4','1','1','1','1','1','1','1','1','1','1.3','0','0','0','0','0','0','0'],['0','0','0','1.1','1','2','2','2','2','2','2','2','2','2','2','2','1.4','1.2','17','12','12','2','2','2','8','2','1.1','1','1','1.3','0','0','0','0','0'],['0','0','0','0','1','2','5','2','2','2','2','2','2','2','2','1','1','17','17','12','12','2','2','2','2','2','2','1','10','1','0','0','0','0','0'],['0','0','1','1','1','2','2','2','2','2','2','2','2','2','9.3','2','12','17','17','12','12','2','2','2','2','2','2','1.1','1','1','0','0','0','0','0'],['0','0','1','2','2','2','2','2','2','2','2','2','2','9.3','2','2','12','17','17','12','12','2','1','1','2','2','2','2','2','1','0','0','0','0','0'],['0','1.4','1','2','2','2','2','2','2','2','2','2','1','2','2','2','12','17','17','12','12','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1','1.2','2','2','2','2','2','2','2','2','2','2','2','2','2','12','17','17','12','12','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','12','17','17','12','12','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','12','17','17','12','12','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['0','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','12','17','17','12','12','2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['1.4','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','9.2','9.2','1','1','1','2','2','2','2','2','2','2','1','0','0','0','0','0'],['1','1.2','2','2','2','2','1','2','2','2','2','2','2','2','2','2','1','24','24','1','0','1','2','2','2','2','2','2','2','1','0','0','0','0','0'],['1','2','2','2','2','2','1','2','2','2','2','2','2','2','2','2','1','1','1','1','1','1.2','2','2','2','2','2','2','2','1','0','0','0','0','0'],['1','2','2','2','2','2','1','13.1','2','2','2','2','2','2','2','2','2','2','11','11','11','2','2','2','2','2','2','1.4','1','1','0','0','0','0','0'],['1','2','2','2','2','2','1.1','1','1','1.2','2','2','2','2','2','2','2','2','11','11','11','2','2','2','2','14','2','1','1.2','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','11','11','11','2','2','2','2','2','2','1','0','0','0','0','0','0','0'],['1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','11','11','11','2','2','2','2','2','2','1','0','0','0','0','0','0','0'],['1','2','5','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','11','11','11','2','2','2','2','2','2','1','0','0','0','0','0','0','0'],['1','2','2','5','2','2','2','2','2','2','2','2','2','2','2','2','2','2','11','11','11','2','15','2','2','2','1','1','0','0','0','0','0','0','0'],['1','1.3','2','2','2','2','2','2','2','1.4','1','1','1','1','2','2','2','2','11','11','11','2','2','2','2','1','1','0','0','0','0','0','0','0','0'],['1.1','1','1','1','1','1','1','1','1','1','1.2','0','0','1','1','1','1','1','1','1','1','1','1','1','1','1','0','0','0','0','0','0','0','0','0']];
+    //const map = [["1.4000","1.00050050","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.00050500","1.3000","0","0","1.50050050","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.00550500","0","0","0","0","0","0","0","0","0"],["1.50000050","1.2000","2","2","2","2","2","2","2","1.1000","1.05000005","1.0505","1.0505","1.05505000","2","2","2","2","12","12","12","2","2","2","2","1.55000005","1.00550500","0","0","0","0","0","0","0","0"],["1.5050","2","2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","12","12","2","14","2","2","2","1.55000005","1.00550500","0","0","0","0","0","0","0"],["1.5050","2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.4005","1.0505","1.0505","1.3055","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","15","2","1.50000005","1.3000","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.5050","13.1","2","2","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","2","2","1.1000","1.05000005","1.00550500","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.5050","2","2","2","2","2","2","2","2","2","1.50050050","1.0505","1.0505","1.00050550","1.0505","1.3005","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.50000005","1.3000","2","2","2","2","1.5550","2","2","2","2","2","2","2","2","2","1.5050","25","25","1.5050","0","1.5050","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.1000","1.00500500","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5550","9.3","9.3","1.55000005","1.0505","1.05505000","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.50000005","1.3000","2","2","2","2","2","2","2","2","2","2","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.1000","1.00500500","2","2","2","2","2","2","2","2","2","1.5555","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","9.2","2","2","11","18","18","11","11","2","1.5505","1.0555","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","0","1.55000005","1.0505","1.00550500","2","2","2","2","2","2","2","2","2","9.2","2","11","18","18","11","11","2","2","2","2","2","2","1.4005","1.0505","1.00505500","0","0","0","0","0"],["0","0","0","0","1.5050","2","5","2","2","2","2","2","2","2","2","1.5505","1.00550500","18","18","11","11","2","2","2","2","2","2","1.5050","10","1.5050","0","0","0","0","0"],["0","0","0","1.4000","1.00505000","2","2","2","2","2","2","2","2","2","2","2","1.1005","1.3005","18","11","11","2","2","2","8","2","1.4000","1.00005055","1.0505","1.2005","0","0","0","0","0"],["0","0","1.4005","1.05005000","1.2000","2","2","2","2","2","2","2","2","2","2","8","2","1.1005","1.00050500","1.00050050","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.05005000","1.2000","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5000","1.0050","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.1000","1.00500500","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","1.3505","2","2","2","2","2","2","2","2","2","1.50000005","1.3000","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.4000","1.00505000","2","2","2","2","2","2","1.2055","2","2","2","2","2","2","2","2","2","1.1000","1.00500500","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.50000050","1.2000","2","2","2","2","2","2","2","2","2","2","1.3505","2","2","2","2","2","8","1.5050","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","1.50000055","1.3055","2","2","2","2","2","1.50000005","1.3000","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","1.5050","7","2","2","2","2","2","1.1000","1.00500500","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","16","2","2","2","1.5050","7","2","2","6.22","2","2","10","1.5050","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","1.5050","7","2","2","2","2","2","1.4000","1.00505000","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","1.50000055","1.2505","2","2","2","2","2","1.50000050","1.2000","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.50000005","1.3000","2","2","2","2","2","2","2","2","2","2","1.2055","2","2","2","2","2","8","1.5050","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.1000","1.00500500","2","2","2","2","2","2","1.3505","2","2","2","2","2","2","2","2","2","1.4000","1.00505000","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","1.2055","2","2","2","2","2","2","2","2","2","1.50000050","1.2000","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.4000","1.00505000","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5000","1.0050","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.1005","1.00050500","1.3000","2","2","2","2","2","2","2","2","2","2","8","2","1.4005","1.05005000","1.05000005","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.00050500","1.3000","0","0","0","0","0","0","0"],["0","0","0","1.1000","1.00500500","2","2","2","2","2","2","2","2","2","2","2","1.4005","1.2005","17","12","12","2","2","2","8","2","1.1000","1.00000555","1.0505","1.3005","0","0","0","0","0"],["0","0","0","0","1.5050","2","5","2","2","2","2","2","2","2","2","1.5505","1.05505000","17","17","12","12","2","2","2","2","2","2","1.5050","10","1.5050","0","0","0","0","0"],["0","0","1.50050050","1.0505","1.05505000","2","2","2","2","2","2","2","2","2","9.3","2","12","17","17","12","12","2","2","2","2","2","2","1.1005","1.0505","1.00505500","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","9.3","2","2","12","17","17","12","12","2","1.5505","1.0555","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.4000","1.00505000","2","2","2","2","2","2","2","2","2","1.5555","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.50000050","1.2000","2","2","2","2","2","2","2","2","2","2","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.4000","1.00505000","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5055","9.2","9.2","1.50050050","1.0505","1.00550500","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.50000050","1.2000","2","2","2","2","1.5055","2","2","2","2","2","2","2","2","2","1.5050","24","24","1.5050","0","1.5050","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.5050","2","2","2","2","2","2","2","2","2","1.55000005","1.0505","1.0505","1.05005005","1.0505","1.2005","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.5050","13.1","2","2","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","2","2","1.4000","1.00050050","1.05505000","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.1005","1.0505","1.0505","1.2505","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","14","2","1.50000050","1.2000","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","11","11","2","15","2","2","2","1.50050050","1.05505000","0","0","0","0","0","0","0"],["1.50000005","1.3000","2","2","2","2","2","2","2","1.4000","1.00050050","1.0505","1.0505","1.00550500","2","2","2","2","11","11","11","2","2","2","2","1.50050050","1.05505000","0","0","0","0","0","0","0","0"],["1.1000","1.05000005","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.05005000","1.2000","0","0","1.55000005","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.05505000","0","0","0","0","0","0","0","0","0"]];
+    //const spawn = [120,120];
+    //SpikeMaze taken from FM
+    //const spawn = [80, 1000];
+    //const map = [['7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7'],['7','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','7','7','7','2','2','2','2','2','2','7'],['7','2','2','2','2','7','7','7','7','7','7','7','7','2','2','2','2','2','7','2','2','16','2','2','2','2','2','2','7'],['7','2','2','7','7','2','2','2','2','2','2','7','17','2','2','2','2','2','7','2','7','7','2','2','2','2','2','2','7'],['7','2','7','2','2','2','7','7','7','7','2','7','2','2','2','2','2','2','7','2','7','7','7','7','7','7','7','7','7'],['7','7','2','2','7','7','2','2','2','7','2','7','2','7','2','7','7','7','7','2','7','7','11','11','11','11','7','7','7'],['7','7','2','7','2','2','2','7','2','7','2','7','2','7','7','2','2','2','7','2','7','7','7','7','7','7','7','7','7'],['7','7','2','2','2','7','7','2','2','7','2','7','2','7','7','2','7','2','7','2','2','7','7','7','7','7','7','7','0'],['7','2','7','7','7','2','2','2','7','7','2','2','2','7','7','2','7','2','2','7','2','7','2','2','2','2','7','7','0'],['7','2','2','7','2','2','7','7','7','7','7','7','7','7','7','2','2','7','2','2','2','7','2','7','7','2','7','7','0'],['7','2','2','7','2','7','23','23','23','23','23','7','2','2','2','7','2','7','7','7','7','2','2','7','2','2','7','7','0'],['7','2','7','2','2','7','23','11','11','11','23','7','2','7','2','2','2','7','2','2','2','2','7','2','2','7','7','7','0'],['7','2','7','2','7','7','23','23','23','23','23','7','2','2','7','7','7','2','2','7','7','7','7','2','7','7','7','7','0'],['7','2','7','2','7','7','7','7','7','7','7','7','7','2','2','2','7','2','7','2','2','2','7','2','2','2','7','7','0'],['7','2','7','2','7','2','2','2','7','2','2','2','7','7','7','2','7','2','7','2','7','2','2','7','7','2','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','2','2','7','2','7','2','2','7','2','2','2','2','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','7','7','7','2','7','7','2','2','7','7','7','7','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','2','2','2','2','7','7','7','2','2','2','2','2','7','7','0'],['7','2','7','2','2','2','7','2','2','2','7','2','2','7','7','7','7','7','7','7','7','7','7','7','7','2','7','7','0'],['7','2','7','7','7','7','7','7','7','7','7','7','2','2','2','2','2','2','2','2','2','2','2','2','2','2','7','7','0'],['7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','0']];    document.body.innerHTML = '';
+    //Easy SpikeMaze
+    document.body.innerHTML = '';
+    document.body.style.margin = '0'; // Removes default body margin
+    document.body.style.height = '99vh'; // Ensure body fills the viewport height minus a bit for the gap at top
+    const gameDiv = document.createElement('div');
+    gameDiv.style.display = "flex";
+    gameDiv.style.justifyContent = "space-evenly";
+    gameDiv.style.width = '100%';
+    gameDiv.style.height = Math.min(800, window.innerHeight) + 'px';
+    gameDiv.style.marginTop = '1vh';
+    document.body.appendChild(gameDiv);
+    const select = addSelection(gameDiv, value);
 
-function doRotations(fullWalls){
-    fullWalls['1.5505'].style.transform = 'rotate(' + 90 + 'deg)';
-    fullWalls['1.0555'].style.transform = 'rotate(' + 270 + 'deg)';
-    fullWalls['1.0550'].style.transform = 'rotate(' + 90 + 'deg)';
-    fullWalls['1.0055'].style.transform = 'rotate(' + 180 + 'deg)';
-    fullWalls['1.50050050'].style.transform = 'rotate(' + 90 + 'deg)';
-    fullWalls['1.55000005'].style.transform = 'rotate(' + 180 + 'deg)';
-    fullWalls['1.00505500'].style.transform = 'rotate(' + 180 + 'deg)';
-    fullWalls["1.00005550"].style.transform = 'rotate(' + 270 + 'deg)';
-    fullWalls["1.00005505"].style.transform = 'rotate(' + 180 + 'deg)';
-    fullWalls['1.00005500'].style.transform = 'rotate(' + 90 + 'deg)';
-    fullWalls['1.00000055'].style.transform = 'rotate(' + 270 + 'deg)';
-}
-function make0SidedWalls(img, squareSize = 40){
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const canvas2 = document.createElement('canvas');
-        const ctx2 = canvas2.getContext('2d');
-        const canvas3 = document.createElement('canvas');
-        const ctx3 = canvas3.getContext('2d');
-        const canvas4 = document.createElement('canvas');
-        const ctx4 = canvas4.getContext('2d');
-
-
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-
-            canvas2.width = squareSize;
-            canvas2.height = squareSize;
-            ctx2.drawImage(img, 0, 0);
-
-            canvas3.width = squareSize;
-            canvas3.height = squareSize;
-            ctx3.drawImage(img, 0, 0);
-
-            canvas4.width = squareSize;
-            canvas4.height = squareSize;
-            ctx4.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-
-            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
-            const data2 = imageData2.data;
-
-            const imageData3 = ctx3.getImageData(0, 0, squareSize, squareSize);
-            const data3 = imageData3.data; //blank
-            const imageData4 = ctx4.getImageData(0, 0, squareSize, squareSize);
-            const data4 = imageData4.data; //4 corners
-
-            for (let i = squareSize/2; i < squareSize; i ++) {
-                for (let j = 0; j < squareSize/2; j++) {
-                    data2[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
-                    data2[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
-                    data2[(i-squareSize/2+squareSize*j)*4+2] = data[(i+squareSize*j)*4+2];
-                    data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
-                    data3[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
-                    data3[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
-                    data3[(i-squareSize/2+squareSize*j)*4+2] = data[(i+squareSize*j)*4+2];
-                    data3[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
-                }
-            }
-            for (let i = squareSize/2; i < squareSize; i ++) {
-                for (let j = squareSize/2; j < squareSize; j++) {
-                    data3[(i+squareSize*j)*4] = data[(i-squareSize/2+squareSize*j)*4];
-                    data3[(i+squareSize*j)*4+1] = data[(i-squareSize/2+squareSize*j)*4+1];
-                    data3[(i+squareSize*j)*4+3] = data[(i-squareSize/2+squareSize*j)*4+2];
-                    data3[(i+squareSize*j)*4+3] = data[(i-squareSize/2+squareSize*j)*4+3];
-                }
-            }
-
-            for (let i = squareSize/2; i < squareSize; i ++) {
-                for(let j = 0; j < squareSize/2; j++){
-                    data4[(i+squareSize*j)*4] = data[(squareSize-i+squareSize*j-1)*4];
-                    data4[(i+squareSize*j)*4+1] = data[(squareSize-i+squareSize*j-1)*4+1];
-                    data4[(i+squareSize*j)*4+3] = data[(squareSize-i+squareSize*j-1)*4+2];
-                    data4[(i+squareSize*j)*4+3] = data[(squareSize-i+squareSize*j-1)*4+3];
-                }
-            }
-            for (let i = squareSize/2; i < squareSize; i++) {
-                for(let j = squareSize/2; j < squareSize ; j++){
-                    data4[(squareSize-i+squareSize*j-1)*4] = data[(i+squareSize*j)*4];
-                    data4[(squareSize-i+squareSize*j-1)*4+1] = data[(i+squareSize*j)*4+1];
-                    data4[(squareSize-i+squareSize*j-1)*4+3] = data[(i+squareSize*j)*4+2];
-                    data4[(squareSize-i+squareSize*j-1)*4+3] = data[(i+squareSize*j)*4+3];
-                }
-            }
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-            ctx2.putImageData(imageData2, 0, 0);
-            ctx3.putImageData(imageData3, 0, 0);
-            ctx4.putImageData(imageData4, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            const modifiedDataURL2 = canvas2.toDataURL();
-            const modifiedDataURL3 = canvas3.toDataURL();
-            const modifiedDataURL4 = canvas4.toDataURL();
-            resolve([modifiedDataURL2, modifiedDataURL3, modifiedDataURL4]);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
+    const app = new PIXI.Application({
+        width: WIDTH, // Width of the canvas
+        height: HEIGHT, // Height of the canvas
+        backgroundColor: 0x000000, // Background color
+        resolution: window.devicePixelRatio || 1, // Adjust resolution for HiDPI screens
+        //antialias: false // Disable anti-aliasing for wall gaps
     });
-}
-function make1SidedWall(img, squareSize = 40){
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const canvas2 = document.createElement('canvas');
-        const ctx2 = canvas2.getContext('2d');
 
 
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
+    const gravity = new Box2D.Common.Math.b2Vec2(0, 0); // No gravity
+    const world = new Box2D.Dynamics.b2World(gravity, true); // Allow sleep
 
-            canvas2.width = squareSize;
-            canvas2.height = squareSize;
-            ctx2.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
+    // Add the pixi canvas to the body of the page
+    gameDiv.appendChild(app.view);
 
-            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
-            const data2 = imageData2.data;
-
-            for (let i = squareSize/2; i < squareSize; i ++) {
-                for (let j = 0; j < squareSize/2; j++) {
-                    data2[(i-squareSize/2+squareSize*j)*4] = data[(i+squareSize*j)*4];
-                    data2[(i-squareSize/2+squareSize*j)*4+1] = data[(i+squareSize*j)*4+1];
-                    data2[(i-squareSize/2+squareSize*j)*4+2] = data[(i+squareSize*j)*4+2];
-                    data2[(i-squareSize/2+squareSize*j)*4+3] = data[(i+squareSize*j)*4+3];
+    const mapSprites = [];
+    for(let i = 0; i < map.length; i++){
+        mapSprites.push([]);
+        for(let j = 0; j < map[i].length; j++){
+            const current_tile = map[i][j];
+            if(current_tile != '0'){ //blank space
+                const x = i * 40;
+                const y = j *40;
+                mapSprites[i].push(addSpriteToLocation(app, tiles, current_tile, x, y, map, i, j));
+                let vertices = []
+                switch(current_tile) {
+                    case '1':
+                        createWall(x,y,40,40, world);
+                        break;
+                    case '5':
+                        createBoost(x,y,15,world, '5');
+                        break;
+                    case '14':
+                        createBoost(x,y,15,world, '14');
+                        break;
+                    case '15':
+                        createBoost(x,y,15,world, '15');
+                        break;
+                    case '7':
+                        createSpike(x,y,14,world);
+                        break;
+                    case '9.1':
+                        createGate(x,y,40,40, world, '9.1');
+                        break;
+                    case '9.2':
+                        createGate(x,y,40,40, world, '9.2');
+                        break;
+                    case '9.3':
+                        createGate(x,y,40,40, world, '9.3');
+                        break;
+                    case '16':
+                        createFlag(x,y,15, world, '16');
+                        break;
+                    case '17':
+                        createEndzone(x,y,40,40, world, '17');
+                        break;
+                    default:
+                        if(/(^1[.]1.*$)/.test(current_tile)){
+                            vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
+                            createNonSquareWall(x, y, vertices, world);
+                        }
+                        else if(/(^1[.]2.*$)/.test(current_tile)){
+                            vertices = [new Box2D.Common.Math.b2Vec2(0, 1), new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0)];
+                            createNonSquareWall(x, y, vertices, world);
+                        }
+                        else if(/(^1[.]3.*$)/.test(current_tile)){
+                            vertices = [new Box2D.Common.Math.b2Vec2(0, 0), new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1)];
+                            createNonSquareWall(x, y, vertices, world);
+                        }
+                        else if(/(^1[.]4.*$)/.test(current_tile)){
+                            vertices = [new Box2D.Common.Math.b2Vec2(1, 0), new Box2D.Common.Math.b2Vec2(1, 1), new Box2D.Common.Math.b2Vec2(0, 1)];
+                            createNonSquareWall(x, y, vertices, world);
+                        }
+                        else if(/^1[.](0|5).*$/.test(current_tile)){
+                            createWall(x,y,40,40, world);
+                        }
                 }
             }
+            else{
+                mapSprites[i].push(null);
+            }
+        }
+    }
 
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-            ctx2.putImageData(imageData2, 0, 0);
+    const playerSprite = addSpriteToLocation(app, tiles, 'redball', spawn[0], spawn[1]);
+    const playerFlag = new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
+    playerFlag.visible = false;
+    const playerCollision = createBall(spawn[0], spawn[1], 19, world);
+    const player = {};
+    playerSprite.anchor.set(0.5,0.5);
+    player.playerSprite = playerSprite;
+    player.playerFlagYellow = playerFlag;
+    player.playerFlag = null;
+    player.playerCollision = playerCollision;
+    player.hasFlag = false;
+    player.flagLoc = null;
+    player.dead = false;
+    player.hold = 0.0;
 
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            const modifiedDataURL2 = canvas2.toDataURL();
-            resolve(modifiedDataURL2);
-        };
+    let spikeMaze = true;
+    /*let groundBodyDef = new Box2D.Dynamics.b2BodyDef();
+    let groundBody = world.CreateBody(groundBodyDef);
 
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
+    let frictionJointDef = new Box2D.Dynamics.Joints.b2FrictionJointDef();
+    frictionJointDef.bodyA = groundBody;  // The ground body
+    frictionJointDef.bodyB = playerCollision; // The dynamic body
+    frictionJointDef.localAnchorA.Set(0, 0); // Ground's anchor (usually 0, 0)
+    frictionJointDef.localAnchorB.Set(0, 0); // Dynamic body's anchor (center)
+    frictionJointDef.maxForce = 0.6; // Adjust to control sliding friction
+    frictionJointDef.maxTorque = 0.6; // Adjust to control rotational friction*/
+
+    //let frictionJoint = world.CreateJoint(frictionJointDef);
+
+    const keys = {
+        up: false,
+        down: false,
+        left: false,
+        right: false
+    };
+
+
+    document.addEventListener('keydown', (event) => {
+        switch (event.key) {
+            case 'ArrowRight': // Move right
+                keys.left = false;
+                keys.right = true;
+                break;
+            case 'ArrowLeft': // Move left
+                keys.left = true;
+                keys.right = false;
+                break;
+            case 'ArrowUp': // Move up
+                keys.up = true;
+                keys.down = false;
+                break;
+            case 'ArrowDown': // Move down
+                keys.up = false;
+                keys.down = true;
+                break;
+        }
     });
-}
-function make4SidedWall(img, squareSize = 40){
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const canvas2 = document.createElement('canvas');
-        const ctx2 = canvas2.getContext('2d');
-
-
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-
-            canvas2.width = squareSize;
-            canvas2.height = squareSize;
-            ctx2.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-
-            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
-            const data2 = imageData2.data;
-
-            for (let i = 0; i < squareSize/2; i ++) {
-                for (let j = 0; j < squareSize; j++) {
-                    data2[(i+squareSize*j)*4] = data[(squareSize-i-1+squareSize*j)*4];
-                    data2[(i+squareSize*j)*4+1] = data[(squareSize-i-1+squareSize*j)*4+1];
-                    data2[(i+squareSize*j)*4+2] = data[(squareSize-i-1+squareSize*j)*4+2];
-                    data2[(i+squareSize*j)*4+3] = data[(squareSize-i-1+squareSize*j)*4+3];
-                }
-            }
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-            ctx2.putImageData(imageData2, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            const modifiedDataURL2 = canvas2.toDataURL();
-            resolve(modifiedDataURL2);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
+    document.addEventListener('keyup', (event) => {
+        switch (event.key) {
+            case 'ArrowRight': // Move right
+                keys.right = false;
+                break;
+            case 'ArrowLeft': // Move left
+                keys.left = false;
+                break;
+            case 'ArrowUp': // Move up
+                keys.up = false;
+                break;
+            case 'ArrowDown': // Move down
+                keys.down = false;
+                break;
+        }
     });
+
+    // Implement the contact listener
+    let listener = new Box2D.Dynamics.b2ContactListener();
+
+    // Called when two fixtures begin to overlap
+    listener.BeginContact = function(contact) {
+        let fixtureA = contact.GetFixtureA();
+        let fixtureB = contact.GetFixtureB();
+
+
+        // Check if both of the fixtures are
+        let data1 = fixtureA.GetBody().GetUserData();
+        let data2 = fixtureB.GetBody().GetUserData();
+        let type1 = data1.type;
+        let type2 = data2.type;
+        if(type1 === 'redball') {
+            //console.log('2', type2);
+            switch(type2){
+                case '5':
+                    //console.log('boost');
+                    applyExtraForceToBall(fixtureA.GetBody());
+                    break;
+                case '14':
+                    applyExtraForceToBall(fixtureA.GetBody());
+                    //console.log('boost');
+                    break;
+                case '7':
+                    playerDeath(player, mapSprites, keys);
+                    break;
+                case '9.1':
+                    playerDeath(player, mapSprites, keys);
+                    break;
+                case '9.3':
+                    playerDeath(player, mapSprites, keys);
+                    break;
+                case '16': //nf
+                    if(player.hasFlag){
+                        break;
+                    }
+                    player.hasFlag = true;
+                    player.flagLoc = pixelsToLoc(data2.x, data2.y);
+                    player.playerFlag = player.playerFlagYellow;
+                    player.playerFlag.visible = true;
+                    mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
+                    break;
+                case '17': //red endzone
+                    if(player.hasFlag){
+                        player.hasFlag = false;
+                        player.playerFlag.visible = false;
+                        mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
+                        if(value === "Spike Maze (Easy)"){
+                            window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let mazeLeader = leaderboard.spikeMazeEasy;
+
+                            if(mazeLeader.length < LEADERBOARD_LENGTH){
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            else{
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            leaderboard.spikeMazeEasy = mazeLeader;
+                            GM_setValue('leaderboard', JSON.stringify(leaderboard));
+                            playerDeath(player, mapSprites, keys);
+                        }
+                        else if(value === "Spike Maze (Medium)"){
+                            window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let mazeLeader = leaderboard.spikeMazeMed;
+
+                            if(mazeLeader.length < LEADERBOARD_LENGTH){
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            else{
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            leaderboard.spikeMazeMed = mazeLeader;
+                            GM_setValue('leaderboard', JSON.stringify(leaderboard));
+                            playerDeath(player, mapSprites, keys);
+                        }
+                    }
+                    break;
+            }
+        }
+        else if (type2 === 'redball') {
+            //console.log('1', type1);
+            switch(type1){
+                case '5':
+                    applyExtraForceToBall(fixtureB.GetBody());
+                    //console.log('boost');
+                    break;
+                case '14':
+                    applyExtraForceToBall(fixtureB.GetBody());
+                    //console.log('boost');
+                    break;
+                case '7':
+                    playerDeath(player, mapSprites, keys);
+                    break;
+                case '9.1':
+                    playerDeath(player, mapSprites, keys);
+                    break;
+                case '9.3':
+                    playerDeath(player, mapSprites, keys);
+                    break;
+                case '16':
+                    if(player.hasFlag){
+                        break;
+                    }
+                    player.hasFlag = true;
+                    player.flagLoc = pixelsToLoc(data1.x, data1.y);
+                    player.playerFlag = player.playerFlagYellow;
+                    player.playerFlag.visible = true;
+                    mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
+                    break;
+                case '17': //red endzone
+                    if(player.hasFlag){
+                        player.hasFlag = false;
+                        player.playerFlag.visible = false;
+                        mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
+                        if(value === "Spike Maze (Easy)"){
+                            window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let mazeLeader = leaderboard.spikeMazeEasy;
+
+                            if(mazeLeader.length < LEADERBOARD_LENGTH){
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            else{
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            leaderboard.spikeMazeEasy = mazeLeader;
+                            GM_setValue('leaderboard', JSON.stringify(leaderboard));
+                            playerDeath(player, mapSprites, keys);
+                        }
+                        else if(value === "Spike Maze (Medium)"){
+                            window.alert(`Finished Spike Maze in ${Math.round(player.hold * 100) / 100} seconds`);
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let mazeLeader = leaderboard.spikeMazeMed;
+
+                            if(mazeLeader.length < LEADERBOARD_LENGTH){
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            else{
+                                mazeLeader.push(Math.round(player.hold * 100) / 100);
+                                mazeLeader.sort();
+                                mazeLeader = mazeLeader.slice(0, 10);
+                            }
+                            leaderboard.spikeMazeMed = mazeLeader;
+                            GM_setValue('leaderboard', JSON.stringify(leaderboard));
+                            playerDeath(player, mapSprites, keys);
+                        }
+                    }
+                    break;
+            }
+        }
+    };
+
+    // Assign the listener to the world
+    world.SetContactListener(listener);
+
+    app.ticker.add(delta => loop(delta, player, world, keys, app, spawn, spikeMaze));
 }
-function separateHalvesBotLeftTopRight(img, squareSize = 40){
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const canvas2 = document.createElement('canvas');
-        const ctx2 = canvas2.getContext('2d');
+
+function pixelsToLoc(x,y){
+    return [x/40, y/40];
+}
+
+function playerDeath(player, mapSprites, keys){
+    player.dead = true;
+    if(player.hasFlag){
+        player.hasFlag = false;
+        player.playerFlag.visible = false;
+        mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
+    }
+    keys.up = false;
+    keys.down = false;
+    keys.right = false;
+    keys.left = false;
+}
+
+function addSelection(container, val){
+    // Create the "X" button
+    const button = document.createElement('button');
+    button.textContent = '✖';
+    button.style.display = 'flex';
+    button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
+    button.style.width = '50px';
+    button.style.height = '50px';
+    button.style.borderRadius = '50%';
+    button.style.backgroundColor = '#1a1918';
+    button.style.color = 'white';
+    button.style.fontSize = '24px';
+    button.style.border = 'none';
+    button.style.cursor = 'pointer';
+    button.style.fontFamily = 'Arial, sans-serif';
+    button.style.textAlign = 'center';
+    button.style.lineHeight = '50px';
+    button.style.position = 'absolute';
+    button.style.top = '20px';
+    button.style.left = '15px';
+
+    // Create the dropdown (hidden initially)
+    const select = document.createElement('select');
+    select.style.padding = '10px';
+    select.style.border = '2px solid #007BFF';
+    select.style.borderRadius = '5px';
+    select.style.backgroundColor = '#f0f8ff';
+    select.style.fontSize = '16px';
+    select.style.cursor = 'pointer';
+    select.style.outline = 'none';
+    select.style.width = '200px';
+    select.style.color = '#333';
+    select.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    select.style.display = 'none'; // Hidden by default
+    select.style.position = 'absolute';
+    select.style.top = '30px';
+    select.style.left = '5px';
 
 
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-
-            canvas2.width = squareSize;
-            canvas2.height = squareSize;
-            ctx2.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-
-            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
-            const data2 = imageData2.data;
-
-            for (let i = 0; i < squareSize; i ++) {
-                for (let j = squareSize; j > squareSize-i; j--) {
-                    data[(j+squareSize*i)*4+3] = 0;
-                }
-            }
-
-            for (let i = 0; i < squareSize; i ++) {
-                for (let j = 0; j < squareSize-i; j++) {
-                    data2[(i+squareSize*j)*4+3] = 0;
-                }
-            }
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-            ctx2.putImageData(imageData2, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            const modifiedDataURL2 = canvas2.toDataURL();
-            resolve([modifiedDataURL, modifiedDataURL2]);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
+    const options = ['Spike Maze (Easy)', 'Spike Maze (Medium)', 'Spike Maze (Hard)', 'Leaderboard'];
+    options.forEach(optionText => {
+        const option = document.createElement('option');
+        option.value = optionText;
+        option.textContent = optionText;
+        select.appendChild(option);
     });
-}
-function separateHalvesBotRightTopLeft(img, squareSize = 40){
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const canvas2 = document.createElement('canvas');
-        const ctx2 = canvas2.getContext('2d');
 
+    container.appendChild(button);
+    container.appendChild(select);
 
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-
-            canvas2.width = squareSize;
-            canvas2.height = squareSize;
-            ctx2.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-
-            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
-            const data2 = imageData2.data;
-
-            for (let i = 0; i < squareSize; i ++) {
-                for (let j = 0; j < i; j++) {
-                    data[(i+squareSize*j)*4+3] = 0;
-                }
-            }
-
-            for (let i = 0; i < squareSize; i ++) {
-                for (let j = 0; j < i; j++) {
-                    data2[(j+squareSize*i)*4+3] = 0;
-                }
-            }
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-            ctx2.putImageData(imageData2, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            const modifiedDataURL2 = canvas2.toDataURL();
-            resolve([modifiedDataURL, modifiedDataURL2]);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
+    // Show dropdown on hover over button
+    button.addEventListener('mouseover', function() {
+        button.style.display = 'none';
+        select.style.display = 'block';
     });
+
+    // Hide dropdown and show button again when mouse leaves dropdown
+    select.addEventListener('mouseleave', function() {
+        select.style.display = 'none';
+        button.style.display = 'block';
+    });
+
+    // Optionally handle dropdown changes
+    select.addEventListener('change', function() {
+        let spawn = [];
+        let map = [];
+        switch(select.value){
+            case "Leaderboard":
+                leaderboardScreen();
+                break;
+            case "Spike Maze (Easy)":
+                spawn = [80, 680];
+                map = [["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"],["7","2","2","2","2","2","2","7","7","7","7","7","7","7","7","7","2","2","2","7"],["7","2","2","2","2","7","7","7","2","2","2","2","2","2","2","16","2","2","2","7"],["7","2","2","2","7","7","2","2","2","2","7","7","7","7","7","7","2","2","2","7"],["7","2","2","2","7","2","2","2","2","2","7","2","2","2","2","7","7","7","7","7"],["7","2","2","7","7","2","2","2","7","7","2","2","2","2","2","2","2","2","2","7"],["7","2","2","7","2","2","2","7","7","2","2","2","2","2","2","2","2","2","2","7"],["7","2","7","7","2","2","2","7","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","7","2","2","2","7","7","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","2","2","7","7","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","2","2","7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","2","2","2","7","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","2","2","2","7","2","7","7","7","7","7","7","7","2","2","2","2","2","7"],["7","7","2","2","2","7","7","7","2","2","2","2","2","2","7","2","2","2","2","7"],["7","7","2","2","2","2","2","2","2","2","2","2","2","2","7","2","2","2","2","7"],["7","7","7","2","2","2","2","2","2","2","2","2","2","2","7","7","7","7","7","7"],["7","2","7","7","7","7","7","2","2","2","2","2","2","2","2","17","18","17","18","7"],["7","2","2","2","2","2","7","7","7","7","2","2","2","2","2","18","17","18","17","7"],["7","2","2","2","2","2","2","2","2","7","7","7","7","7","2","17","18","17","18","7"],["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"]];
+
+                training(tilesExtracted, spawn, map, select.value);
+                break;
+            case "Spike Maze (Medium)":
+                spawn = [80, 1000];
+                map = [['7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7'],['7','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','7','7','7','2','2','2','2','2','2','7'],['7','2','2','2','2','7','7','7','7','7','7','7','7','2','2','2','2','2','7','2','2','16','2','2','2','2','2','2','7'],['7','2','2','7','7','2','2','2','2','2','2','7','17','2','2','2','2','2','7','2','7','7','2','2','2','2','2','2','7'],['7','2','7','2','2','2','7','7','7','7','2','7','2','2','2','2','2','2','7','2','7','7','7','7','7','7','7','7','7'],['7','7','2','2','7','7','2','2','2','7','2','7','2','7','2','7','7','7','7','2','7','7','11','11','11','11','7','7','7'],['7','7','2','7','2','2','2','7','2','7','2','7','2','7','7','2','2','2','7','2','7','7','7','7','7','7','7','7','7'],['7','7','2','2','2','7','7','2','2','7','2','7','2','7','7','2','7','2','7','2','2','7','7','7','7','7','7','7','0'],['7','2','7','7','7','2','2','2','7','7','2','2','2','7','7','2','7','2','2','7','2','7','2','2','2','2','7','7','0'],['7','2','2','7','2','2','7','7','7','7','7','7','7','7','7','2','2','7','2','2','2','7','2','7','7','2','7','7','0'],['7','2','2','7','2','7','23','23','23','23','23','7','2','2','2','7','2','7','7','7','7','2','2','7','2','2','7','7','0'],['7','2','7','2','2','7','23','11','11','11','23','7','2','7','2','2','2','7','2','2','2','2','7','2','2','7','7','7','0'],['7','2','7','2','7','7','23','23','23','23','23','7','2','2','7','7','7','2','2','7','7','7','7','2','7','7','7','7','0'],['7','2','7','2','7','7','7','7','7','7','7','7','7','2','2','2','7','2','7','2','2','2','7','2','2','2','7','7','0'],['7','2','7','2','7','2','2','2','7','2','2','2','7','7','7','2','7','2','7','2','7','2','2','7','7','2','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','2','2','7','2','7','2','2','7','2','2','2','2','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','7','7','7','2','7','7','2','2','7','7','7','7','7','7','0'],['7','2','7','2','7','2','7','2','7','2','7','2','7','2','2','2','2','2','7','7','7','2','2','2','2','2','7','7','0'],['7','2','7','2','2','2','7','2','2','2','7','2','2','7','7','7','7','7','7','7','7','7','7','7','7','2','7','7','0'],['7','2','7','7','7','7','7','7','7','7','7','7','2','2','2','2','2','2','2','2','2','2','2','2','2','2','7','7','0'],['7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','7','0']];    document.body.innerHTML = '';
+
+                training(tilesExtracted, spawn, map, select.value);
+                break;
+            case "Spike Maze (Hard)":
+                map = [["1.4000","1.00050050","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.00050500","1.3000","0","0","1.50050050","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.00550500","0","0","0","0","0","0","0","0","0"],["1.50000050","1.2000","2","2","2","2","2","2","2","1.1000","1.05000005","1.0505","1.0505","1.05505000","2","2","2","2","12","12","12","2","2","2","2","1.55000005","1.00550500","0","0","0","0","0","0","0","0"],["1.5050","2","2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","12","12","2","14","2","2","2","1.55000005","1.00550500","0","0","0","0","0","0","0"],["1.5050","2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.4005","1.0505","1.0505","1.3055","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","15","2","1.50000005","1.3000","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.5050","13.1","2","2","2","2","2","2","2","2","2","2","12","12","12","2","2","2","2","2","2","1.1000","1.05000005","1.00550500","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.5050","2","2","2","2","2","2","2","2","2","1.50050050","1.0505","1.0505","1.00050550","1.0505","1.3005","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.50000005","1.3000","2","2","2","2","1.5550","2","2","2","2","2","2","2","2","2","1.5050","25","25","1.5050","0","1.5050","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.1000","1.00500500","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5550","9.3","9.3","1.55000005","1.0505","1.05505000","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.50000005","1.3000","2","2","2","2","2","2","2","2","2","2","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.1000","1.00500500","2","2","2","2","2","2","2","2","2","1.5555","2","2","2","11","18","18","11","11","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","9.2","2","2","11","18","18","11","11","2","1.5505","1.0555","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","0","1.55000005","1.0505","1.00550500","2","2","2","2","2","2","2","2","2","9.2","2","11","18","18","11","11","2","2","2","2","2","2","1.4005","1.0505","1.00505500","0","0","0","0","0"],["0","0","0","0","1.5050","2","5","2","2","2","2","2","2","2","2","1.5505","1.00550500","18","18","11","11","2","2","2","2","2","2","1.5050","10","1.5050","0","0","0","0","0"],["0","0","0","1.4000","1.00505000","2","2","2","2","2","2","2","2","2","2","2","1.1005","1.3005","18","11","11","2","2","2","8","2","1.4000","1.00005055","1.0505","1.2005","0","0","0","0","0"],["0","0","1.4005","1.05005000","1.2000","2","2","2","2","2","2","2","2","2","2","8","2","1.1005","1.00050500","1.00050050","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.05005000","1.2000","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5000","1.0050","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.1000","1.00500500","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","1.3505","2","2","2","2","2","2","2","2","2","1.50000005","1.3000","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.4000","1.00505000","2","2","2","2","2","2","1.2055","2","2","2","2","2","2","2","2","2","1.1000","1.00500500","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.50000050","1.2000","2","2","2","2","2","2","2","2","2","2","1.3505","2","2","2","2","2","8","1.5050","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","1.50000055","1.3055","2","2","2","2","2","1.50000005","1.3000","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","1.5050","7","2","2","2","2","2","1.1000","1.00500500","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","16","2","2","2","1.5050","7","2","2","6.22","2","2","10","1.5050","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","1.5050","7","2","2","2","2","2","1.4000","1.00505000","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","1.50000055","1.2505","2","2","2","2","2","1.50000050","1.2000","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.50000005","1.3000","2","2","2","2","2","2","2","2","2","2","1.2055","2","2","2","2","2","8","1.5050","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","1.1000","1.00500500","2","2","2","2","2","2","1.3505","2","2","2","2","2","2","2","2","2","1.4000","1.00505000","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","1.2055","2","2","2","2","2","2","2","2","2","1.50000050","1.2000","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.4000","1.00505000","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5000","1.0050","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","1.1005","1.00050500","1.3000","2","2","2","2","2","2","2","2","2","2","8","2","1.4005","1.05005000","1.05000005","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.00050500","1.3000","0","0","0","0","0","0","0"],["0","0","0","1.1000","1.00500500","2","2","2","2","2","2","2","2","2","2","2","1.4005","1.2005","17","12","12","2","2","2","8","2","1.1000","1.00000555","1.0505","1.3005","0","0","0","0","0"],["0","0","0","0","1.5050","2","5","2","2","2","2","2","2","2","2","1.5505","1.05505000","17","17","12","12","2","2","2","2","2","2","1.5050","10","1.5050","0","0","0","0","0"],["0","0","1.50050050","1.0505","1.05505000","2","2","2","2","2","2","2","2","2","9.3","2","12","17","17","12","12","2","2","2","2","2","2","1.1005","1.0505","1.00505500","0","0","0","0","0"],["0","0","1.5050","2","2","2","2","2","2","2","2","2","2","9.3","2","2","12","17","17","12","12","2","1.5505","1.0555","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.4000","1.00505000","2","2","2","2","2","2","2","2","2","1.5555","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.50000050","1.2000","2","2","2","2","2","2","2","2","2","2","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["0","1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","12","17","17","12","12","2","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.4000","1.00505000","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5055","9.2","9.2","1.50050050","1.0505","1.00550500","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.50000050","1.2000","2","2","2","2","1.5055","2","2","2","2","2","2","2","2","2","1.5050","24","24","1.5050","0","1.5050","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.5050","2","2","2","2","2","2","2","2","2","1.55000005","1.0505","1.0505","1.05005005","1.0505","1.2005","2","2","2","2","2","2","2","1.5050","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.5050","13.1","2","2","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","2","2","1.4000","1.00050050","1.05505000","0","0","0","0","0"],["1.5050","2","2","2","2","2","1.1005","1.0505","1.0505","1.2505","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","14","2","1.50000050","1.2000","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","11","11","2","2","2","2","2","2","1.5050","0","0","0","0","0","0","0"],["1.5050","2","2","5","2","2","2","2","2","2","2","2","2","2","2","2","2","2","11","11","11","2","15","2","2","2","1.50050050","1.05505000","0","0","0","0","0","0","0"],["1.50000005","1.3000","2","2","2","2","2","2","2","1.4000","1.00050050","1.0505","1.0505","1.00550500","2","2","2","2","11","11","11","2","2","2","2","1.50050050","1.05505000","0","0","0","0","0","0","0","0"],["1.1000","1.05000005","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.05005000","1.2000","0","0","1.55000005","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.05505000","0","0","0","0","0","0","0","0","0"]];
+                spawn = [500,620];
+
+                training(tilesExtracted, spawn, map, select.value);
+                break;
+        }
+    });
+    select.value = val;
+    return select;
 }
-function texture(imgPath){
+
+function leaderboardScreen(){
+    document.body.innerHTML = '';
+    const spikeMazeDiv = document.createElement('div');
+    spikeMazeDiv.style.display = 'flex';
+    spikeMazeDiv.style.gap = '20px';
+    const leaderboardData = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+    spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Easy)', leaderboardData.spikeMazeEasy));
+    spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Medium)', leaderboardData.spikeMazeMed));
+    spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Hard)', leaderboardData.spikeMazeHard));
+    document.body.appendChild(spikeMazeDiv);
+    const select = addSelection(document.body, "Leaderboard");
+}
+
+function createLeaderboard(titleName, leaderboardData){
+    const leaderboardContainer = document.createElement('div');
+    leaderboardContainer.style.width = '300px';
+    leaderboardContainer.style.margin = '5px auto';
+    leaderboardContainer.style.padding = '20px';
+    leaderboardContainer.style.backgroundColor = '#fff';
+    leaderboardContainer.style.borderRadius = '10px';
+    leaderboardContainer.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+
+
+    // Create a title
+    const title = document.createElement('h2');
+    title.textContent = `${titleName}`;
+    title.style.textAlign = 'center';
+    title.style.marginBottom = '20px';
+    title.style.fontSize = '24px';
+    title.style.color = '#333333';
+    leaderboardContainer.appendChild(title);
+
+    // Create a list to hold leaderboard items
+    const leaderboardList = document.createElement('ul');
+    leaderboardList.style.listStyle = 'none';
+    leaderboardList.style.padding = '0';
+    leaderboardContainer.appendChild(leaderboardList);
+
+
+    let cnt = 1;
+    console.log(leaderboardData);
+
+    leaderboardData.forEach(player => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${cnt}: ${player}`;
+        listItem.style.display = 'flex';
+        listItem.style.justifyContent = 'space-between';
+        listItem.style.padding = '10px';
+        listItem.style.backgroundColor = '#f9f9f9';
+        listItem.style.marginBottom = '10px';
+        listItem.style.borderRadius = '5px';
+        listItem.style.fontSize = '18px';
+        listItem.style.color = '#333333';
+
+        // Alternate background color for odd/even rows
+        listItem.style.backgroundColor = cnt % 2 === 0 ? '#e9e9e9' : '#f9f9f9';
+
+        leaderboardList.appendChild(listItem);
+        cnt++;
+    });
+    return leaderboardContainer;
+}
+
+function createWall(x, y, width, height, world) {
+    const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
+    wallBodyDef.position.Set((x + width/2) / 40, (y+height/2) / 40); //have to get center point
+    wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(wallBodyDef);
+
+    const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
+    wallShape.SetAsBox(width / 2 / 40, height / 2 / 40); //40px per meter, starts at center
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = wallShape;
+    fixtureDef.friction = WALL_FRICTION;
+
+    fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: "1"});
+}
+
+function createEndzone(x, y, width, height, world, type) {
+    const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
+    wallBodyDef.position.Set((x + width/2) / 40, (y+height/2) / 40); //have to get center point
+    wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(wallBodyDef);
+
+    const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
+    wallShape.SetAsBox(width / 2 / 40, height / 2 / 40); //40px per meter, starts at center
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = wallShape;
+
+    fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM;
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: type});
+    return wallBody;
+}
+
+function createGate(x, y, width, height, world, type) {
+    const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
+    wallBodyDef.position.Set((x + width/2) / 40, (y+height/2) / 40); //have to get center point
+    wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(wallBodyDef);
+
+    const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
+    wallShape.SetAsBox(width / 2 / 40, height / 2 / 40); //40px per meter, starts at center
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = wallShape;
+    fixtureDef.friction = WALL_FRICTION;
+
+    if(type === '9.1') {
+        fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+    }
+    else if(type === '9.2') {
+        fixtureDef.filter.categoryBits = entityCategory.BLUE_TEAM;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+    }
+    else if(type === '9.3') {
+        fixtureDef.filter.categoryBits = entityCategory.RED_TEAM;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+    }
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: type});
+}
+
+function createNonSquareWall(x,y,vertices, world) {
+    const wallBodyDef = new Box2D.Dynamics.b2BodyDef();
+    wallBodyDef.position.Set((x) / 40, (y) / 40); //have to get center point
+    wallBodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(wallBodyDef);
+
+    const wallShape = new Box2D.Collision.Shapes.b2PolygonShape();
+    wallShape.SetAsArray(vertices, vertices.length);
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = wallShape;
+    fixtureDef.friction = WALL_FRICTION;
+
+    fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: "1"}); //for our purposes all types of walls are 1
+}
+
+function createSpike(x, y, radius, world) {
+    const bodyDef = new Box2D.Dynamics.b2BodyDef();
+    bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+    bodyDef.position.Set((x+20) / 40, (y+20) / 40);
+
+    const dynamicBody = world.CreateBody(bodyDef);
+
+    const circleShape = new Box2D.Collision.Shapes.b2CircleShape();
+    circleShape.SetRadius(radius / 40);
+
+    const sensorDef = new Box2D.Dynamics.b2FixtureDef();
+    sensorDef.shape = circleShape;
+
+    dynamicBody.CreateFixture(sensorDef);
+
+    dynamicBody.SetUserData({type: "7"});
+}
+
+function createBoost(x, y, radius, world, type) {
+    const bodyDef = new Box2D.Dynamics.b2BodyDef();
+    bodyDef.position.Set((x+20) / 40, (y+20) / 40);
+    bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(bodyDef);
+
+    const circleShape = new Box2D.Collision.Shapes.b2CircleShape();
+    circleShape.SetRadius(radius / 40);
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = circleShape;
+
+    if(type === '5') {
+        fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+    }
+    else if(type === '14') {
+        fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM;
+    }
+    else if(type === '15') {
+        fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+        fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.BLUE_TEAM;
+    }
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: type});
+}
+
+function createFlag(x, y, radius, world, type) {
+    const bodyDef = new Box2D.Dynamics.b2BodyDef();
+    bodyDef.position.Set((x+20) / 40, (y+20) / 40);
+    bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+
+    const wallBody = world.CreateBody(bodyDef);
+
+    const circleShape = new Box2D.Collision.Shapes.b2CircleShape();
+    circleShape.SetRadius(radius / 40);
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = circleShape;
+
+    //yellow flag
+    fixtureDef.filter.categoryBits = entityCategory.NO_ONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM | entityCategory.BLUE_TEAM;
+
+
+    wallBody.CreateFixture(fixtureDef);
+
+    wallBody.SetUserData({type: type, x: x, y: y});
+
+    return wallBody;
+}
+
+function createBall(x, y, radius, world) {
+    const bodyDef = new Box2D.Dynamics.b2BodyDef();
+    bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+    bodyDef.position.Set(x / 40, y / 40);
+
+    const dynamicBody = world.CreateBody(bodyDef);
+    //dynamicBody.SetAngularDamping(0.5);
+
+    const circleShape = new Box2D.Collision.Shapes.b2CircleShape();
+    circleShape.SetRadius(radius / 40);
+
+    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    fixtureDef.shape = circleShape;
+    fixtureDef.density = 1.5;
+    fixtureDef.friction = 0.1;
+    fixtureDef.restitution = 0.25;
+
+
+    fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM;
+
+    const sensorDef = new Box2D.Dynamics.b2FixtureDef();
+    sensorDef.shape = circleShape;
+    sensorDef.isSensor = true;
+
+
+    dynamicBody.CreateFixture(fixtureDef);
+    dynamicBody.CreateFixture(sensorDef);
+    dynamicBody.SetAngularDamping(0.5); //stop from spinning forever
+
+    dynamicBody.SetUserData({type: "redball"});
+
+    return dynamicBody;
+}
+
+function applyExtraForceToBall(ball, dt=1/60) {
+    //maybe turn velocity into unit vectors first? Always apply set amount of boost
+    //were just gonna assume boosts for now
+
+
+    const body = ball.body; 
+
+    // Get the body's current velocity
+    const velocity = ball.GetLinearVelocity();
+
+    let forceX = 0;
+    let forceY = 0;
+    const totalSpeed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+    const magnitudeX = velocity.x / totalSpeed;
+    const magnitudeY = velocity.y / totalSpeed;
+
+    if (velocity.x > 0) {
+        forceX += PIXELS_PER_METER * TPU * magnitudeX * BOOST_SPEED;
+    }
+    else if (velocity.x < 0) {
+        forceX += PIXELS_PER_METER * TPU * magnitudeX * BOOST_SPEED;
+    }
+    if (velocity.y > 0) {
+        forceY += PIXELS_PER_METER * TPU * magnitudeY * BOOST_SPEED;
+    }
+    else if (velocity.y < 0) {
+        forceY += PIXELS_PER_METER * TPU * magnitudeY * BOOST_SPEED;
+    }
+
+
+    // Apply accel forces
+    ball.ApplyForce(
+        new Box2D.Common.Math.b2Vec2(forceX, forceY), // Force vector
+        ball.GetWorldCenter()                         // Point of application (usually the center)
+    );
+    //console.log(ball.GetLinearVelocity());
+
+}
+
+function applyForceToBall(keys, ball, dt=1/60) {
+    const body = ball.body; // Assuming 'ball.body' is the Box2D body
+
+
+    // Key control for movement with acceleration based on velocity
+    const velocity = ball.GetLinearVelocity();
+
+    // Forces to be applied
+    let forceX = 0;
+    let forceY = 0;
+
+    // Apply movement forces
+    if (keys.up) {
+        forceY -= (TPU/PIXELS_PER_METER) * ACCELERATION;
+    }
+    if (keys.down) {
+        forceY += (TPU/PIXELS_PER_METER) * ACCELERATION;
+    }
+    if (keys.left) {
+        forceX -= (TPU/PIXELS_PER_METER) * ACCELERATION;
+    }
+    if (keys.right) {
+        forceX += (TPU/PIXELS_PER_METER) * ACCELERATION;
+    }
+
+
+
+    // Apply drag (deceleration) to simulate friction
+    let dragForceX = 0;
+    let dragForceY = 0;
+
+
+    if (velocity.x < 0) {
+        dragForceX = -1 * velocity.x * DRAGCELERATION;
+        if (velocity.x + dragForceX > 0) {
+            dragForceX = -velocity.x;  // Don't overcompensate
+        }
+        else if (velocity.x < -6.25 && velocity.x > -6.3){
+            dragForceX = -1 * velocity.x * MAINTENANCEDRAG;
+        }
+        else if (velocity.x < -6.3) {
+            dragForceX = -1 * velocity.x * SUPERDRAG;
+        }
+    }
+    else if (velocity.x > 0) {
+        dragForceX =  -1  * velocity.x * DRAGCELERATION;
+        if (velocity.x + dragForceX < 0) {
+            dragForceX = -velocity.x;
+        }
+        else if (velocity.x > 6.25 && velocity.x < 6.3){
+            dragForceX = -1 * velocity.x * MAINTENANCEDRAG;
+        }
+        else if (velocity.x > 6.3) {
+            dragForceX = -1 * velocity.x * SUPERDRAG;
+        }
+    }
+    if (velocity.y < 0) {
+        dragForceY =  -1 * velocity.y * DRAGCELERATION;
+        if (velocity.y + dragForceY > 0) {
+            dragForceY = -velocity.y;
+        }
+        else if (velocity.y < -6.25 && velocity.y > -6.3){
+            dragForceY = -1 * velocity.y * MAINTENANCEDRAG;
+        }
+        else if (velocity.y < -6.3) {
+            dragForceY = -1 * velocity.y * SUPERDRAG;
+        }
+    }
+    else if (velocity.y > 0) {
+        dragForceY =  -1 * velocity.y * DRAGCELERATION;
+        if (velocity.y + dragForceY < 0) {
+            dragForceY = -velocity.y;
+        }
+        else if (velocity.y > 6.25 && velocity.y < 6.3){
+            dragForceY = -1 * velocity.y * MAINTENANCEDRAG;
+        }
+        else if (velocity.x > 6.3) {
+            dragForceY = -1 * velocity.y * SUPERDRAG;
+        }
+    }
+
+    // Apply accel forces
+    ball.ApplyForce(
+        new Box2D.Common.Math.b2Vec2(forceX, forceY), // Force vector
+        ball.GetWorldCenter()                         // Point of application (usually the center)
+    );
+    // Apply drag forces
+    ball.ApplyForce(
+        new Box2D.Common.Math.b2Vec2(dragForceX, dragForceY),
+        ball.GetWorldCenter()
+    );
+
+    //console.log(ball.GetLinearVelocity());
+
+}
+
+function addSpriteToLocation(app, tiles, tileNum, x, y, map=[], i=0, j=0) {
+    const sprite1 = getSpriteFromTileNum(tiles, tileNum, map, i ,j);
+    sprite1.position.x = x;
+    sprite1.position.y = y;
+    if(tileNum === '16'){
+        const sprite2 = getSpriteFromTileNum(tiles, '16.1', map, i ,j);
+        sprite2.position.x = x;
+        sprite2.position.y = y;
+        app.stage.addChild(sprite2);
+    }
+    app.stage.addChild(sprite1);
+    return sprite1;
+}
+
+function getSpriteFromTileNum(tiles, tileNum, map, i, j) {
+    let sprite1;
+    let sprite2;
+    let container = new PIXI.Container();
+    switch(tileNum) {
+        case '1.4': //botright
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles['1.1']));
+
+        case '3.1':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['3']));
+        case '4.1':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['4']));
+        case '5':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '6.11':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.1']));
+        case '6.12':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.1']));
+        case '6.21':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.2']));
+        case '6.22':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.2']));
+        case '6.31':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.3']));
+        case '6.32':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['6.3']));
+        case '7':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '8':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '10':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '10.11':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['10.1']));
+        case '13':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '13.1':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '13.11':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['13']));
+        case '14':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '15':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '24.1':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['24']));
+        case '24.11':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['24']));
+        case '25.1':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['25']));
+        case '25.11':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['25']));
+        case '14.1':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['14']));
+        case '14.11':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['14']));
+        case '15.1':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['15']));
+        case '15.11':
+            return new PIXI.Sprite(PIXI.Texture.from(tiles['15']));
+        case '16':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+        case '16.1':
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+            container.addChild(sprite2);
+            container.addChild(sprite1);
+            return container;
+
+        default:
+            sprite1 = new PIXI.Sprite(PIXI.Texture.from(tiles[tileNum]));
+            if(/(^1[.]1.*$)/.test(tileNum)){
+                if(i >= map.length-1 || j <= 0 || map[i][j-1] == '0' || map[i+1][j] == '0'){
+                    return sprite1;
+                }
+                else if (map[i][j-1] == '17' || map[i+1][j] == '17') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
+                }
+                else if (map[i][j-1] == '18' || map[i+1][j] == '18') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
+                }
+                else if (map[i][j-1] == '11' || map[i+1][j] == '11') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
+                }
+                else if (map[i][j-1] == '12' || map[i+1][j] == '12') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
+                }
+                else if (map[i][j-1] == '23' || map[i+1][j] == '23') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
+                }
+                else{
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+                }
+
+                container.addChild(sprite2);
+                container.addChild(sprite1);
+                return container;
+            }
+            else if(/(^1[.]2.*$)/.test(tileNum)){
+                //sprite1.position.x -= 2;
+                //sprite1.position.y -=1;
+                if(i >= map.length-1 || j >= map.length-1 || map[i][j+1] == '0' || map[i+1][j] == '0'){
+                    //sprite1.position.x += 39; //this is weird...
+                    return sprite1;
+                }
+                else if (map[i][j+1] == '17' || map[i+1][j] == '17') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
+                }
+                else if (map[i][j+1] == '18' || map[i+1][j] == '18') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
+                }
+                else if (map[i][j+1] == '11' || map[i+1][j] == '11') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
+                }
+                else if (map[i][j+1] == '12' || map[i+1][j] == '12') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
+                }
+                else if (map[i][j+1] == '23' || map[i+1][j] == '23') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
+                }
+                else{
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+                }
+                //weirdness happening with this tile
+                //sprite1.scale.x = 1.05;
+                //sprite1.x -= 2;
+                container.addChild(sprite2);
+                container.addChild(sprite1);
+
+                return container;
+            }
+            else if(/(^1[.]3.*$)/.test(tileNum)){
+                if(i <= 0 || j >= map.length-1 || map[i][j+1] == '0' || map[i-1][j] == '0'){
+                    return sprite1;
+                }
+                else if (map[i][j+1] == '17' && map[i-1][j] == '17') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
+                }
+                else if (map[i][j+1] == '18' && map[i-1][j] == '18') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
+                }
+                else if (map[i][j+1] == '11' && map[i-1][j] == '11') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
+                }
+                else if (map[i][j+1] == '12' && map[i-1][j] == '12') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
+                }
+                else if (map[i][j+1] == '23' && map[i-1][j] == '23') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
+                }
+                else{
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+                }
+
+
+
+                container.addChild(sprite2);
+                container.addChild(sprite1);
+                return container;
+            }
+            else if(/(^1[.]4.*$)/.test(tileNum)){
+                if(i <= 0 || j <= 0 || map[i][j-1] == '0' || map[i-1][j] == '0'){
+                    return sprite1;
+                }
+                else if (map[i][j-1] == '17' && map[i-1][j] == '17') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['17']));
+                }
+                else if (map[i][j-1] == '18' && map[i-1][j] == '18') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['18']));
+                }
+                else if (map[i][j-1] == '11' && map[i-1][j] == '11') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['11']));
+                }
+                else if (map[i][j-1] == '12' && map[i-1][j] == '12') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['12']));
+                }
+                else if (map[i][j-1] == '23' && map[i-1][j] == '23') {
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['23']));
+                }
+                else{
+                    sprite2 = new PIXI.Sprite(PIXI.Texture.from(tiles['2']));
+                }
+
+                container.addChild(sprite2);
+                container.addChild(sprite1);
+                return container;
+            }
+            else if(/^1[.](0|5).*$/.test(tileNum)){
+                //1
+            }
+            return sprite1;
+    }
+}
+
+function texture(){
     return new Promise((resolve, reject) => {
+        const imgPath = 'https://raw.githubusercontent.com/iodtp/temp/refs/heads/main/mtBad.png';
         const squareSize = 40;
-        const squares = []; // Array to store the data URLs of squares
+        const squares = []; // Array to store the data URLs of the squares
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const img = new Image();
-        img.crossOrigin = "Anonymous";
+        img.crossOrigin = "Anonymous"; //deal with CORS
         img.src = imgPath;
 
         img.onload = () => {
@@ -734,8 +1224,6 @@ function texture(imgPath){
                     const x = col * squareSize;
                     const y = row * squareSize;
 
-                    // Extracting each 40x40 square
-
                     const imageData = ctx.getImageData(x, y, squareSize, squareSize);
 
                     // Creating a new canvas for each square
@@ -747,205 +1235,183 @@ function texture(imgPath){
 
                     // Convert the new canvas to a data URL and store it in the array
                     const dataURL = newCanvas.toDataURL();
-                    const img = new Image();
-                    img.src = dataURL;
-                    squares.push(img);
+                    squares.push(dataURL);
                 }
             }
 
+            const tiles = {
+                // diagWalls
+                "1.1555": squares[0],
+                "1.2555": squares[1],
+                "1.3555": squares[2],
+                "1.4555": squares[3],
+                "1.1055": squares[4],
+                "1.2055": squares[5],
+                "1.3055": squares[6],
+                "1.4055": squares[7],
+                "1.1505": squares[8],
+                "1.2505": squares[9],
+                "1.3505": squares[10],
+                "1.4505": squares[11],
+                "1.1005": squares[12],
+                "1.2005": squares[13],
+                "1.3005": squares[14],
+                "1.4005": squares[15],
+                "1.1000": squares[16],
+                "1.2000": squares[17],
+                "1.3000": squares[18],
+                "1.4000": squares[19],
+
+                // fullWalls
+                '1.5555': squares[20],
+                '1.5550': squares[21],
+                '1.5505': squares[22],
+                '1.5055': squares[23],
+                '1.0555': squares[24],
+                "1.5500": squares[25],
+                "1.5050": squares[26],
+                "1.5005": squares[27],
+                "1.0550": squares[28],
+                "1.0055": squares[29],
+                "1.0505": squares[30],
+                "1.55000005": squares[31],
+                "1.50050050": squares[32],
+                "1.05505000": squares[33],
+                "1.00550500": squares[34],
+                "1.5000": squares[35],
+                "1.0500": squares[36],
+                "1.0050": squares[37],
+                "1.0005": squares[38],
+                "1.50000055": squares[39],
+                "1.50000050": squares[40],
+                "1.50000005": squares[41],
+                "1.05005005": squares[42],
+                "1.05005000": squares[43],
+                "1.05000005": squares[44],
+                "1.00505500": squares[45],
+                "1.00505000": squares[46],
+                "1.00500500": squares[47],
+                "1.00050550": squares[48],
+                "1.00050500": squares[49],
+                "1.00050050": squares[50],
+                "1.0000": squares[51],
+                "1.00005555": squares[52],
+                "1.00005550": squares[53],
+                "1.00005505": squares[54],
+                "1.00005055": squares[55],
+                "1.00000555": squares[56],
+                "1.00005500": squares[57],
+                "1.00005005": squares[58],
+                "1.00000550": squares[59],
+                "1.00000055": squares[60],
+                "1.00005050": squares[61],
+                "1.00000505": squares[62],
+                "1.00005000": squares[63],
+                "1.00000500": squares[64],
+                "1.00000050": squares[65],
+                "1.00000005": squares[66],
+
+                // nonWalls
+                "0": squares[67],
+                "2": squares[68],
+                "3": squares[69],
+                "3.1": squares[100],
+                "4": squares[70],
+                "4.1": squares[72],
+                "5": squares[71], //placeholder
+                "6": squares[73],
+                "6.1": squares[74],
+                "6.11": squares[75],
+                "6.12": squares[76],
+                "6.2": squares[77],
+                "6.21": squares[78],
+                "6.22": squares[79],
+                "6.3": squares[80],
+                "6.31": squares[81],
+                "6.32": squares[82],
+                "7": squares[73],
+                "8": squares[74],
+                "9": squares[85],
+                "9.1": squares[111],
+                "9.2": squares[112],
+                "9.3": squares[113],
+                "10": squares[115],
+                "10.1": squares[90],
+                "10.11": squares[91],
+                "11": squares[77],
+                "12": squares[78],
+                "13": squares[99],
+                "13.1": squares[94],
+                "14": squares[80],
+                "15": squares[81],
+                "16": squares[82],
+                "16.1": squares[116],
+                "17": squares[83],
+                "18": squares[84],
+                "23": squares[85],
+                "24": squares[86],
+                "25": squares[79],
+                "redball": squares[117],
+                "blueball": squares[118]
+            };
 
 
-            resolve(squares); // Resolve the Promise with the squares array
+
+            resolve(tiles); // Resolve the promise with the squares array
         };
 
-        img.onerror = reject; // Handle errors (e.g., if the image fails to load)
+        img.onerror = reject; // Handle errors
     });
 }
 
-function remakeTiles(parts){//probably turn this into a promise too
-    const diagWalls = parts[0];
-    const fullWalls = parts[1];
-    const nonWalls = parts[2];
+function loop(delta, player, world, keys, app, spawn, spikeMaze) {
+    applyForceToBall(keys, player.playerCollision);
+    world.Step(1 / 60, 8, 3); // Update Box2D world
 
-    const canvas = document.createElement('canvas');
-    canvas.width = 40;
-    canvas.height = 40 * (Object.keys(diagWalls).length+Object.keys(fullWalls).length+Object.keys(nonWalls).length);
+    // Update PixiJS sprite positions
+    const position = player.playerCollision.GetPosition();
+    const angle = player.playerCollision.GetAngle();
 
-    const ctx = canvas.getContext('2d');
-    let currenty = 0;
-    for (const [key, tile] of Object.entries(diagWalls)) {
-        if (tile == null){
-            console.log(key);
-            continue;
+    if(player.dead){
+        if(player.playerSprite.visible){ //we only want to start the countdown once
+            player.playerSprite.visible = false;
+            if(spikeMaze){
+                player.hold = 0.0;
+            }
+            setTimeout(() => {
+                player.playerSprite.visible = true;
+                player.dead = false;
+                player.playerSprite.x = spawn[0];
+                player.playerSprite.y = spawn[1];
+                player.playerSprite.rotation = 0;
+                console.log(player.playerCollision.m_xf.position);
+                player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(spawn[0]/40,spawn[1]/40));
+                player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
+            }, 3000);
+        }
+    }
+    else{
+        player.playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
+        player.playerSprite.y = position.y * 40;
+        player.playerSprite.rotation = angle;
+        if(player.hasFlag){
+            player.playerFlag.position.x = position.x * 40 - 5;
+            player.playerFlag.position.y = position.y * 40 - 45;
+            app.stage.addChild(player.playerFlag);
+            player.hold += 1/60;
         }
 
-        ctx.drawImage(tile, 0, currenty, 40, 40);
-        currenty += 40;
     }
-    for (const [key, tile] of Object.entries(fullWalls)) {
-        if (tile == null){
-            console.log(key);
-            continue;
-        }
 
-        ctx.drawImage(tile, 0, currenty, 40, 40);
-        currenty += 40;
-    }
-    for (const [key, tile] of Object.entries(nonWalls)) {
-        if (tile == null){
-            console.log(key);
-            continue;
-        }
-        ctx.drawImage(tile, 0, currenty, 40, 40);
-        currenty += 40;
-    }
-    document.body.appendChild(canvas);
-}
-function rotate270(img, squareSize=40){
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const canvas2 = document.createElement('canvas');
-        const ctx2 = canvas2.getContext('2d');
+    //Center view on ball
+    app.stage.position.x = WIDTH/2;
+    app.stage.position.y = HEIGHT/2;
+    //now specify which point INSIDE stage must be (0,0)
+    app.stage.pivot.x = player.playerSprite.position.x;
+    app.stage.pivot.y = player.playerSprite.position.y;
 
 
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
 
-            canvas2.width = squareSize;
-            canvas2.height = squareSize;
-            ctx2.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-
-            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
-            const data2 = imageData2.data;
-
-            for (let i = 0; i < squareSize; i ++) {
-                for (let j = 0; j < squareSize; j++) {
-                    data2[(i+squareSize*j)*4] = data[(squareSize-j-1+squareSize*i)*4+0];
-                    data2[(i+squareSize*j)*4+1] = data[(squareSize-j-1+squareSize*i)*4+1];
-                    data2[(i+squareSize*j)*4+2] = data[(squareSize-j-1+squareSize*i)*4+2];
-                    data2[(i+squareSize*j)*4+3] = data[(squareSize-j-1+squareSize*i)*4+3];
-                }
-            }
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-            ctx2.putImageData(imageData2, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            const modifiedDataURL2 = canvas2.toDataURL();
-            const img3 = new Image();;
-            img3.src = modifiedDataURL2;
-            resolve(img3);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
-    });
-}
-function rotate180(img, squareSize = 40) {
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const canvas2 = document.createElement('canvas');
-        const ctx2 = canvas2.getContext('2d');
-
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-
-            canvas2.width = squareSize;
-            canvas2.height = squareSize;
-            ctx2.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-
-            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
-            const data2 = imageData2.data;
-
-            for (let i = 0; i < squareSize; i++) {
-                for (let j = 0; j < squareSize; j++) {
-                    // Update for 180 degree rotation
-                    data2[(i + squareSize * j) * 4] = data[((squareSize - i - 1) + squareSize * (squareSize - j - 1)) * 4 + 0];
-                    data2[(i + squareSize * j) * 4 + 1] = data[((squareSize - i - 1) + squareSize * (squareSize - j - 1)) * 4 + 1];
-                    data2[(i + squareSize * j) * 4 + 2] = data[((squareSize - i - 1) + squareSize * (squareSize - j - 1)) * 4 + 2];
-                    data2[(i + squareSize * j) * 4 + 3] = data[((squareSize - i - 1) + squareSize * (squareSize - j - 1)) * 4 + 3];
-                }
-            }
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-            ctx2.putImageData(imageData2, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            const modifiedDataURL2 = canvas2.toDataURL();
-            const img3 = new Image();
-            img3.src = modifiedDataURL2;
-            resolve(img3);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
-    });
+    world.ClearForces();
 }
 
-function rotate90(img, squareSize = 40) {
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const canvas2 = document.createElement('canvas');
-        const ctx2 = canvas2.getContext('2d');
-
-        img.onload = () => {
-            canvas.width = squareSize;
-            canvas.height = squareSize;
-            ctx.drawImage(img, 0, 0);
-
-            canvas2.width = squareSize;
-            canvas2.height = squareSize;
-            ctx2.drawImage(img, 0, 0);
-            // Access pixel data
-            const imageData = ctx.getImageData(0, 0, squareSize, squareSize);
-            const data = imageData.data;
-
-            const imageData2 = ctx2.getImageData(0, 0, squareSize, squareSize);
-            const data2 = imageData2.data;
-
-            for (let i = 0; i < squareSize; i++) {
-                for (let j = 0; j < squareSize; j++) {
-                    // Update for 90 degree rotation
-                    data2[(i + squareSize * j) * 4] = data[(j + squareSize * (squareSize - i - 1)) * 4 + 0];
-                    data2[(i + squareSize * j) * 4 + 1] = data[(j + squareSize * (squareSize - i - 1)) * 4 + 1];
-                    data2[(i + squareSize * j) * 4 + 2] = data[(j + squareSize * (squareSize - i - 1)) * 4 + 2];
-                    data2[(i + squareSize * j) * 4 + 3] = data[(j + squareSize * (squareSize - i - 1)) * 4 + 3];
-                }
-            }
-
-            // Put the modified data back on the canvas
-            ctx.putImageData(imageData, 0, 0);
-            ctx2.putImageData(imageData2, 0, 0);
-
-            // Convert the modified canvas back to a data URL
-            const modifiedDataURL = canvas.toDataURL();
-            const modifiedDataURL2 = canvas2.toDataURL();
-            const img3 = new Image();
-            img3.src = modifiedDataURL2;
-            resolve(img3);
-        };
-
-        img.onerror = () => {
-            reject(new Error("Failed to load image."));
-        };
-    });
-}
