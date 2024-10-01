@@ -530,8 +530,8 @@ function gameOver(app, score, player){
     button.endFill();
 
     // Position the button
-    button.x = player.playerSprite.x;
-    button.y = player.playerSprite.y;
+    button.x = player.playerSprite.x - button.width / 2;
+    button.y = player.playerSprite.y + 100;
 
     // Create text for the button
     const buttonText = new PIXI.Text('Play Again', {
@@ -539,8 +539,8 @@ function gameOver(app, score, player){
         fontSize: 24,
         fill: 0xffffff,
     });
-    buttonText.x = button.x + 50;
-    buttonText.y = button.y + 15;
+    buttonText.x = button.x + (button.width - buttonText.width) / 2;
+    buttonText.y = button.y + (button.height - buttonText.height) / 2;
 
     // Add button and text to stage
     app.stage.addChild(button);
