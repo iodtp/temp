@@ -181,7 +181,7 @@ function training(tiles, spawn, map, value){
     const playerSprite = addSpriteToLocation(app, tiles, 'redball', spawn[0], spawn[1]);
     const playerFlag = new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
     playerFlag.visible = false;
-    const playerCollision = createBall(spawn[0], spawn[1], 19, world);
+    const playerCollision = createBall(spawn[0], spawn[1], 19, world, "redball");
     const player = {};
     playerSprite.anchor.set(0.5,0.5);
     player.playerSprite = playerSprite;
@@ -204,7 +204,7 @@ function training(tiles, spawn, map, value){
         enemy.playerFlagYellow = flag;
         enemy.playerFlag = enemy.playerFlagYellow;
         enemy.playerFlag.visible = true;
-        const enemyCollision = createBall(spawn[0], spawn[1], 19, world);
+        const enemyCollision = createBall(spawn[0], spawn[1], 19, world, "blueball");
         enemy.playerCollision = enemyCollision;
         enemy.hasFlag = true;
     }
@@ -363,6 +363,9 @@ function training(tiles, spawn, map, value){
                         }
                     }
                     break;
+                case 'blueball':
+                    console.log("HIT");
+                    break;
             }
         }
         else if (type2 === 'redball') {
@@ -458,6 +461,9 @@ function training(tiles, spawn, map, value){
                             playerDeath(player, mapSprites, keys);
                         }
                     }
+                    break;
+                case 'blueball':
+                    console.log("HIT");
                     break;
             }
         }
@@ -880,7 +886,7 @@ function createFlag(x, y, radius, world, type) {
     return wallBody;
 }
 
-function createBall(x, y, radius, world) {
+function createBall(x, y, radius, world, type) {
     const bodyDef = new Box2D.Dynamics.b2BodyDef();
     bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
     bodyDef.position.Set(x / 40, y / 40);
@@ -910,7 +916,7 @@ function createBall(x, y, radius, world) {
     dynamicBody.CreateFixture(sensorDef);
     dynamicBody.SetAngularDamping(0.5); //stop from spinning forever
 
-    dynamicBody.SetUserData({type: "redball"});
+    dynamicBody.SetUserData({type: type});
 
     return dynamicBody;
 }
