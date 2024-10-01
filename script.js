@@ -507,7 +507,9 @@ function addWinningText(app, holdTime){
     }, "3000");
 }
 
-function gameOver(app, score){
+function gameOver(app, score, player){
+
+
     const style = new PIXI.TextStyle({
         fontFamily: 'Arial',         // Font family similar to the image
         fontSize: 100,               // Large font size to match the "Red Wins!" size
@@ -518,8 +520,8 @@ function gameOver(app, score){
         align: 'center',             // Center alignment for the text
     });
     const text = new PIXI.Text(`Score: ${score}`, style);
-    text.x = (app.screen.width - text.width) / 2;
-    text.y = (app.screen.height - text.height) / 2;
+    text.x = player.playerSprite.x - text.width / 2;
+    text.y = player.playerSprite.y - 100;
     app.stage.addChild(text);
 
     const button = new PIXI.Graphics();
@@ -528,8 +530,8 @@ function gameOver(app, score){
     button.endFill();
 
     // Position the button
-    button.x = (app.screen.width - 200) / 2;
-    button.y = (app.screen.height - 20);
+    button.x = player.playerSprite.x;
+    button.y = player.playerSprite.y;
 
     // Create text for the button
     const buttonText = new PIXI.Text('Play Again', {
@@ -549,7 +551,6 @@ function gameOver(app, score){
 
     // Add a click event listener
     button.on('pointerdown', playAgain);
-
 }
 
 function playAgain() {
@@ -1588,7 +1589,7 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn) {
 
     if(player.lost){
         player.playerSprite.visible = false;
-        gameOver(app, player.tags);
+        gameOver(app, player.tags, player);
     }
     else if(player.dead){
         if(player.playerSprite.visible){ //we only want to start the countdown once
