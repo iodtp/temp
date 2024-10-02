@@ -194,15 +194,17 @@ function training(tiles, spawn, map, value){
 
     const enemy = {};
     if(snipers){
-        const blueBall = addSpriteToLocation(app, tiles, 'blueball', spawn[0]+40, spawn[1]+40);
+        const enemySpawnY = 420 + (Math.random()*2 -1) * 100;
+        const enemySpawnX = 500 + (Math.random()*2 -1) * 300;
+        const blueBall = addSpriteToLocation(app, tiles, 'blueball', enemySpawnX, enemySpawnY);
         blueBall.anchor.set(0.5,0.5);
         const flag = new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
-        const blueCollision = createBall(spawn[0]+40, spawn[1]+40, 19, world);
+        const blueCollision = createBall(enemySpawnX, enemySpawnY, 19, world);
         enemy.playerSprite = blueBall;
         enemy.playerFlagYellow = flag;
         enemy.playerFlag = enemy.playerFlagYellow;
         enemy.playerFlag.visible = true;
-        const enemyCollision = createBall(spawn[0]+40, spawn[1]+40, 19, world, "blueball");
+        const enemyCollision = createBall(enemySpawnX, enemySpawnY, 19, world, "blueball");
         enemy.playerCollision = enemyCollision;
         enemy.hasFlag = true;
     }
