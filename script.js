@@ -20,13 +20,14 @@ const WALL_FRICTION = 0.5;
 const MAX_SPEED = 6.25;
 const BOOST_SPEED = 0.3;
 
-const LEADERBOARD_LENGTH = 10;
+const LEADERBOARD_LENGTH = 5;
 
 
 const WIDTH = Math.min(1280, window.innerWidth);
 const HEIGHT = Math.min(800, window.innerHeight);
 
 let tilesExtracted = {};
+let done = false;
 
 const entityCategory = { //who collides with me?
     EVERYONE : 0x0001,
@@ -309,12 +310,12 @@ function training(tiles, spawn, map, value){
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
-                                mazeLeader = mazeLeader.slice(0, 10);
+                                mazeLeader = mazeLeader.slice(0, LEADERBOARD_LENGTH);
                             }
                             else{
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
-                                mazeLeader = mazeLeader.slice(0, 10);
+                                mazeLeader = mazeLeader.slice(0, LEADERBOARD_LENGTH);
                             }
                             leaderboard.spikeMazeEasy = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
@@ -329,12 +330,12 @@ function training(tiles, spawn, map, value){
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
-                                mazeLeader = mazeLeader.slice(0, 10);
+                                mazeLeader = mazeLeader.slice(0, LEADERBOARD_LENGTH);
                             }
                             else{
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
-                                mazeLeader = mazeLeader.slice(0, 10);
+                                mazeLeader = mazeLeader.slice(0, LEADERBOARD_LENGTH);
                             }
                             leaderboard.spikeMazeMed = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
@@ -342,7 +343,7 @@ function training(tiles, spawn, map, value){
                         }
                         else if(value === "Spike Maze (Hard)"){
                             addWinningText(app, player.hold);
-                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": [], "snipersEasy": [], "snipersMed": [], "snipersHard": []}'));
                             let mazeLeader = leaderboard.spikeMazeHard;
 
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
@@ -406,7 +407,7 @@ function training(tiles, spawn, map, value){
                         mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
                         if(value === "Spike Maze (Easy)"){
                             addWinningText(app, player.hold);
-                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": [], "snipersEasy": [], "snipersMed": [], "snipersHard": []}'));
                             let mazeLeader = leaderboard.spikeMazeEasy;
 
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
@@ -425,7 +426,7 @@ function training(tiles, spawn, map, value){
                         }
                         else if(value === "Spike Maze (Medium)"){
                             addWinningText(app, player.hold);
-                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": [], "snipersEasy": [], "snipersMed": [], "snipersHard": []}'));
                             let mazeLeader = leaderboard.spikeMazeMed;
 
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
@@ -444,7 +445,7 @@ function training(tiles, spawn, map, value){
                         }
                         else if(value === "Spike Maze (Hard)"){
                             addWinningText(app, player.hold);
-                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+                            let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": [], "snipersEasy": [], "snipersMed": [], "snipersHard": []}'));
                             let mazeLeader = leaderboard.spikeMazeHard;
 
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
@@ -509,7 +510,6 @@ function addWinningText(app, holdTime){
 
 function gameOver(app, score, player){
 
-
     const style = new PIXI.TextStyle({
         fontFamily: 'Arial',         // Font family similar to the image
         fontSize: 100,               // Large font size to match the "Red Wins!" size
@@ -551,10 +551,37 @@ function gameOver(app, score, player){
 
     // Add a click event listener
     button.on('pointerdown', playAgain);
+    if(!done){
+        done = true;
+        let leaderboard = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": [], "snipersEasy": [], "snipersMed": [], "snipersHard": []}'));
+        let leader = leaderboard.snipersHard;
+        console.log(player);
+
+        if(leader.length < LEADERBOARD_LENGTH){
+            leader.push(player.tags);
+            leader.sort(function(a, b) {
+                return b - a;
+            });
+            leader = leader.slice(0, LEADERBOARD_LENGTH);
+        }
+        else{
+            leader.push(player.tags);
+            leader.sort(function(a, b) {
+                return b - a;
+            });
+            leader = leader.slice(0, LEADERBOARD_LENGTH);
+        }
+        leaderboard.snipersHard = leader;
+        GM_setValue('leaderboard', JSON.stringify(leaderboard));
+    }
+
 }
 
 function playAgain() {
-    console.log("Playing again!");
+    const map =[["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","5","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"]];
+    const spawn = [620,700];
+
+    training(tilesExtracted, spawn, map, "Snipers (Hard)");
 
 }
 function pixelsToLoc(x,y){
@@ -669,6 +696,7 @@ function addSelection(container, val){
 
     // Optionally handle dropdown changes
     select.addEventListener('change', function() {
+        done = false;
         let spawn = [];
         let map = [];
         switch(select.value){
@@ -694,8 +722,8 @@ function addSelection(container, val){
                 training(tilesExtracted, spawn, map, select.value);
                 break;
             case "Snipers (Hard)":
-                map = [["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","5","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"]];
-                spawn = [620,900];
+                map =[["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","5","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"]];
+                spawn = [620,700];
 
                 training(tilesExtracted, spawn, map, select.value);
                 break;
@@ -710,11 +738,17 @@ function leaderboardScreen(){
     const spikeMazeDiv = document.createElement('div');
     spikeMazeDiv.style.display = 'flex';
     spikeMazeDiv.style.gap = '20px';
-    const leaderboardData = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": []}'));
+    const leaderboardData = JSON.parse(GM_getValue("leaderboard", '{"spikeMazeEasy": [], "spikeMazeMed": [], "spikeMazeHard": [], "snipersEasy": [], "snipersMed": [], "snipersHard": []}'));
+    console.log(leaderboardData);
     spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Easy)', leaderboardData.spikeMazeEasy));
     spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Medium)', leaderboardData.spikeMazeMed));
     spikeMazeDiv.appendChild(createLeaderboard('Spike Maze (Hard)', leaderboardData.spikeMazeHard));
     document.body.appendChild(spikeMazeDiv);
+    const snipersDiv = document.createElement('div');
+    snipersDiv.style.display = 'flex';
+    snipersDiv.style.gap = '20px';
+    snipersDiv.appendChild(createLeaderboard('Snipers (Hard)', leaderboardData.snipersHard));
+    document.body.appendChild(snipersDiv);
     const select = addSelection(document.body, "Leaderboard");
 }
 
