@@ -309,7 +309,13 @@ function training(tiles, spawn, map, value){
                     playerDeath(player, mapSprites, keys);
                     break;
                 case '16': //nf
-                    if(player.hasFlag){
+                    if(player.hasFlag || enemy.hasFlag){
+                        break;
+                    }
+                    if(player.flagLoc && !mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible){
+                        break;
+                    }
+                    if(enemy.flagLoc && !mapSprites[enemy.flagLoc[0]][enemy.flagLoc[1]].visible){
                         break;
                     }
                     player.hasFlag = true;
@@ -428,7 +434,13 @@ function training(tiles, spawn, map, value){
                     playerDeath(player, mapSprites, keys);
                     break;
                 case '16':
-                    if(player.hasFlag){
+                    if(player.hasFlag || enemy.hasFlag){
+                        break;
+                    }
+                    if(player.flagLoc && !mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible){
+                        break;
+                    }
+                    if(enemy.flagLoc && !mapSprites[enemy.flagLoc[0]][enemy.flagLoc[1]].visible){
                         break;
                     }
                     player.hasFlag = true;
