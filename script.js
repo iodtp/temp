@@ -418,12 +418,12 @@ function training(tiles, spawn, map, value){
                             if(mazeLeader.length < LEADERBOARD_LENGTH){
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
-                                mazeLeader = mazeLeader.slice(0, 10);
+                                mazeLeader = mazeLeader.slice(0, LEADERBOARD_LENGTH);
                             }
                             else{
                                 mazeLeader.push(Math.round(player.hold * 100) / 100);
                                 mazeLeader.sort();
-                                mazeLeader = mazeLeader.slice(0, 10);
+                                mazeLeader = mazeLeader.slice(0, LEADERBOARD_LENGTH);
                             }
                             leaderboard.spikeMazeEasy = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
