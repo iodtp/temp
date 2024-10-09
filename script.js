@@ -199,7 +199,6 @@ function training(tiles, spawn, map, value){
         const blueBall = addSpriteToLocation(app, tiles, 'blueball', enemySpawnX, enemySpawnY);
         blueBall.anchor.set(0.5,0.5);
         const flag = new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
-        const blueCollision = createBall(enemySpawnX, enemySpawnY, 19, world);
         enemy.playerSprite = blueBall;
         enemy.playerFlagYellow = flag;
         enemy.playerFlag = enemy.playerFlagYellow;
@@ -269,7 +268,7 @@ function training(tiles, spawn, map, value){
         let type1 = data1.type;
         let type2 = data2.type;
         if(type1 === 'redball') {
-            //console.log('2', type2);
+            console.log('2', fixtureB.GetBody());
             switch(type2){
                 case '5':
                     //console.log('boost');
@@ -280,6 +279,7 @@ function training(tiles, spawn, map, value){
                     //console.log('boost');
                     break;
                 case '7':
+                    console.log("SPIKE");
                     playerDeath(player, mapSprites, keys);
                     player.lost = true;
                     break;
@@ -372,7 +372,7 @@ function training(tiles, spawn, map, value){
             }
         }
         else if (type2 === 'redball') {
-            //console.log('1', type1);
+            console.log('1', fixtureA.GetBody());
             switch(type1){
                 case '5':
                     applyExtraForceToBall(fixtureB.GetBody());
@@ -383,6 +383,7 @@ function training(tiles, spawn, map, value){
                     //console.log('boost');
                     break;
                 case '7':
+                    console.log("SPIKE");
                     playerDeath(player, mapSprites, keys);
                     player.lost = true;
                     break;
@@ -571,6 +572,7 @@ function gameOver(app, score, player, value){
         if (leader == null){
             leader = [];
         }
+        console.log(leader);
 
         if(leader.length < LEADERBOARD_LENGTH){
             leader.push(player.tags);
@@ -586,6 +588,8 @@ function gameOver(app, score, player, value){
             });
             leader = leader.slice(0, LEADERBOARD_LENGTH);
         }
+        console.log(leader);
+
         if(value === "Snipers (Easy)"){
             leaderboard.snipersEasy = leader;
         }
@@ -600,12 +604,12 @@ function gameOver(app, score, player, value){
 
 }
 
-function playAgain(app) {
+function playAgain(app, value) {
     const map =[["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","5","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","7"],["7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7","7"]];
     const spawn = [620,700];
-
+    done = false;
     killApp(app);
-    training(tilesExtracted, spawn, map, "Snipers (Easy)");
+    training(tilesExtracted, spawn, map, value);
 
 }
 function killApp(app){
@@ -1651,7 +1655,7 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
 
     if(player.lost){
         player.playerSprite.visible = false;
-        console.log(value);
+        //player.lost = false;
         gameOver(app, player.tags, player, value);
     }
     else if(player.dead){
