@@ -280,8 +280,10 @@ function training(tiles, spawn, map, value){
                     break;
                 case '7':
                     console.log("SPIKE");
-                    playerDeath(player, mapSprites, keys);
-                    player.lost = true;
+                    if(!enemy.dead){
+                        playerDeath(player, mapSprites, keys);
+                        player.lost = true;
+                    }
                     break;
                 case '9.1':
                     playerDeath(player, mapSprites, keys);
@@ -384,8 +386,10 @@ function training(tiles, spawn, map, value){
                     break;
                 case '7':
                     console.log("SPIKE");
-                    playerDeath(player, mapSprites, keys);
-                    player.lost = true;
+                    if(!enemy.dead){
+                        playerDeath(player, mapSprites, keys);
+                        player.lost = true;
+                    }
                     break;
                 case '9.1':
                     playerDeath(player, mapSprites, keys);
