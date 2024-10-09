@@ -216,7 +216,7 @@ function training(tiles, spawn, map, value){
     }
     else if (ofm){
         const enemySpawnY = 60;
-        const enemySpawnX = 700;
+        const enemySpawnX = 940;
         const blueBall = addSpriteToLocation(app, tiles, 'blueball', enemySpawnX, enemySpawnY);
         blueBall.anchor.set(0.5,0.5);
         const flag = new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
@@ -226,7 +226,7 @@ function training(tiles, spawn, map, value){
         enemy.playerFlag.visible = false;
         const enemyCollision = createBall(enemySpawnX, enemySpawnY, 19, world, "blueball");
         enemy.playerCollision = enemyCollision;
-        enemy.hasFlag = true;
+        enemy.hasFlag = false;
     }
 
     const keys = {
@@ -388,7 +388,19 @@ function training(tiles, spawn, map, value){
                     break;
                 case 'blueball':
                     if(enemy.hasFlag){
-                        playerDeath(enemy, mapSprites, keys);
+                        playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
+                        if(!snipers){//yes just ofm atm but general idea too
+                            player.hasFlag = true;
+                            player.playerFlag.visible = true;
+                        }
+                    }
+                    if(player.hasFlag){
+                        playerDeath(player, mapSprites, keys);
+                        if(!snipers){//yes just ofm atm but general idea too
+                            enemy.hasFlag = true;
+                            enemy.playerFlag.visible = true;
+                            console.log(enemy);
+                        }
                     }
                     break;
             }
@@ -492,7 +504,19 @@ function training(tiles, spawn, map, value){
                     break;
                 case 'blueball':
                     if(enemy.hasFlag){
-                        playerDeath(enemy, mapSprites, keys);
+                        playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
+                        if(!snipers){//yes just ofm atm but general idea too
+                            player.hasFlag = true;
+                            player.playerFlag.visible = true;
+                        }
+                    }
+                    if(player.hasFlag){
+                        playerDeath(player, mapSprites, keys);
+                        if(!snipers){//yes just ofm atm but general idea too
+                            enemy.hasFlag = true;
+                            enemy.playerFlag.visible = true;
+                            console.log(enemy);
+                        }
                     }
                     break;
             }
@@ -509,7 +533,7 @@ function training(tiles, spawn, map, value){
         app.ticker.add(delta => snipersLoop(delta, player, enemy, world, keys, app, spawn, value));
     }
     else if(ofm){
-        app.ticker.add(delta => snipersLoop(delta, player, enemy, world, keys, app, spawn));
+        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60]));
     }
 
 }
@@ -1775,6 +1799,105 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
                     enemy.playerSprite.y = enemySpawnY;
                     enemy.playerFlag.visible = true;
                     enemy.hasFlag = true;
+                    enemy.playerSprite.rotation = 0;
+                    enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
+                    enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
+                    player.tags++;
+                }, 1000);
+            }
+        }
+        else{
+            enemy.playerSprite.x = enemyPos.x * 40; // Convert from Box2D units to pixels
+            enemy.playerSprite.y = enemyPos.y * 40;
+            enemy.playerSprite.rotation = enemyAngle;
+            if(enemy.hasFlag){
+                enemy.playerFlagYellow.position.x = enemyPos.x * 40 - 5;
+                enemy.playerFlagYellow.position.y = enemyPos.y * 40 - 45;
+                app.stage.addChild(enemy.playerFlagYellow);
+            }
+        }
+
+    }
+
+    //Center view on ball
+    app.stage.position.x = WIDTH/2;
+    app.stage.position.y = HEIGHT/2;
+    //now specify which point INSIDE stage must be (0,0)
+    app.stage.pivot.x = player.playerSprite.position.x;
+    app.stage.pivot.y = player.playerSprite.position.y;
+
+
+
+    world.ClearForces();
+}
+
+function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
+    const keys2 = {
+        up: false,
+        down: false,
+        left: false,
+        right: false
+    };
+    const seed = Math.random();
+    if(seed < 1/3){
+        keys2.up = true;
+    }
+    else if (seed < 2/3) {
+        keys2.down = true;
+    }
+    const seed2 = Math.random();
+    if(seed < 1/3){
+        keys2.right = true;
+    }
+    else if (seed < 2/3) {
+        keys2.left = true;
+    }
+    applyForceToBall(keys, player.playerCollision);
+    applyForceToBall(keys2, enemy.playerCollision);
+    world.Step(1 / 60, 8, 3); // Update Box2D world
+
+    // Update PixiJS sprite positions
+    const position = player.playerCollision.GetPosition();
+    const angle = player.playerCollision.GetAngle();
+    const enemyPos = enemy.playerCollision.GetPosition();
+    const enemyAngle = enemy.playerCollision.GetAngle();
+
+    if(player.dead){
+        if(player.playerSprite.visible){ //we only want to start the countdown once
+            player.playerSprite.visible = false;
+            setTimeout(() => {
+                player.playerSprite.visible = true;
+                player.dead = false;
+                player.playerSprite.x = pspawn[0];
+                player.playerSprite.y = pspawn[1];
+                player.playerSprite.rotation = 0;
+                player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(pspawn[0]/40,pspawn[1]/40));
+                player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
+            }, 1000);
+        }
+    }
+    else{
+        player.playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
+        player.playerSprite.y = position.y * 40;
+        player.playerSprite.rotation = angle;
+        if(player.hasFlag){
+            player.playerFlag.position.x = position.x * 40 - 5;
+            player.playerFlag.position.y = position.y * 40 - 45;
+            app.stage.addChild(player.playerFlag);
+            player.hold += 1/60;
+        }
+        if(enemy.dead){
+            if(enemy.playerSprite.visible){ //we only want to start the countdown once
+                enemy.playerSprite.visible = false;
+                setTimeout(() => {
+                    const enemySpawnY = espawn[1];
+                    const enemySpawnX = espawn[0];
+                    enemy.playerSprite.visible = true;
+                    enemy.dead = false;
+                    enemy.playerSprite.x = enemySpawnX;
+                    enemy.playerSprite.y = enemySpawnY;
+                    enemy.playerFlag.visible = false;
+                    enemy.hasFlag = false;
                     enemy.playerSprite.rotation = 0;
                     enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
                     enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
