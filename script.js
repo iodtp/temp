@@ -190,7 +190,7 @@ function training(tiles, spawn, map, value){
     playerSprite.anchor.set(0.5,0.5);
     player.playerSprite = playerSprite;
     player.playerFlagYellow = playerFlag;
-    player.playerFlag = null;
+    player.playerFlag = playerFlag;
     player.playerCollision = playerCollision;
     player.hasFlag = false;
     player.flagLoc = null;
@@ -542,6 +542,46 @@ function training(tiles, spawn, map, value){
                         }
                         playerDeath(player, mapSprites, keys);
                     }
+                    break;
+            }
+        }
+        if(type1 === 'blueball'){ //dont recheck collisions here
+            switch(type2){
+                case '16': //nf
+                    if(player.hasFlag || enemy.hasFlag){
+                        break;
+                    }
+                    if(player.flagLoc && !mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible){
+                        break;
+                    }
+                    if(enemy.flagLoc && !mapSprites[enemy.flagLoc[0]][enemy.flagLoc[1]].visible){
+                        break;
+                    }
+                    enemy.hasFlag = true;
+                    enemy.flagLoc = pixelsToLoc(data2.x, data2.y);
+                    enemy.playerFlag = enemy.playerFlagYellow;
+                    enemy.playerFlag.visible = true;
+                    mapSprites[enemy.flagLoc[0]][enemy.flagLoc[1]].visible = false;
+                    break;
+            }
+        }
+        else if(type2 === "blueball"){
+            switch(type2){
+                case '16': //nf
+                    if(player.hasFlag || enemy.hasFlag){
+                        break;
+                    }
+                    if(player.flagLoc && !mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible){
+                        break;
+                    }
+                    if(enemy.flagLoc && !mapSprites[enemy.flagLoc[0]][enemy.flagLoc[1]].visible){
+                        break;
+                    }
+                    enemy.hasFlag = true;
+                    enemy.flagLoc = pixelsToLoc(data2.x, data2.y);
+                    enemy.playerFlag = enemy.playerFlagYellow;
+                    enemy.playerFlag.visible = true;
+                    mapSprites[enemy.flagLoc[0]][enemy.flagLoc[1]].visible = false;
                     break;
             }
         }
