@@ -1883,7 +1883,9 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
             app.stage.addChild(player.playerFlag);
             player.hold += 1/60;
         }
-        if(enemy.dead){
+
+    }
+    if(enemy.dead){
             if(enemy.playerSprite.visible){ //we only want to start the countdown once
                 enemy.playerSprite.visible = false;
                 setTimeout(() => {
@@ -1902,7 +1904,7 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
                 }, 3000);
             }
         }
-        else{
+        else{ //need to move this somehow
             enemy.playerSprite.x = enemyPos.x * 40; // Convert from Box2D units to pixels
             enemy.playerSprite.y = enemyPos.y * 40;
             enemy.playerSprite.rotation = enemyAngle;
@@ -1912,8 +1914,6 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
                 app.stage.addChild(enemy.playerFlagYellow);
             }
         }
-
-    }
 
     //Center view on ball
     app.stage.position.x = WIDTH/2;
