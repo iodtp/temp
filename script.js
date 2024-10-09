@@ -395,6 +395,10 @@ function training(tiles, spawn, map, value){
                         if(!snipers){//yes just ofm atm but general idea too
                             player.hasFlag = true;
                             player.playerFlag.visible = true;
+                            if(enemy.flagLoc){
+                                player.flagLoc = enemy.flagLoc;
+                                enemy.flagLoc = null;
+                            }
                         }
                         playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
                     }
@@ -517,7 +521,10 @@ function training(tiles, spawn, map, value){
                     if(enemy.hasFlag && !player.dead){
 
                         if(!snipers){//yes just ofm atm but general idea too
-
+                            if(enemy.flagLoc){
+                                player.flagLoc = enemy.flagLoc;
+                                enemy.flagLoc = null;
+                            }
                             player.hasFlag = true;
                             player.playerFlag.visible = true;
                         }
