@@ -289,15 +289,12 @@ function training(tiles, spawn, map, value){
         let type1 = data1.type;
         let type2 = data2.type;
         if(type1 === 'redball') {
-            console.log('2', fixtureB.GetBody());
             switch(type2){
                 case '5':
-                    //console.log('boost');
                     applyExtraForceToBall(fixtureA.GetBody());
                     break;
                 case '14':
                     applyExtraForceToBall(fixtureA.GetBody());
-                    //console.log('boost');
                     break;
                 case '7':
                     if(!enemy.dead){
@@ -387,34 +384,32 @@ function training(tiles, spawn, map, value){
                     }
                     break;
                 case 'blueball':
-                    if(enemy.hasFlag){
+                    if(enemy.hasFlag && !player.dead){
+                        console.log("This triggers, doesnt it");
                         playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
                         if(!snipers){//yes just ofm atm but general idea too
                             player.hasFlag = true;
                             player.playerFlag.visible = true;
                         }
                     }
-                    if(player.hasFlag){
+                    if(player.hasFlag && !enemy.dead){
                         playerDeath(player, mapSprites, keys);
                         if(!snipers){//yes just ofm atm but general idea too
                             enemy.hasFlag = true;
                             enemy.playerFlag.visible = true;
-                            console.log(enemy);
+                            console.log(enemy.hasFlag);
                         }
                     }
                     break;
             }
         }
         else if (type2 === 'redball') {
-            console.log('1', fixtureA.GetBody());
             switch(type1){
                 case '5':
                     applyExtraForceToBall(fixtureB.GetBody());
-                    //console.log('boost');
                     break;
                 case '14':
                     applyExtraForceToBall(fixtureB.GetBody());
-                    //console.log('boost');
                     break;
                 case '7':
                     if(!enemy.dead){
@@ -503,19 +498,20 @@ function training(tiles, spawn, map, value){
                     }
                     break;
                 case 'blueball':
-                    if(enemy.hasFlag){
+                    if(enemy.hasFlag && !player.dead){
+                        console.log("This triggers, doesnt it");
                         playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
                         if(!snipers){//yes just ofm atm but general idea too
                             player.hasFlag = true;
                             player.playerFlag.visible = true;
                         }
                     }
-                    if(player.hasFlag){
+                    if(player.hasFlag && !enemy.dead){
                         playerDeath(player, mapSprites, keys);
                         if(!snipers){//yes just ofm atm but general idea too
                             enemy.hasFlag = true;
                             enemy.playerFlag.visible = true;
-                            console.log(enemy);
+                            console.log(enemy.hasFlag);
                         }
                     }
                     break;
@@ -1832,6 +1828,7 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
 }
 
 function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
+    console.log(enemy.hasFlag);
     const keys2 = {
         up: false,
         down: false,
@@ -1873,7 +1870,7 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
                 player.playerSprite.rotation = 0;
                 player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(pspawn[0]/40,pspawn[1]/40));
                 player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
-            }, 1000);
+            }, 3000);
         }
     }
     else{
@@ -1902,7 +1899,7 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
                     enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
                     enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
                     player.tags++;
-                }, 1000);
+                }, 3000);
             }
         }
         else{
