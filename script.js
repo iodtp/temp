@@ -385,20 +385,24 @@ function training(tiles, spawn, map, value){
                     break;
                 case 'blueball':
                     if(enemy.hasFlag && !player.dead){
-                        console.log("This triggers, doesnt it");
-                        playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
+
                         if(!snipers){//yes just ofm atm but general idea too
                             player.hasFlag = true;
                             player.playerFlag.visible = true;
                         }
+                        playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
                     }
                     if(player.hasFlag && !enemy.dead){
-                        playerDeath(player, mapSprites, keys);
+
                         if(!snipers){//yes just ofm atm but general idea too
                             enemy.hasFlag = true;
                             enemy.playerFlag.visible = true;
-                            console.log(enemy.hasFlag);
+                            if(player.flagLoc){
+                                enemy.flagLoc = player.flagLoc;
+                                player.flagLoc = null;
+                            }
                         }
+                        playerDeath(player, mapSprites, keys);
                     }
                     break;
             }
@@ -499,20 +503,25 @@ function training(tiles, spawn, map, value){
                     break;
                 case 'blueball':
                     if(enemy.hasFlag && !player.dead){
-                        console.log("This triggers, doesnt it");
-                        playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
+
                         if(!snipers){//yes just ofm atm but general idea too
+
                             player.hasFlag = true;
                             player.playerFlag.visible = true;
                         }
+                        playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
                     }
                     if(player.hasFlag && !enemy.dead){
-                        playerDeath(player, mapSprites, keys);
+
                         if(!snipers){//yes just ofm atm but general idea too
+                            if(player.flagLoc){
+                                enemy.flagLoc = player.flagLoc;
+                                player.flagLoc = null;
+                            }
                             enemy.hasFlag = true;
                             enemy.playerFlag.visible = true;
-                            console.log(enemy.hasFlag);
                         }
+                        playerDeath(player, mapSprites, keys);
                     }
                     break;
             }
@@ -1886,34 +1895,34 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
 
     }
     if(enemy.dead){
-            if(enemy.playerSprite.visible){ //we only want to start the countdown once
-                enemy.playerSprite.visible = false;
-                setTimeout(() => {
-                    const enemySpawnY = espawn[1];
-                    const enemySpawnX = espawn[0];
-                    enemy.playerSprite.visible = true;
-                    enemy.dead = false;
-                    enemy.playerSprite.x = enemySpawnX;
-                    enemy.playerSprite.y = enemySpawnY;
-                    enemy.playerFlag.visible = false;
-                    enemy.hasFlag = false;
-                    enemy.playerSprite.rotation = 0;
-                    enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
-                    enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
-                    player.tags++;
-                }, 3000);
-            }
+        if(enemy.playerSprite.visible){ //we only want to start the countdown once
+            enemy.playerSprite.visible = false;
+            setTimeout(() => {
+                const enemySpawnY = espawn[1];
+                const enemySpawnX = espawn[0];
+                enemy.playerSprite.visible = true;
+                enemy.dead = false;
+                enemy.playerSprite.x = enemySpawnX;
+                enemy.playerSprite.y = enemySpawnY;
+                enemy.playerFlag.visible = false;
+                enemy.hasFlag = false;
+                enemy.playerSprite.rotation = 0;
+                enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
+                enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
+                player.tags++;
+            }, 3000);
         }
-        else{ //need to move this somehow
-            enemy.playerSprite.x = enemyPos.x * 40; // Convert from Box2D units to pixels
-            enemy.playerSprite.y = enemyPos.y * 40;
-            enemy.playerSprite.rotation = enemyAngle;
-            if(enemy.hasFlag){
-                enemy.playerFlagYellow.position.x = enemyPos.x * 40 - 5;
-                enemy.playerFlagYellow.position.y = enemyPos.y * 40 - 45;
-                app.stage.addChild(enemy.playerFlagYellow);
-            }
+    }
+    else{ //need to move this somehow
+        enemy.playerSprite.x = enemyPos.x * 40; // Convert from Box2D units to pixels
+        enemy.playerSprite.y = enemyPos.y * 40;
+        enemy.playerSprite.rotation = enemyAngle;
+        if(enemy.hasFlag){
+            enemy.playerFlagYellow.position.x = enemyPos.x * 40 - 5;
+            enemy.playerFlagYellow.position.y = enemyPos.y * 40 - 45;
+            app.stage.addChild(enemy.playerFlagYellow);
         }
+    }
 
     //Center view on ball
     app.stage.position.x = WIDTH/2;
