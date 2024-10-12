@@ -409,6 +409,7 @@ function training(tiles, spawn, map, value){
                                 player.flagLoc = enemy.flagLoc;
                                 enemy.flagLoc = null;
                             }
+                            addPopForceToBall(fixtureA, fixtureB);
                         }
                         playerDeath(enemy, mapSprites, structuredClone(keys), player); //clone because we dont want to actually reset kesy
                     }
@@ -425,6 +426,7 @@ function training(tiles, spawn, map, value){
                                 enemy.flagLoc = player.flagLoc;
                                 player.flagLoc = null;
                             }
+                            addPopForceToBall(fixtureB, fixtureA);
                         }
                         playerDeath(player, mapSprites, keys, enemy);
                     }
@@ -548,6 +550,7 @@ function training(tiles, spawn, map, value){
                             player.hasFlag = true;
                             player.taggable = true;
                             player.playerFlag.visible = true;
+                            addPopForceToBall(fixtureB, fixtureA);
                         }
                         playerDeath(enemy, mapSprites, structuredClone(keys), player); //clone because we dont want to actually reset kesy
                     }
@@ -564,6 +567,7 @@ function training(tiles, spawn, map, value){
                             enemy.hasFlag = true;
                             enemy.taggable = true;
                             enemy.playerFlag.visible = true;
+                            addPopForceToBall(fixtureA, fixtureB);
                         }
                         playerDeath(player, mapSprites, keys, enemy);
                     }
@@ -1229,10 +1233,39 @@ function createBall(x, y, radius, world, type) {
     return dynamicBody;
 }
 
+function addPopForceToBall(ball, deadBall, dt=1/60){
+    const body1 = ball.GetBody();
+    const body2 = deadBall.GetBody();
+
+    const bodyPosition = body1.GetWorldCenter();
+    const explosionCenter = body2.GetWorldCenter();
+
+    const distance = Math.sqrt(
+        Math.pow(bodyPosition.x - explosionCenter.x, 2) +
+        Math.pow(bodyPosition.y - explosionCenter.y, 2)
+    );
+
+    if (distance > 0) {
+        // speedboost = strength * (blastRadius - distance)
+        const explosionForce = 12 * (7 - distance);
+
+        const forceDirection = new Box2D.Common.Math.b2Vec2(
+            (bodyPosition.x - explosionCenter.x) / distance,
+            (bodyPosition.y - explosionCenter.y) / distance
+        );
+
+        const impulse = new Box2D.Common.Math.b2Vec2(
+            explosionForce * forceDirection.x,
+            explosionForce * forceDirection.y
+        );
+
+        body1.ApplyForce(impulse, bodyPosition);
+    }
+}
+
 function applyExtraForceToBall(ball, dt=1/60) {
     //maybe turn velocity into unit vectors first? Always apply set amount of boost
     //were just gonna assume boosts for now
-
 
     const body = ball.body; 
 
