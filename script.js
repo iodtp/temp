@@ -198,6 +198,7 @@ function training(tiles, spawn, map, value){
     player.lost = false; //only set when we hit a spike
     player.hold = 0.0;
     player.tags = 0;
+    player.taggable = false;
 
     const enemy = {};
     if(snipers){
@@ -227,6 +228,7 @@ function training(tiles, spawn, map, value){
         const enemyCollision = createBall(enemySpawnX, enemySpawnY, 19, world, "blueball");
         enemy.playerCollision = enemyCollision;
         enemy.hasFlag = false;
+        enemy.taggable = false;
     }
 
     const keys = {
@@ -298,15 +300,15 @@ function training(tiles, spawn, map, value){
                     break;
                 case '7':
                     if(!enemy.dead){
-                        playerDeath(player, mapSprites, keys);
+                        playerDeath(player, mapSprites, keys, enemy);
                         player.lost = true;
                     }
                     break;
                 case '9.1':
-                    playerDeath(player, mapSprites, keys);
+                    playerDeath(player, mapSprites, keys, enemy);
                     break;
                 case '9.3':
-                    playerDeath(player, mapSprites, keys);
+                    playerDeath(player, mapSprites, keys, enemy);
                     break;
                 case '16': //nf
                     if(player.hasFlag || enemy.hasFlag){
@@ -323,6 +325,10 @@ function training(tiles, spawn, map, value){
                     player.playerFlag = player.playerFlagYellow;
                     player.playerFlag.visible = true;
                     mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
+                    setTimeout(() => {
+                        console.log("taggable!");
+                        player.taggable = true;
+                    }, "250");
                     break;
                 case '17': //red endzone
                     if(player.hasFlag){
@@ -346,7 +352,7 @@ function training(tiles, spawn, map, value){
                             }
                             leaderboard.spikeMazeEasy = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
-                            playerDeath(player, mapSprites, keys);
+                            playerDeath(player, mapSprites, keys, enemy);
 
                         }
                         else if(value === "Spike Maze (Medium)"){
@@ -366,7 +372,7 @@ function training(tiles, spawn, map, value){
                             }
                             leaderboard.spikeMazeMed = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
-                            playerDeath(player, mapSprites, keys);
+                            playerDeath(player, mapSprites, keys, enemy);
                         }
                         else if(value === "Spike Maze (Hard)"){
                             addWinningText(app, player.hold);
@@ -385,7 +391,7 @@ function training(tiles, spawn, map, value){
                             }
                             leaderboard.spikeMazeHard = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
-                            playerDeath(player, mapSprites, keys);
+                            playerDeath(player, mapSprites, keys, enemy);
                         }
                     }
                     break;
@@ -393,26 +399,34 @@ function training(tiles, spawn, map, value){
                     if(enemy.hasFlag && !player.dead){
 
                         if(!snipers){//yes just ofm atm but general idea too
+                            if(!enemy.taggable){
+                                break;
+                            }
                             player.hasFlag = true;
                             player.playerFlag.visible = true;
+                            player.taggable = true;
                             if(enemy.flagLoc){
                                 player.flagLoc = enemy.flagLoc;
                                 enemy.flagLoc = null;
                             }
                         }
-                        playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
+                        playerDeath(enemy, mapSprites, structuredClone(keys), player); //clone because we dont want to actually reset kesy
                     }
                     if(player.hasFlag && !enemy.dead){
 
                         if(!snipers){//yes just ofm atm but general idea too
+                            if(!player.taggable){
+                                break;
+                            }
                             enemy.hasFlag = true;
                             enemy.playerFlag.visible = true;
+                            enemy.taggable = true;
                             if(player.flagLoc){
                                 enemy.flagLoc = player.flagLoc;
                                 player.flagLoc = null;
                             }
                         }
-                        playerDeath(player, mapSprites, keys);
+                        playerDeath(player, mapSprites, keys, enemy);
                     }
                     break;
             }
@@ -427,15 +441,15 @@ function training(tiles, spawn, map, value){
                     break;
                 case '7':
                     if(!enemy.dead){
-                        playerDeath(player, mapSprites, keys);
+                        playerDeath(player, mapSprites, keys, enemy);
                         player.lost = true;
                     }
                     break;
                 case '9.1':
-                    playerDeath(player, mapSprites, keys);
+                    playerDeath(player, mapSprites, keys, enemy);
                     break;
                 case '9.3':
-                    playerDeath(player, mapSprites, keys);
+                    playerDeath(player, mapSprites, keys, enemy);
                     break;
                 case '16':
                     if(player.hasFlag || enemy.hasFlag){
@@ -452,6 +466,9 @@ function training(tiles, spawn, map, value){
                     player.playerFlag = player.playerFlagYellow;
                     player.playerFlag.visible = true;
                     mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = false;
+                    setTimeout(() => {
+                        player.taggable = true;
+                    }, "250");
                     break;
                 case '17': //red endzone
                     if(player.hasFlag){
@@ -475,7 +492,7 @@ function training(tiles, spawn, map, value){
                             }
                             leaderboard.spikeMazeEasy = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
-                            playerDeath(player, mapSprites, keys);
+                            playerDeath(player, mapSprites, keys, enemy);
                         }
                         else if(value === "Spike Maze (Medium)"){
                             addWinningText(app, player.hold);
@@ -494,7 +511,7 @@ function training(tiles, spawn, map, value){
                             }
                             leaderboard.spikeMazeMed = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
-                            playerDeath(player, mapSprites, keys);
+                            playerDeath(player, mapSprites, keys, enemy);
                         }
                         else if(value === "Spike Maze (Hard)"){
                             addWinningText(app, player.hold);
@@ -513,7 +530,7 @@ function training(tiles, spawn, map, value){
                             }
                             leaderboard.spikeMazeHard = mazeLeader;
                             GM_setValue('leaderboard', JSON.stringify(leaderboard));
-                            playerDeath(player, mapSprites, keys);
+                            playerDeath(player, mapSprites, keys, enemy);
                         }
                     }
                     break;
@@ -521,26 +538,34 @@ function training(tiles, spawn, map, value){
                     if(enemy.hasFlag && !player.dead){
 
                         if(!snipers){//yes just ofm atm but general idea too
+                            if(!enemy.taggable){
+                                break;
+                            }
                             if(enemy.flagLoc){
                                 player.flagLoc = enemy.flagLoc;
                                 enemy.flagLoc = null;
                             }
                             player.hasFlag = true;
+                            player.taggable = true;
                             player.playerFlag.visible = true;
                         }
-                        playerDeath(enemy, mapSprites, structuredClone(keys)); //clone because we dont want to actually reset kesy
+                        playerDeath(enemy, mapSprites, structuredClone(keys), player); //clone because we dont want to actually reset kesy
                     }
                     if(player.hasFlag && !enemy.dead){
 
                         if(!snipers){//yes just ofm atm but general idea too
+                            if(!player.taggable){
+                                break;
+                            }
                             if(player.flagLoc){
                                 enemy.flagLoc = player.flagLoc;
                                 player.flagLoc = null;
                             }
                             enemy.hasFlag = true;
+                            enemy.taggable = true;
                             enemy.playerFlag.visible = true;
                         }
-                        playerDeath(player, mapSprites, keys);
+                        playerDeath(player, mapSprites, keys, enemy);
                     }
                     break;
             }
@@ -562,6 +587,9 @@ function training(tiles, spawn, map, value){
                     enemy.playerFlag = enemy.playerFlagYellow;
                     enemy.playerFlag.visible = true;
                     mapSprites[enemy.flagLoc[0]][enemy.flagLoc[1]].visible = false;
+                    setTimeout(() => {
+                        enemy.taggable = true;
+                    }, "250");
                     break;
             }
         }
@@ -582,6 +610,9 @@ function training(tiles, spawn, map, value){
                     enemy.playerFlag = enemy.playerFlagYellow;
                     enemy.playerFlag.visible = true;
                     mapSprites[enemy.flagLoc[0]][enemy.flagLoc[1]].visible = false;
+                    setTimeout(() => {
+                        enemy.taggable = true;
+                    }, "250");
                     break;
             }
         }
@@ -738,11 +769,12 @@ function pixelsToLoc(x,y){
     return [x/40, y/40];
 }
 
-function playerDeath(player, mapSprites, keys){
+function playerDeath(player, mapSprites, keys, otherBall){
     player.dead = true;
     if(player.hasFlag){
         player.hasFlag = false;
         player.playerFlag.visible = false;
+        player.taggable = false;
         if(player.flagLoc){
             mapSprites[player.flagLoc[0]][player.flagLoc[1]].visible = true;
         }
@@ -751,6 +783,10 @@ function playerDeath(player, mapSprites, keys){
     keys.down = false;
     keys.right = false;
     keys.left = false;
+    if(otherBall.playerCollision){
+        const distance = Math.sqrt((otherBall.playerCollision.m_xf.position.x - player.playerCollision.m_xf.position.x) * (otherBall.playerCollision.m_xf.position.x - player.playerCollision.m_xf.position.x) + (otherBall.playerCollision.m_xf.position.y - player.playerCollision.m_xf.position.y) * (otherBall.playerCollision.m_xf.position.y - player.playerCollision.m_xf.position.y))
+        console.log(distance);
+    }
 }
 
 function addSelection(container, val, app){
@@ -1896,7 +1932,6 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
 }
 
 function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
-    console.log(enemy.hasFlag);
     const keys2 = {
         up: false,
         down: false,
