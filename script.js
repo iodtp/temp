@@ -1965,26 +1965,62 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
 }
 
 function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
+    const modelDetails = {'estimators': [{'intercept': [-1.938341764737984],
+                                          'coef': [[-0.46839733988611054,
+                                                    -0.6049169604410677,
+                                                    -0.1564299693996688,
+                                                    0.21699641302397848,
+                                                    0.0,
+                                                    0.2228378312987894,
+                                                    1.0580113410007495,
+                                                    0.22374535532862294,
+                                                    0.08337052257523263,
+                                                    0.0]]},
+                                         {'intercept': [-0.0004155075698599517],
+                                          'coef': [[-0.010582911083288819,
+                                                    0.001263014563491763,
+                                                    0.007087959762176738,
+                                                    -0.0013758959489209434,
+                                                    0.0,
+                                                    0.00509834684081287,
+                                                    -0.0062962884022945646,
+                                                    -0.006042686804664936,
+                                                    0.01857841631203747,
+                                                    0.0]]},
+                                         {'intercept': [1.9383417647379835],
+                                          'coef': [[0.46839733988611093,
+                                                    0.6049169604410672,
+                                                    0.1564299693996693,
+                                                    -0.2169964130239788,
+                                                    0.0,
+                                                    -0.2228378312987896,
+                                                    -1.058011341000749,
+                                                    -0.2237453553286235,
+                                                    -0.083370522575232,
+                                                    0.0]]},
+                                         {'intercept': [0.0025088986674711073],
+                                          'coef': [[-0.010067533493705587,
+                                                    0.00503021277248109,
+                                                    0.0039750442488283595,
+                                                    -0.0026270227013466007,
+                                                    0.0,
+                                                    -0.0027398244999912234,
+                                                    0.001053177089539953,
+                                                    0.0054896469783887805,
+                                                    0.00027718234520895995,
+                                                    0.0]]}]};
+
+    //x,y,lx,ly,flag
+    const inputFeatures = [player.playerCollision.m_xf.position.x*40,player.playerCollision.m_xf.position.y*40, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, Number(player.hasFlag),
+                           enemy.playerCollision.m_xf.position.x*40,enemy.playerCollision.m_xf.position.y*40, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, Number(enemy.hasFlag)/*, 1*/];
+    const predictions = predict(inputFeatures, modelDetails);
+    console.log("Predictions:", predictions);
     const keys2 = {
-        up: false,
-        down: false,
-        left: false,
-        right: false
+        up: predictions[0] >= 1,
+        down: predictions[1] >= 1,
+        left: predictions[2] >= 1,
+        right: predictions[3] >= 1
     };
-    const seed = Math.random();
-    if(seed < 1/3){
-        keys2.up = true;
-    }
-    else if (seed < 2/3) {
-        keys2.down = true;
-    }
-    const seed2 = Math.random();
-    if(seed < 1/3){
-        keys2.right = true;
-    }
-    else if (seed < 2/3) {
-        keys2.left = true;
-    }
     applyForceToBall(keys, player.playerCollision);
     applyForceToBall(keys2, enemy.playerCollision);
     world.Step(1 / 60, 8, 3); // Update Box2D world
@@ -2061,4 +2097,17 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
 
 
     world.ClearForces();
+}
+
+function logisticRegression(inputs, coefficients, intercept) {
+    const dotProduct = inputs.reduce((sum, x, i) => sum + x * coefficients[i], 0);
+    const linearCombination = dotProduct + intercept;
+    return 1 / (1 + Math.exp(-linearCombination));
+}
+
+// Multi-output prediction
+function predict(inputs, modelDetails) {
+    return modelDetails.estimators.map(estimator => {
+        return logisticRegression(inputs, estimator.coef[0], estimator.intercept[0]);
+    });
 }
