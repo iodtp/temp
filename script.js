@@ -7438,84 +7438,85 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model) 
             left: data[1][2] >= 0.5,
             right: data[1][3] >= 0.5
         };
+        console.log("Predictions:", keys2);
+        applyForceToBall(keys, player.playerCollision);
+        applyForceToBall(keys2, enemy.playerCollision);
+        world.Step(1 / 60, 8, 3); // Update Box2D world
+
+        // Update PixiJS sprite positions
+        const position = player.playerCollision.GetPosition();
+        const angle = player.playerCollision.GetAngle();
+        const enemyPos = enemy.playerCollision.GetPosition();
+        const enemyAngle = enemy.playerCollision.GetAngle();
+
+        if(player.dead){
+            if(player.playerSprite.visible){ //we only want to start the countdown once
+                player.playerSprite.visible = false;
+                setTimeout(() => {
+                    player.playerSprite.visible = true;
+                    player.dead = false;
+                    player.playerSprite.x = pspawn[0];
+                    player.playerSprite.y = pspawn[1];
+                    player.playerSprite.rotation = 0;
+                    player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(pspawn[0]/40,pspawn[1]/40));
+                    player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
+                }, 3000);
+            }
+        }
+        else{
+            player.playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
+            player.playerSprite.y = position.y * 40;
+            player.playerSprite.rotation = angle;
+            if(player.hasFlag){
+                player.playerFlag.position.x = position.x * 40 - 5;
+                player.playerFlag.position.y = position.y * 40 - 45;
+                app.stage.addChild(player.playerFlag);
+                player.hold += 1/60;
+            }
+
+        }
+        if(enemy.dead){
+            if(enemy.playerSprite.visible){ //we only want to start the countdown once
+                enemy.playerSprite.visible = false;
+                setTimeout(() => {
+                    const enemySpawnY = espawn[1];
+                    const enemySpawnX = espawn[0];
+                    enemy.playerSprite.visible = true;
+                    enemy.dead = false;
+                    enemy.playerSprite.x = enemySpawnX;
+                    enemy.playerSprite.y = enemySpawnY;
+                    enemy.playerFlag.visible = false;
+                    enemy.hasFlag = false;
+                    enemy.playerSprite.rotation = 0;
+                    enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
+                    enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
+                    player.tags++;
+                }, 3000);
+            }
+        }
+        else{ //need to move this somehow
+            enemy.playerSprite.x = enemyPos.x * 40; // Convert from Box2D units to pixels
+            enemy.playerSprite.y = enemyPos.y * 40;
+            enemy.playerSprite.rotation = enemyAngle;
+            if(enemy.hasFlag){
+                enemy.playerFlagYellow.position.x = enemyPos.x * 40 - 5;
+                enemy.playerFlagYellow.position.y = enemyPos.y * 40 - 45;
+                app.stage.addChild(enemy.playerFlagYellow);
+            }
+        }
+
+        //Center view on ball
+        app.stage.position.x = WIDTH/2;
+        app.stage.position.y = HEIGHT/2;
+        //now specify which point INSIDE stage must be (0,0)
+        app.stage.pivot.x = player.playerSprite.position.x;
+        app.stage.pivot.y = player.playerSprite.position.y;
+
+
+
+        world.ClearForces();
     });
-    console.log("Predictions:", predictions);
-    /**/
-
-    applyForceToBall(keys, player.playerCollision);
-    applyForceToBall(keys2, enemy.playerCollision);
-    world.Step(1 / 60, 8, 3); // Update Box2D world
-
-    // Update PixiJS sprite positions
-    const position = player.playerCollision.GetPosition();
-    const angle = player.playerCollision.GetAngle();
-    const enemyPos = enemy.playerCollision.GetPosition();
-    const enemyAngle = enemy.playerCollision.GetAngle();
-
-    if(player.dead){
-        if(player.playerSprite.visible){ //we only want to start the countdown once
-            player.playerSprite.visible = false;
-            setTimeout(() => {
-                player.playerSprite.visible = true;
-                player.dead = false;
-                player.playerSprite.x = pspawn[0];
-                player.playerSprite.y = pspawn[1];
-                player.playerSprite.rotation = 0;
-                player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(pspawn[0]/40,pspawn[1]/40));
-                player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
-            }, 3000);
-        }
-    }
-    else{
-        player.playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
-        player.playerSprite.y = position.y * 40;
-        player.playerSprite.rotation = angle;
-        if(player.hasFlag){
-            player.playerFlag.position.x = position.x * 40 - 5;
-            player.playerFlag.position.y = position.y * 40 - 45;
-            app.stage.addChild(player.playerFlag);
-            player.hold += 1/60;
-        }
-
-    }
-    if(enemy.dead){
-        if(enemy.playerSprite.visible){ //we only want to start the countdown once
-            enemy.playerSprite.visible = false;
-            setTimeout(() => {
-                const enemySpawnY = espawn[1];
-                const enemySpawnX = espawn[0];
-                enemy.playerSprite.visible = true;
-                enemy.dead = false;
-                enemy.playerSprite.x = enemySpawnX;
-                enemy.playerSprite.y = enemySpawnY;
-                enemy.playerFlag.visible = false;
-                enemy.hasFlag = false;
-                enemy.playerSprite.rotation = 0;
-                enemy.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(enemySpawnX/40,enemySpawnY/40));
-                enemy.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
-                player.tags++;
-            }, 3000);
-        }
-    }
-    else{ //need to move this somehow
-        enemy.playerSprite.x = enemyPos.x * 40; // Convert from Box2D units to pixels
-        enemy.playerSprite.y = enemyPos.y * 40;
-        enemy.playerSprite.rotation = enemyAngle;
-        if(enemy.hasFlag){
-            enemy.playerFlagYellow.position.x = enemyPos.x * 40 - 5;
-            enemy.playerFlagYellow.position.y = enemyPos.y * 40 - 45;
-            app.stage.addChild(enemy.playerFlagYellow);
-        }
-    }
-
-    //Center view on ball
-    app.stage.position.x = WIDTH/2;
-    app.stage.position.y = HEIGHT/2;
-    //now specify which point INSIDE stage must be (0,0)
-    app.stage.pivot.x = player.playerSprite.position.x;
-    app.stage.pivot.y = player.playerSprite.position.y;
 
 
 
-    world.ClearForces();
 }
