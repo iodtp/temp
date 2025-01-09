@@ -7429,11 +7429,14 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model) 
     //create two lines, find intersection point and see which way it is more skewed?
     //console.log("ANGLE: " + locAngle);
     //console.log("SPEEDANGLE: " + speedAngle);
-    console.log("ANGLE DIFF = " + (locAngle - speedAngle));
+    const playerLine = getLineEquation(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y,  player.playerCollision.m_linearVelocity.y / player.playerCollision.m_linearVelocity.x);
+    const enemyLine = getLineEquation(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y,  enemy.playerCollision.m_linearVelocity.y / enemy.playerCollision.m_linearVelocity.x);
+    const intersectionPoint = findIntersection(playerLine[0], playerLine[1], playerLine[2], enemyLine[0], enemyLine[1], enemyLine[2]);
+    console.log("IntersectionPoint = " + intersectionPoint.x + ", " + intersectionPoint.y);
 
     const keys2 = {
         up: false,
-        down: false,
+        down: true,
         left: false,
         right: false
     };
@@ -7518,6 +7521,12 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model) 
 }
 
 function findIntersection(A1, B1, C1, A2, B2, C2) { // Ax + By = C
+    A1 = convertInfinity(A1);
+    B1 = convertInfinity(B1);
+    C1 = convertInfinity(C1);
+    A2 = convertInfinity(A2);
+    B2 = convertInfinity(B2);
+    C2 = convertInfinity(C2);
     const denominator = A1 * B2 - A2 * B1;
 
     if (denominator === 0) {
@@ -7531,4 +7540,13 @@ function findIntersection(A1, B1, C1, A2, B2, C2) { // Ax + By = C
 }
 function getLineEquation(x,y,m){
   return [1, -1 * m, y - (m*x)]; //A,B,C
+}
+function convertInfinity(val){
+    if(val == Infinity){
+        val = 99999999;
+    }
+    else if (val == -Infinity){
+        val = -99999999;
+    }
+    return val;
 }
