@@ -7425,14 +7425,15 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model) 
 
     const locAngle = Math.atan2(enemy.playerCollision.m_xf.position.x - player.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y - player.playerCollision.m_xf.position.y) + Math.PI;
     const speedAngle = Math.atan2(enemy.playerCollision.m_linearVelocity.x - player.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y - player.playerCollision.m_linearVelocity.y) + Math.PI;
-    const playerVel = player.playerCollision.m_linearVelocity;
     //create two lines, find intersection point and see which way it is more skewed?
     //console.log("ANGLE: " + locAngle);
     //console.log("SPEEDANGLE: " + speedAngle);
     const playerLine = getLineEquation(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y,  player.playerCollision.m_linearVelocity.y / player.playerCollision.m_linearVelocity.x);
     const enemyLine = getLineEquation(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y,  enemy.playerCollision.m_linearVelocity.y / enemy.playerCollision.m_linearVelocity.x);
     const intersectionPoint = findIntersection(playerLine[0], playerLine[1], playerLine[2], enemyLine[0], enemyLine[1], enemyLine[2]);
-    console.log("IntersectionPoint = " + intersectionPoint.x + ", " + intersectionPoint.y);
+    //console.log("IntersectionPoint = " + intersectionPoint.x + ", " + intersectionPoint.y);
+    console.log("Time: " + (intersectionPoint.x - player.playerCollision.m_xf.position.x) / player.playerCollision.m_linearVelocity.x);
+    console.log("TimeY: " + (intersectionPoint.y - player.playerCollision.m_xf.position.y) / player.playerCollision.m_linearVelocity.y);
 
     const keys2 = {
         up: false,
@@ -7539,7 +7540,7 @@ function findIntersection(A1, B1, C1, A2, B2, C2) { // Ax + By = C
     return { x, y };
 }
 function getLineEquation(x,y,m){
-  return [1, -1 * m, y - (m*x)]; //A,B,C
+  return [-1 * m, 1, m * x - y]; //A,B,C
 }
 function convertInfinity(val){
     if(val == Infinity){
