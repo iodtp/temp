@@ -7423,10 +7423,13 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model) 
                                         player.playerCollision.m_xf.position.x*40,player.playerCollision.m_xf.position.y*40, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, Number(player.hasFlag)],
                                        [1, 10]]);
 
-    const locAngle = Math.atan2(enemy.playerCollision.m_xf.position.x - player.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y - player.playerCollision.m_xf.position.y);
-    const speedAngle = Math.atan2(enemy.playerCollision.m_linearVelocity.x - player.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y - player.playerCollision.m_linearVelocity.y);
+    const locAngle = Math.atan2(enemy.playerCollision.m_xf.position.x - player.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y - player.playerCollision.m_xf.position.y) + Math.PI;
+    const speedAngle = Math.atan2(enemy.playerCollision.m_linearVelocity.x - player.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y - player.playerCollision.m_linearVelocity.y) + Math.PI;
+    const playerVel = player.playerCollision.m_linearVelocity;
+    //create two lines, find intersection point and see which way it is more skewed?
     //console.log("ANGLE: " + locAngle);
     //console.log("SPEEDANGLE: " + speedAngle);
+    console.log("ANGLE DIFF = " + (locAngle - speedAngle));
 
     const keys2 = {
         up: false,
@@ -7434,18 +7437,6 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model) 
         left: false,
         right: false
     };
-    if (locAngle <= -3 * Math.PI / 4 || locAngle >= 3 * Math.PI / 4) {
-        keys2.down = true;
-    }
-    if (locAngle >= Math.PI / 4 && locAngle <= 3 * Math.PI / 4) {
-        keys2.left = true;
-    }
-    if (locAngle <= -1 * Math.PI / 4 && locAngle >= -3 * Math.PI / 4) {
-        keys2.right = true;
-    }
-    if (locAngle >= -Math.PI / 4 && locAngle <= Math.PI / 4) {
-        keys2.up = true;
-    }
 
 
     applyForceToBall(keys, player.playerCollision);
@@ -7524,4 +7515,20 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model) 
 
 
     world.ClearForces();
+}
+
+function findIntersection(A1, B1, C1, A2, B2, C2) { // Ax + By = C
+    const denominator = A1 * B2 - A2 * B1;
+
+    if (denominator === 0) {
+        return null; // Lines are parallel or coincident
+    }
+
+    const x = (B1 * C2 - B2 * C1) / denominator;
+    const y = (A2 * C1 - A1 * C2) / denominator;
+
+    return { x, y };
+}
+function getLineEquation(x,y,m){
+  return [1, -1 * m, y - (m*x)]; //A,B,C
 }
