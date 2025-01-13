@@ -1994,6 +1994,7 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle)
     };
 
     if(player.hasFlag){
+        //if i need to worsen this i can mess with the angles, add a delay, add noise to measurements, etc
         if (locAngle >= 6 * Math.PI / 4 || locAngle <= 2 * Math.PI / 4) {
             keys2.down = true;
         }
@@ -2008,6 +2009,7 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle)
         }
     }
     else if(enemy.hasFlag){
+        //move away from player
         if (locAngle >= 6 * Math.PI / 4 || locAngle <= 2 * Math.PI / 4) {
             keys2.up = true;
         }
@@ -2020,28 +2022,30 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle)
         if (locAngle >= 2 * Math.PI / 4 && locAngle <= 6 * Math.PI / 4) {
             keys2.down = true;
         }
+        //if player coming toward you adn youre at the wall move away
         if(player.playerCollision.m_linearVelocity.x > 0 && enemy.playerCollision.m_xf.position.x > 15){
             keys2.left = true;
         }
         if(player.playerCollision.m_linearVelocity.x < 0 && enemy.playerCollision.m_xf.position.x < 8){
             keys2.right = true;
         }
-        if(player.playerCollision.m_linearVelocity.y > 0 && enemy.playerCollision.m_xf.position.y > 15){
+        if(player.playerCollision.m_linearVelocity.y > 0 && enemy.playerCollision.m_xf.position.y > 9){
             keys2.up = true;
         }
         if(player.playerCollision.m_linearVelocity.y < 0 && enemy.playerCollision.m_xf.position.y < 8){
             keys2.down = true;
         }
-        if(enemy.playerCollision.m_xf.position.x < 3){
+        //stay away from walls in general
+        if(enemy.playerCollision.m_xf.position.x < 4){
             keys2.right = true;
         }
-        if(enemy.playerCollision.m_xf.position.x > 25){
+        if(enemy.playerCollision.m_xf.position.x > 19){
             keys2.left = true;
         }
-        if(enemy.playerCollision.m_xf.position.y < 3){
+        if(enemy.playerCollision.m_xf.position.y < 4){
             keys2.down = true;
         }
-        if(enemy.playerCollision.m_xf.position.y > 25){
+        if(enemy.playerCollision.m_xf.position.y > 13){
             keys2.up = true;
         }
     }
@@ -2159,15 +2163,29 @@ function getFuturePos(x,y,v_x,v_y,t){
     const future = [x + v_x * t, y + v_y * t];
     //walls
     if(future[0] < 1.5){
+        //also needs to lose momentum in other direction
+        future[1] = y + (v_y * 0.8) * t;
+    }
+    else if(future[0] > 23.525){
+        future[1] = y + (v_y * 0.8) * t;
+    }
+    if(future[1] < 1.5){
+        future[0] = x + (v_x * 0.8) * t;
+    }
+    else if(future[1] > 17.5){
+        future[0] = x + (v_x * 0.8) * t;
+    }
+
+     if(future[0] < 1.5){
         future[0] = 1.5 + ((1.5 - future[0]) * 0.2);//damping included
     }
-    if(future[0] > 23.525){
+    else if(future[0] > 23.525){
         future[0] = 23.525 - ((future[0] - 23.525) * 0.2);
     }
     if(future[1] < 1.5){
         future[1] = 1.5 + ((1.5 - future[1]) * 0.2);
     }
-    if(future[1] > 17.5){
+    else if(future[1] > 17.5){
         future[1] = 17.5 - ((future[1] - 17.5) * 0.2);
     }
 
