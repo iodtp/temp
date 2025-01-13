@@ -1990,7 +1990,6 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
     const enemyFuturePoint = getFuturePos(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, 0.0384 * espeed);
     const locAngle = Math.atan2(enemyFuturePoint[0] - futurePoint[0], enemyFuturePoint[1] - futurePoint[1]) + Math.PI;
 
-
     const keys2 = {
         up: false,
         down: false,
@@ -2024,6 +2023,30 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
         }
         if (locAngle >= 2 * Math.PI / 4 && locAngle <= 6 * Math.PI / 4) {
             keys2.down = true;
+        }
+        if(player.playerCollision.m_linearVelocity.x > 0 && enemy.playerCollision.m_xf.position.x > 15){
+            keys2.left = true;
+        }
+        if(player.playerCollision.m_linearVelocity.x < 0 && enemy.playerCollision.m_xf.position.x < 8){
+            keys2.right = true;
+        }
+        if(player.playerCollision.m_linearVelocity.y > 0 && enemy.playerCollision.m_xf.position.y > 15){
+            keys2.up = true;
+        }
+        if(player.playerCollision.m_linearVelocity.y < 0 && enemy.playerCollision.m_xf.position.y < 8){
+            keys2.down = true;
+        }
+        if(enemy.playerCollision.m_xf.position.x < 3){
+            keys2.right = true;
+        }
+        if(enemy.playerCollision.m_xf.position.x > 25){
+            keys2.left = true;
+        }
+        if(enemy.playerCollision.m_xf.position.y < 3){
+            keys2.down = true;
+        }
+        if(enemy.playerCollision.m_xf.position.y > 25){
+            keys2.up = true;
         }
     }
 
