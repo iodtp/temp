@@ -6084,7 +6084,13 @@ function training(tiles, spawn, map, value){
         });
 
         console.log('Model created successfully.');
-        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60], model));
+        const future = new PIXI.Graphics();
+        // Set the fill color and draw the circle
+        future.beginFill(0xffffff); // Red color
+        future.drawCircle(0 * 40, 0 * 40, 19); // x, y, radius
+        future.endFill();
+        app.stage.addChild(future);
+        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60], model, future));
     }
 
 }
@@ -7416,31 +7422,51 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
     world.ClearForces();
 }
 
-function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model) {
+function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model, circle) {
 
     //x,y,lx,ly,flag
     const inputFeatures = tf.tensor2d([[enemy.playerCollision.m_xf.position.x*40,enemy.playerCollision.m_xf.position.y*40, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, Number(enemy.hasFlag),
                                         player.playerCollision.m_xf.position.x*40,player.playerCollision.m_xf.position.y*40, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, Number(player.hasFlag)],
                                        [1, 10]]);
 
-    const locAngle = Math.atan2(enemy.playerCollision.m_xf.position.x - player.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y - player.playerCollision.m_xf.position.y) + Math.PI;
+    const locAngle2 = Math.atan2(enemy.playerCollision.m_xf.position.x - player.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y - player.playerCollision.m_xf.position.y) + Math.PI;
     const speedAngle = Math.atan2(enemy.playerCollision.m_linearVelocity.x - player.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y - player.playerCollision.m_linearVelocity.y) + Math.PI;
     //create two lines, find intersection point and see which way it is more skewed?
+    //avg with maxSpeed?
     //console.log("ANGLE: " + locAngle);
     //console.log("SPEEDANGLE: " + speedAngle);
+    const speed = Math.sqrt(player.playerCollision.m_linearVelocity.x * player.playerCollision.m_linearVelocity.x + player.playerCollision.m_linearVelocity.y * player.playerCollision.m_linearVelocity.y);
     const playerLine = getLineEquation(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y,  player.playerCollision.m_linearVelocity.y / player.playerCollision.m_linearVelocity.x);
     const enemyLine = getLineEquation(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y,  enemy.playerCollision.m_linearVelocity.y / enemy.playerCollision.m_linearVelocity.x);
     const intersectionPoint = findIntersection(playerLine[0], playerLine[1], playerLine[2], enemyLine[0], enemyLine[1], enemyLine[2]);
-    //console.log("IntersectionPoint = " + intersectionPoint.x + ", " + intersectionPoint.y);
-    console.log("Time: " + (intersectionPoint.x - player.playerCollision.m_xf.position.x) / player.playerCollision.m_linearVelocity.x);
-    console.log("TimeY: " + (intersectionPoint.y - player.playerCollision.m_xf.position.y) / player.playerCollision.m_linearVelocity.y);
+    //map speed to time desired in future, faster speed is harder to change
+    //ranges from 0 to 1.5, speed 0 to 7ish
+    const futurePoint = getFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, 0.0384 * speed * speed);
+    const locAngle = Math.atan2(enemy.playerCollision.m_xf.position.x - futurePoint[0], enemy.playerCollision.m_xf.position.y - futurePoint[1]) + Math.PI;
+
+    circle.x = futurePoint[0] * 40;
+    circle.y = futurePoint[1] * 40;
+
 
     const keys2 = {
         up: false,
-        down: true,
+        down: false,
         left: false,
         right: false
     };
+
+    if (locAngle >= 7 * Math.PI / 4 || locAngle <= 1 * Math.PI / 4) {
+        keys2.down = true;
+    }
+    if (locAngle >= 5 * Math.PI / 4 && locAngle <= 7 * Math.PI / 4) {
+        keys2.left = true;
+    }
+    if (locAngle <= 3 * Math.PI / 4 && locAngle >= 1 * Math.PI / 4) {
+        keys2.right = true;
+    }
+    if (locAngle >= 3 * Math.PI / 4 && locAngle <= 5 * Math.PI / 4) {
+        keys2.up = true;
+    }
 
 
     applyForceToBall(keys, player.playerCollision);
@@ -7540,7 +7566,7 @@ function findIntersection(A1, B1, C1, A2, B2, C2) { // Ax + By = C
     return { x, y };
 }
 function getLineEquation(x,y,m){
-  return [-1 * m, 1, m * x - y]; //A,B,C
+    return [-1 * m, 1, m * x - y]; //A,B,C
 }
 function convertInfinity(val){
     if(val == Infinity){
@@ -7550,4 +7576,7 @@ function convertInfinity(val){
         val = -99999999;
     }
     return val;
+}
+function getFuturePos(x,y,v_x,v_y,t){
+    return [x + v_x * t, y + v_y * t];
 }
