@@ -7455,16 +7455,16 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, model, 
         right: false
     };
 
-    if (locAngle >= 7 * Math.PI / 4 || locAngle <= 1 * Math.PI / 4) {
+    if (locAngle >= 6 * Math.PI / 4 || locAngle <= 2 * Math.PI / 4) {
         keys2.down = true;
     }
-    if (locAngle >= 5 * Math.PI / 4 && locAngle <= 7 * Math.PI / 4) {
+    if (locAngle >= 4 * Math.PI / 4 && locAngle <= 8 * Math.PI / 4) {
         keys2.left = true;
     }
-    if (locAngle <= 3 * Math.PI / 4 && locAngle >= 1 * Math.PI / 4) {
+    if (locAngle >= 0 * Math.PI / 4 && locAngle <= 4 * Math.PI / 4) {
         keys2.right = true;
     }
-    if (locAngle >= 3 * Math.PI / 4 && locAngle <= 5 * Math.PI / 4) {
+    if (locAngle >= 2 * Math.PI / 4 && locAngle <= 6 * Math.PI / 4) {
         keys2.up = true;
     }
 
