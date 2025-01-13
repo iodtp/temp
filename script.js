@@ -1986,8 +1986,8 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
     //map speed to time desired in future, faster speed is harder to change
     //ranges from 0 to 1.5, speed 0 to 7ish, quadratic relation due to not square root earlier
     //incorporate walls if I want it to be even better, just have to check for outside of bounds and do a bit more math
-    const futurePoint = getFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, 0.0384 * speed);
-    const enemyFuturePoint = getFuturePos(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, 0.0384 * espeed);
+    const futurePoint = getFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, 0.05 * speed);
+    const enemyFuturePoint = getFuturePos(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, 0.05 * espeed);
     const locAngle = Math.atan2(enemyFuturePoint[0] - futurePoint[0], enemyFuturePoint[1] - futurePoint[1]) + Math.PI;
 
     const keys2 = {
