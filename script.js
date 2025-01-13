@@ -635,7 +635,13 @@ function training(tiles, spawn, map, value){
         app.ticker.add(delta => snipersLoop(delta, player, enemy, world, keys, app, spawn, value));
     }
     else if(ofm){
-        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60]));
+        const future = new PIXI.Graphics();
+        // Set the fill color and draw the circle
+        future.beginFill(0xffffff); // Red color
+        future.drawCircle(0 * 40, 0 * 40, 19); // x, y, radius
+        future.endFill();
+        app.stage.addChild(future);
+        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60], future));
     }
 
 }
@@ -1967,28 +1973,18 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
     world.ClearForces();
 }
 
-function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
-
-    //x,y,lx,ly,flag
-    const inputFeatures = tf.tensor2d([[enemy.playerCollision.m_xf.position.x*40,enemy.playerCollision.m_xf.position.y*40, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, Number(enemy.hasFlag),
-                                        player.playerCollision.m_xf.position.x*40,player.playerCollision.m_xf.position.y*40, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, Number(player.hasFlag)],
-                                       [1, 10]]);
-
-    //create two lines, find intersection point and see which way it is more skewed?
-    //avg with maxSpeed?
-    //console.log("ANGLE: " + locAngle);
-    //console.log("SPEEDANGLE: " + speedAngle);
+function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle) {
     const speed = player.playerCollision.m_linearVelocity.x * player.playerCollision.m_linearVelocity.x + player.playerCollision.m_linearVelocity.y * player.playerCollision.m_linearVelocity.y;
     const espeed = enemy.playerCollision.m_linearVelocity.x * enemy.playerCollision.m_linearVelocity.x + enemy.playerCollision.m_linearVelocity.y * enemy.playerCollision.m_linearVelocity.y;
-    const playerLine = getLineEquation(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y,  player.playerCollision.m_linearVelocity.y / player.playerCollision.m_linearVelocity.x);
-    const enemyLine = getLineEquation(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y,  enemy.playerCollision.m_linearVelocity.y / enemy.playerCollision.m_linearVelocity.x);
-    const intersectionPoint = findIntersection(playerLine[0], playerLine[1], playerLine[2], enemyLine[0], enemyLine[1], enemyLine[2]);
     //map speed to time desired in future, faster speed is harder to change
     //ranges from 0 to 1.5, speed 0 to 7ish, quadratic relation due to not square root earlier
     //incorporate walls if I want it to be even better, just have to check for outside of bounds and do a bit more math
-    const futurePoint = getFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, 0.05 * speed);
-    const enemyFuturePoint = getFuturePos(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, 0.05 * espeed);
+    const futurePoint = getFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, 0.055 * speed);
+    const enemyFuturePoint = getFuturePos(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, 0.055 * espeed);
     const locAngle = Math.atan2(enemyFuturePoint[0] - futurePoint[0], enemyFuturePoint[1] - futurePoint[1]) + Math.PI;
+
+    circle.x = futurePoint[0] * 40;
+    circle.y = futurePoint[1] * 40;
 
     const keys2 = {
         up: false,
@@ -2160,5 +2156,20 @@ function convertInfinity(val){
     return val;
 }
 function getFuturePos(x,y,v_x,v_y,t){
-    return [x + v_x * t, y + v_y * t];
+    const future = [x + v_x * t, y + v_y * t];
+    //walls
+    if(future[0] < 1.5){
+        future[0] = 1.5 + ((1.5 - future[0]) * 0.2);//damping included
+    }
+    if(future[0] > 23.525){
+        future[0] = 23.525 - ((future[0] - 23.525) * 0.2);
+    }
+    if(future[1] < 1.5){
+        future[1] = 1.5 + ((1.5 - future[1]) * 0.2);
+    }
+    if(future[1] > 17.5){
+        future[1] = 17.5 - ((future[1] - 17.5) * 0.2);
+    }
+
+    return future;
 }
