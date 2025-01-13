@@ -635,14 +635,7 @@ function training(tiles, spawn, map, value){
         app.ticker.add(delta => snipersLoop(delta, player, enemy, world, keys, app, spawn, value));
     }
     else if(ofm){
-
-        const future = new PIXI.Graphics();
-        // Set the fill color and draw the circle
-        future.beginFill(0xffffff); // Red color
-        future.drawCircle(0 * 40, 0 * 40, 19); // x, y, radius
-        future.endFill();
-        app.stage.addChild(future);
-        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60], future));
+        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60]));
     }
 
 }
@@ -1974,7 +1967,7 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
     world.ClearForces();
 }
 
-function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle) {
+function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
 
     //x,y,lx,ly,flag
     const inputFeatures = tf.tensor2d([[enemy.playerCollision.m_xf.position.x*40,enemy.playerCollision.m_xf.position.y*40, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, Number(enemy.hasFlag),
@@ -1997,9 +1990,6 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle)
     const enemyFuturePoint = getFuturePos(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, 0.0384 * espeed);
     const locAngle = Math.atan2(enemyFuturePoint[0] - futurePoint[0], enemyFuturePoint[1] - futurePoint[1]) + Math.PI;
 
-    circle.x = futurePoint[0] * 40;
-    circle.y = futurePoint[1] * 40;
-
 
     const keys2 = {
         up: false,
@@ -2020,6 +2010,20 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle)
         }
         if (locAngle >= 2 * Math.PI / 4 && locAngle <= 6 * Math.PI / 4) {
             keys2.up = true;
+        }
+    }
+    else if(enemy.hasFlag){
+        if (locAngle >= 6 * Math.PI / 4 || locAngle <= 2 * Math.PI / 4) {
+            keys2.up = true;
+        }
+        if (locAngle >= 4 * Math.PI / 4 && locAngle <= 8 * Math.PI / 4) {
+            keys2.right = true;
+        }
+        if (locAngle >= 0 * Math.PI / 4 && locAngle <= 4 * Math.PI / 4) {
+            keys2.left = true;
+        }
+        if (locAngle >= 2 * Math.PI / 4 && locAngle <= 6 * Math.PI / 4) {
+            keys2.down = true;
         }
     }
 
