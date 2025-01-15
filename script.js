@@ -1990,8 +1990,8 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
     const futurePoint = getFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, 0.055 * speed);
     const enemyFuturePoint = getFuturePos(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, 0.055 * espeed);
     const locAngle = Math.atan2(enemyFuturePoint[0] - futurePoint[0], enemyFuturePoint[1] - futurePoint[1]) + Math.PI;
-
-    getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, futureMax, cone);
+    //[angleDiff, anglespread]
+    const results = getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, futureMax, cone, enemy);
     circle.x = futurePoint[0] * 40;
     circle.y = futurePoint[1] * 40;
 
@@ -2018,6 +2018,10 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
         }
     }
     else if(enemy.hasFlag){
+
+        if(results[0] <= results[1] / 2){
+            console.log("Caught");
+        }
         //move away from player
         if (locAngle >= 6 * Math.PI / 4 || locAngle <= 2 * Math.PI / 4) {
             keys2.up = true;
@@ -2200,7 +2204,7 @@ function getFuturePos(x,y,v_x,v_y,t){
 
     return future;
 }
-function getMaxFuturePos(x,y,v_x,v_y,circle, cone){
+function getMaxFuturePos(x,y,v_x,v_y,circle, cone, enemy){
     const up = [(x + v_x * 1.5) * 40, (y + (v_y - 1.5)*1.5) * 40];
     const down = [(x + v_x * 1.5) * 40, (y + (v_y + 1.5)*1.5) * 40];
     const right = [(x + (v_x + 1.5)*1.5) * 40, (y + (v_y)*1.5) * 40];
@@ -2222,6 +2226,11 @@ function getMaxFuturePos(x,y,v_x,v_y,circle, cone){
     cone.closePath();
     circle.x = centerX;
     circle.y = centerY;
+
+
+    const pointAngle = Math.atan2(enemy.playerCollision.m_xf.position.y - y, enemy.playerCollision.m_xf.position.x - x);
+    const angleDiff = Math.abs(pointAngle - angle);
+    return [angleDiff, angleSpread];
 }
 function evasionEval(){
     //find ideal point and go there? (while avoiding obstacles)
