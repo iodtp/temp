@@ -1992,7 +1992,6 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
     //console.log(enemyFuturePoint);
     const locAngle = Math.atan2(enemyFuturePoint[0] - futurePoint[0], enemyFuturePoint[1] - futurePoint[1]) + Math.PI;
     //[angleDiff, anglespread]
-    const results = getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, futureMax, cone, enemy);
     circle.x = futurePoint[0] * 40;
     circle.y = futurePoint[1] * 40;
 
@@ -2019,52 +2018,13 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
         }
     }
     else if(enemy.hasFlag){
-        //move away from player
-        if (locAngle >= 6 * Math.PI / 4 || locAngle <= 2 * Math.PI / 4) {
-            keys2.up = true;
-        }
-        if (locAngle >= 4 * Math.PI / 4 && locAngle <= 8 * Math.PI / 4) {
-            keys2.right = true;
-        }
-        if (locAngle >= 0 * Math.PI / 4 && locAngle <= 4 * Math.PI / 4) {
-            keys2.left = true;
-        }
-        if (locAngle >= 2 * Math.PI / 4 && locAngle <= 6 * Math.PI / 4) {
-            keys2.down = true;
-        }
-        //if player coming toward you adn youre at the wall move away
-        if(player.playerCollision.m_linearVelocity.x > 0 && enemy.playerCollision.m_xf.position.x > 15){
-            keys2.left = true;
-        }
-        if(player.playerCollision.m_linearVelocity.x < 0 && enemy.playerCollision.m_xf.position.x < 8){
-            keys2.right = true;
-        }
-        if(player.playerCollision.m_linearVelocity.y > 0 && enemy.playerCollision.m_xf.position.y > 9){
-            keys2.up = true;
-        }
-        if(player.playerCollision.m_linearVelocity.y < 0 && enemy.playerCollision.m_xf.position.y < 8){
-            keys2.down = true;
-        }
-        //stay away from walls in general
-        if(enemy.playerCollision.m_xf.position.x < 4){
-            keys2.right = true;
-        }
-        if(enemy.playerCollision.m_xf.position.x > 19){
-            keys2.left = true;
-        }
-        if(enemy.playerCollision.m_xf.position.y < 4){
-            keys2.down = true;
-        }
-        if(enemy.playerCollision.m_xf.position.y > 13){
-            keys2.up = true;
-        }
+        const results = getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, futureMax, cone, enemy);
+
         //actual angle checking
-        if(Math.abs(results[0]) <= results[1] / 2){
-            keys2.up = results[2].up;
-            keys2.down = results[2].down;
-            keys2.left = results[2].left;
-            keys2.right = results[2].right;
-        }
+        keys2.up = results[2].up;
+        keys2.down = results[2].down;
+        keys2.left = results[2].left;
+        keys2.right = results[2].right;
     }
 
 
