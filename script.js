@@ -1989,6 +1989,7 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
     //incorporate walls if I want it to be even better, just have to check for outside of bounds and do a bit more math
     const futurePoint = getFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, 0.055 * speed);
     const enemyFuturePoint = getFuturePos(enemy.playerCollision.m_xf.position.x, enemy.playerCollision.m_xf.position.y, enemy.playerCollision.m_linearVelocity.x, enemy.playerCollision.m_linearVelocity.y, 0.055 * espeed);
+    //console.log(enemyFuturePoint);
     const locAngle = Math.atan2(enemyFuturePoint[0] - futurePoint[0], enemyFuturePoint[1] - futurePoint[1]) + Math.PI;
     //[angleDiff, anglespread]
     const results = getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, futureMax, cone, enemy);
@@ -2018,10 +2019,6 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
         }
     }
     else if(enemy.hasFlag){
-
-        if(results[0] <= results[1] / 2){
-            console.log("Caught");
-        }
         //move away from player
         if (locAngle >= 6 * Math.PI / 4 || locAngle <= 2 * Math.PI / 4) {
             keys2.up = true;
@@ -2060,6 +2057,13 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
         }
         if(enemy.playerCollision.m_xf.position.y > 13){
             keys2.up = true;
+        }
+        //actual angle checking
+        if(Math.abs(results[0]) <= results[1] / 2){
+            keys2.up = results[2].up;
+            keys2.down = results[2].down;
+            keys2.left = results[2].left;
+            keys2.right = results[2].right;
         }
     }
 
@@ -2229,8 +2233,14 @@ function getMaxFuturePos(x,y,v_x,v_y,circle, cone, enemy){
 
 
     const pointAngle = Math.atan2(enemy.playerCollision.m_xf.position.y - y, enemy.playerCollision.m_xf.position.x - x);
-    const angleDiff = Math.abs(pointAngle - angle);
-    return [angleDiff, angleSpread];
+    const angleDiff = pointAngle - angle;
+    const keys = {
+        "up": Math.abs(pointAngle - Math.atan2(centerY - ((y-1)*40), centerX - (x*40)))> Math.abs(angleDiff),
+        "down": Math.abs(pointAngle - Math.atan2(centerY - ((y+1)*40), centerX - (x*40)))> Math.abs(angleDiff),
+        "right": Math.abs(pointAngle - Math.atan2(centerY - (y*40), centerX - ((x+1)*40)))> Math.abs(angleDiff),
+        "left": Math.abs(pointAngle - Math.atan2(centerY - (y*40), centerX - ((x-1)*40)))> Math.abs(angleDiff)
+    };
+    return [angleDiff, angleSpread, keys];
 }
 function evasionEval(){
     //find ideal point and go there? (while avoiding obstacles)
