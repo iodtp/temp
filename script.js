@@ -635,21 +635,7 @@ function training(tiles, spawn, map, value){
         app.ticker.add(delta => snipersLoop(delta, player, enemy, world, keys, app, spawn, value));
     }
     else if(ofm){
-        const future = new PIXI.Graphics();
-        // Set the fill color and draw the circle
-        future.beginFill(0xffffff); // Red color
-        future.drawCircle(0 * 40, 0 * 40, 19); // x, y, radius
-        future.endFill();
-        app.stage.addChild(future);
-        const futureMax = new PIXI.Graphics();
-        // Set the fill color and draw the circle
-        futureMax.lineStyle(2, 0xff0000); // Red outline with a thickness of 2
-        futureMax.drawCircle(0, 0, 90);
-
-        const cone = new PIXI.Graphics;
-        app.stage.addChild(cone);
-        app.stage.addChild(futureMax);
-        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60], future, futureMax, cone));
+        app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60]));
     }
 
 }
@@ -1981,7 +1967,7 @@ function snipersLoop(delta, player, enemy, world, keys, app, spawn, value) {
     world.ClearForces();
 }
 
-function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle, futureMax, cone) {
+function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
     const speed = player.playerCollision.m_linearVelocity.x * player.playerCollision.m_linearVelocity.x + player.playerCollision.m_linearVelocity.y * player.playerCollision.m_linearVelocity.y;
     const espeed = enemy.playerCollision.m_linearVelocity.x * enemy.playerCollision.m_linearVelocity.x + enemy.playerCollision.m_linearVelocity.y * enemy.playerCollision.m_linearVelocity.y;
     //map speed to time desired in future, faster speed is harder to change
@@ -1992,8 +1978,6 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
     //console.log(enemyFuturePoint);
     const locAngle = Math.atan2(enemyFuturePoint[0] - futurePoint[0], enemyFuturePoint[1] - futurePoint[1]) + Math.PI;
     //[angleDiff, anglespread]
-    circle.x = futurePoint[0] * 40;
-    circle.y = futurePoint[1] * 40;
 
     const keys2 = {
         up: false,
@@ -2018,7 +2002,7 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn, circle,
         }
     }
     else if(enemy.hasFlag){
-        const results = getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, futureMax, cone, enemy);
+        const results = getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, enemy);
 
         //actual angle checking
         keys2.up = results[2].up;
@@ -2168,7 +2152,7 @@ function getFuturePos(x,y,v_x,v_y,t){
 
     return future;
 }
-function getMaxFuturePos(x,y,v_x,v_y,circle, cone, enemy){
+function getMaxFuturePos(x,y,v_x,v_y, enemy){
     const up = [(x + v_x * 1.5) * 40, (y + (v_y - 1.5)*1.5) * 40];
     const down = [(x + v_x * 1.5) * 40, (y + (v_y + 1.5)*1.5) * 40];
     const right = [(x + (v_x + 1.5)*1.5) * 40, (y + (v_y)*1.5) * 40];
@@ -2180,16 +2164,7 @@ function getMaxFuturePos(x,y,v_x,v_y,circle, cone, enemy){
 
     const angle = Math.atan2(centerY - (y*40), centerX - (x*40));
     const distance = Math.sqrt(Math.pow(centerX - x * 40, 2) + Math.pow(centerY - y * 40, 2));
-    const angleSpread = Math.atan2(circle.height / 2, distance);
-
-    cone.clear();
-    cone.lineStyle(2, 0xff0000); // Red outline with a thickness of 2
-    cone.moveTo(x * 40, y * 40);
-    cone.lineTo(x*40 + distance * Math.cos(angle - angleSpread), y*40 + distance * Math.sin(angle - angleSpread));
-    cone.lineTo(x*40 + distance * Math.cos(angle + angleSpread), y*40 + distance * Math.sin(angle + angleSpread));
-    cone.closePath();
-    circle.x = centerX;
-    circle.y = centerY;
+    const angleSpread = Math.atan2(radius, distance);
 
 
     const pointAngle = Math.atan2(enemy.playerCollision.m_xf.position.y - y, enemy.playerCollision.m_xf.position.x - x);
