@@ -2002,13 +2002,48 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
         }
     }
     else if(enemy.hasFlag){
-        const results = getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, enemy);
-
+        //const results = getMaxFuturePos(player.playerCollision.m_xf.position.x, player.playerCollision.m_xf.position.y, player.playerCollision.m_linearVelocity.x, player.playerCollision.m_linearVelocity.y, enemy);
+        let escapeAngle = locAngle + Math.PI;
+        if(escapeAngle > 2 * Math.PI){
+            escapeAngle -= 2 * Math.PI;
+        }
+        if(predictCollision(enemy.playerCollision, 0.5)){
+            escapeAngle += (Math.random() - 0.5) * (Math.PI / 6);
+        }
+        console.log(escapeAngle);
+        if (escapeAngle >= 6 * Math.PI / 4 || escapeAngle <= 2 * Math.PI / 4) {
+            keys2.down = true;
+        }
+        if (escapeAngle >= 4 * Math.PI / 4 && escapeAngle <= 8 * Math.PI / 4) {
+            keys2.left = true;
+        }
+        if (escapeAngle >= 0 * Math.PI / 4 && escapeAngle <= 4 * Math.PI / 4) {
+            keys2.right = true;
+        }
+        if (escapeAngle >= 2 * Math.PI / 4 && escapeAngle <= 6 * Math.PI / 4) {
+            keys2.up = true;
+        }
         //actual angle checking
-        keys2.up = results[2].up;
-        keys2.down = results[2].down;
-        keys2.left = results[2].left;
-        keys2.right = results[2].right;
+        //keys2.up = results[2].up;
+        //keys2.down = results[2].down;
+        //keys2.left = results[2].left;
+        //keys2.right = results[2].right;
+
+        //set timeout to determine if im in a juke/wall bounce?
+        //random chance to just not press any keys if theres sufficient distance?
+
+        /*if (locAngle >= 6 * Math.PI / 4 || locAngle <= 2 * Math.PI / 4) {
+            keys2.up = true;
+        }
+        if (locAngle >= 4 * Math.PI / 4 && locAngle <= 8 * Math.PI / 4) {
+            keys2.right = true;
+        }
+        if (locAngle >= 0 * Math.PI / 4 && locAngle <= 4 * Math.PI / 4) {
+            keys2.left = true;
+        }
+        if (locAngle >= 2 * Math.PI / 4 && locAngle <= 6 * Math.PI / 4) {
+            keys2.down = true;
+        }*/
     }
 
 
@@ -2161,27 +2196,39 @@ function getMaxFuturePos(x,y,v_x,v_y, enemy){
     const centerY = (left[1] + right[1]) / 2;
 
     const radius = 90;
+    const enemyY = enemy.playerCollision.m_xf.position.y;
+    const enemyX = enemy.playerCollision.m_xf.position.x;
 
     const angle = Math.atan2(centerY - (y*40), centerX - (x*40));
     const distance = Math.sqrt(Math.pow(centerX - x * 40, 2) + Math.pow(centerY - y * 40, 2));
     const angleSpread = Math.atan2(radius, distance);
 
 
-    const pointAngle = Math.atan2(enemy.playerCollision.m_xf.position.y - y, enemy.playerCollision.m_xf.position.x - x);
+    const pointAngle = Math.atan2(enemyY - y, enemyX - x);
     const angleDiff = pointAngle - angle;
     const keys = {
-        "up": Math.abs(pointAngle - Math.atan2(centerY - ((y-1)*40), centerX - (x*40)))> Math.abs(angleDiff),
-        "down": Math.abs(pointAngle - Math.atan2(centerY - ((y+1)*40), centerX - (x*40)))> Math.abs(angleDiff),
-        "right": Math.abs(pointAngle - Math.atan2(centerY - (y*40), centerX - ((x+1)*40)))> Math.abs(angleDiff),
-        "left": Math.abs(pointAngle - Math.atan2(centerY - (y*40), centerX - ((x-1)*40)))> Math.abs(angleDiff)
+        "up": Math.abs(Math.atan2(enemyY-1 - y, enemyX - x) - angle) < Math.abs(angleDiff) && enemyY-1 >= 2.5,
+        "down": Math.abs(Math.atan2(enemyY+1 - y, enemyX - x) - angle) <= Math.abs(angleDiff) && enemyY+1 <= 22.5,
+        "right": Math.abs(Math.atan2(enemyY - y, enemyX+1 - x) - angle) < Math.abs(angleDiff) && enemyX+1 <= 16.5,
+        "left": Math.abs(Math.atan2(enemyY - y, enemyX-1 - x) - angle) <= Math.abs(angleDiff) && enemyX-1 >= 2.5
     };
     return [angleDiff, angleSpread, keys];
 }
-function evasionEval(){
-    //find ideal point and go there? (while avoiding obstacles)
-    let eval = 0;
-    //we like space, being in the centerish, quick changes in velocity, maintaining velocity
+function predictCollision(bot, timeAhead = 0.5) {
+    const pos = bot.GetPosition();
+    const vel = bot.GetLinearVelocity();
+    const futurePos = { x: pos.x + vel.x * timeAhead, y: pos.y + vel.y * timeAhead };
 
-    return eval;
+    if(futurePos.x <= 1.5 || futurePos.x >= 23.5 || futurePos.y >= 17.5 || futurePos.y <= 1.5){
+        return true;
+    }
+    return false;
+}
+function shouldJuke(bot, player, minDistance = 2) {
+    return getDistance(bot, player) < minDistance && Math.random() < 0.3; // 30% chance
+}
+
+function applyJuke(currentAngle) {
+    return currentAngle + (Math.random() < 0.5 ? Math.PI / 6 : -Math.PI / 6); // Slight turn
 }
 
