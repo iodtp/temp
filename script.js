@@ -29,6 +29,8 @@ const HEIGHT = Math.min(800, window.innerHeight);
 
 let tilesExtracted = {};
 let done = false;
+let stuck = false;
+let setStuck = false;
 
 const entityCategory = { //who collides with me?
     EVERYONE : 0x0001,
@@ -2010,7 +2012,16 @@ function ofmLoop(delta, player, enemy, world, keys, app, pspawn, espawn) {
         if(predictCollision(enemy.playerCollision, 0.5)){
             escapeAngle += (Math.random() - 0.5) * (Math.PI / 6);
         }
-        console.log(escapeAngle);
+        const arenaBound = {
+            left: 1.5,
+            right: 23.5,
+            top: 1.5,
+            bottom: 17.5
+        }
+        isBotStuckOnWall(enemy.playerCollision, arenaBound);
+        if(stuck){
+            escapeAngle += (Math.random() - 0.5) * (Math.PI / 4);
+        }
         if (escapeAngle >= 6 * Math.PI / 4 || escapeAngle <= 2 * Math.PI / 4) {
             keys2.down = true;
         }
@@ -2225,10 +2236,42 @@ function predictCollision(bot, timeAhead = 0.5) {
     return false;
 }
 function shouldJuke(bot, player, minDistance = 2) {
-    return getDistance(bot, player) < minDistance && Math.random() < 0.3; // 30% chance
+    const distance = Math.sqrt((bot.getPosition.x - player.getPosition.x) * (bot.getPosition.x - player.getPosition.x) - (bot.getPosition.y - player.getPosition.y) * (bot.getPosition.y - player.getPosition.y));
+    return distance < minDistance && Math.random() < 0.3;
 }
 
 function applyJuke(currentAngle) {
-    return currentAngle + (Math.random() < 0.5 ? Math.PI / 6 : -Math.PI / 6); // Slight turn
+    return currentAngle + (Math.random() < 0.5 ? Math.PI / 6 : -Math.PI / 6);
+}
+function isBotStuckOnWall(bot, arenaBounds, threshold = 0.5) {
+    const pos = bot.GetPosition();
+    const vel = bot.GetLinearVelocity();
+
+    const nearLeft = pos.x < arenaBounds.left + threshold;
+    const nearRight = pos.x > arenaBounds.right - threshold;
+    const nearTop = pos.y < arenaBounds.top + threshold;
+    const nearBottom = pos.y > arenaBounds.bottom - threshold;
+
+    // Check if bot is moving mostly parallel to the wall (low perpendicular velocity)
+    const movingHorizontally = Math.abs(vel.x) > Math.abs(vel.y);
+    const movingVertically = Math.abs(vel.y) > Math.abs(vel.x);
+
+    if ((nearLeft || nearRight) && movingHorizontally && !setStuck){
+        stuck = true;
+        setStuck = true;
+        setTimeout(() => {
+            setStuck = false;
+            stuck = false;
+        }, "500");
+    }
+    if ((nearTop || nearBottom) && movingVertically && !setStuck){
+        stuck = true;
+        setStuck = true;
+        setTimeout(() => {
+            setStuck = false;
+            stuck = false;
+        }, "500");
+    }
+
 }
 
