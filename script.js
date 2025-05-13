@@ -187,7 +187,8 @@ function training(tiles, spawn, map, value){
         }
     }
 
-    const player = addPlayer(app, tiles, spawn, world);git
+    const player = addPlayer(app, tiles, spawn, world);
+
     const player2 = addPlayer(app, tiles, [80,80], world);
 
     const enemy = {};
@@ -421,6 +422,9 @@ function training(tiles, spawn, map, value){
                         playerDeath(player, mapSprites, keys, enemy);
                     }
                     break;
+                case 'redball': //doesnt need to be repeated below
+                    console.log("fail");
+                    break;
             }
         }
         else if (type2 === 'redball') {
@@ -625,7 +629,7 @@ function training(tiles, spawn, map, value){
         app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60]));
     }
     else if (AI){
-        app.ticker.add(delta => AILoop(delta, player, world, keys, app, spawn));
+        app.ticker.add(delta => AILoop(delta, player, player2, world, keys, app, spawn));
     }
 
 }
@@ -2284,12 +2288,13 @@ function isBotStuckOnWall(bot, arenaBounds, threshold = 0.5) {
 
 }
 
-function AILoop(delta, player, world, keys, app, spawn) {
+function AILoop(delta, player, player2, world, keys, app, spawn) {
     applyForceToBall(keys, player.playerCollision);
     world.Step(1 / 60, 8, 3); // Update Box2D world
 
     // Update PixiJS sprite positions
     const position = player.playerCollision.GetPosition();
+     const position2 = player2.playerCollision.GetPosition();
     const angle = player.playerCollision.GetAngle();
 
     if(player.dead){
@@ -2316,6 +2321,15 @@ function AILoop(delta, player, world, keys, app, spawn) {
             player.playerFlag.position.y = position.y * 40 - 45;
             app.stage.addChild(player.playerFlag);
             player.hold += 1/60;
+        }
+        player2.playerSprite.x = position2.x * 40; // Convert from Box2D units to pixels
+        player2.playerSprite.y = position2.y * 40;
+        player2.playerSprite.rotation = angle;
+        if(player.hasFlag){
+            player2.playerFlag.position.x = position2.x * 40 - 5;
+            player2.playerFlag.position.y = position2.y * 40 - 45;
+            app.stage.addChild(player2.playerFlag);
+            player2.hold += 1/60;
         }
 
     }
