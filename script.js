@@ -41,7 +41,6 @@ const entityCategory = { //who collides with me?
 
 (function() {
     'use strict';
-    console.log(tf); // Should log the TensorFlow.js object if successfully imported
 
     const nav = document.getElementById('nav-feedback');
     if(nav)
@@ -80,7 +79,7 @@ function startTraining() {
         //ofm
         const map = [["1.50050050","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.00550500"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","16","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.5050","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","2","1.5050"],["1.55000005","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.0505","1.05505000"]];
         const spawn = [60,700];
-        training(tilesExtracted, spawn, map, "OFM (Easy)");
+        training(tilesExtracted, spawn, map, "AI");
     }).catch(error => {
         console.error('Error loading texture:', error);
     });
@@ -91,6 +90,7 @@ function training(tiles, spawn, map, value){
     const spikeMaze = value === "Spike Maze (Easy)" || value === "Spike Maze (Medium)" || value === "Spike Maze (Hard)";
     const snipers = value === "Snipers (Easy)" || value === "Snipers (Medium)" || value === "Snipers (Hard)";
     const ofm = value === "OFM (Easy)" || value === "OFM (Medium)" || value === "OFM (Hard)";
+    const AI = value === "AI";
     document.body.innerHTML = '';
     document.body.style.margin = '0'; // Removes default body margin
     document.body.style.height = '99vh'; // Ensure body fills the viewport height minus a bit for the gap at top
@@ -187,23 +187,8 @@ function training(tiles, spawn, map, value){
         }
     }
 
-    const playerSprite = addSpriteToLocation(app, tiles, 'redball', spawn[0], spawn[1]);
-    const playerFlag = new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
-    playerFlag.visible = false;
-    const playerCollision = createBall(spawn[0], spawn[1], 19, world, "redball");
-    const player = {};
-    playerSprite.anchor.set(0.5,0.5);
-    player.playerSprite = playerSprite;
-    player.playerFlagYellow = playerFlag;
-    player.playerFlag = playerFlag;
-    player.playerCollision = playerCollision;
-    player.hasFlag = false;
-    player.flagLoc = null;
-    player.dead = false;
-    player.lost = false; //only set when we hit a spike
-    player.hold = 0.0;
-    player.tags = 0;
-    player.taggable = false;
+    const player = addPlayer(app, tiles, spawn, world);git
+    const player2 = addPlayer(app, tiles, [80,80], world);
 
     const enemy = {};
     if(snipers){
@@ -639,7 +624,31 @@ function training(tiles, spawn, map, value){
     else if(ofm){
         app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60]));
     }
+    else if (AI){
+        app.ticker.add(delta => AILoop(delta, player, world, keys, app, spawn));
+    }
 
+}
+
+function addPlayer(app, tiles, spawn, world){
+    const playerSprite = addSpriteToLocation(app, tiles, 'redball', spawn[0], spawn[1]);
+    const playerFlag = new PIXI.Sprite(PIXI.Texture.from(tiles['16']));
+    playerFlag.visible = false;
+    const playerCollision = createBall(spawn[0], spawn[1], 19, world, "redball");
+    const player = {};
+    playerSprite.anchor.set(0.5,0.5);
+    player.playerSprite = playerSprite;
+    player.playerFlagYellow = playerFlag;
+    player.playerFlag = playerFlag;
+    player.playerCollision = playerCollision;
+    player.hasFlag = false;
+    player.flagLoc = null;
+    player.dead = false;
+    player.lost = false; //only set when we hit a spike
+    player.hold = 0.0;
+    player.tags = 0;
+    player.taggable = false;
+    return player;
 }
 
 function addWinningText(app, holdTime){
@@ -2274,4 +2283,53 @@ function isBotStuckOnWall(bot, arenaBounds, threshold = 0.5) {
     }
 
 }
+
+function AILoop(delta, player, world, keys, app, spawn) {
+    applyForceToBall(keys, player.playerCollision);
+    world.Step(1 / 60, 8, 3); // Update Box2D world
+
+    // Update PixiJS sprite positions
+    const position = player.playerCollision.GetPosition();
+    const angle = player.playerCollision.GetAngle();
+
+    if(player.dead){
+        if(player.playerSprite.visible){ //we only want to start the countdown once
+            player.playerSprite.visible = false;
+            player.hold = 0.0;
+            setTimeout(() => {
+                player.playerSprite.visible = true;
+                player.dead = false;
+                player.playerSprite.x = spawn[0];
+                player.playerSprite.y = spawn[1];
+                player.playerSprite.rotation = 0;
+                player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(spawn[0]/40,spawn[1]/40));
+                player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
+            }, 3000);
+        }
+    }
+    else{
+        player.playerSprite.x = position.x * 40; // Convert from Box2D units to pixels
+        player.playerSprite.y = position.y * 40;
+        player.playerSprite.rotation = angle;
+        if(player.hasFlag){
+            player.playerFlag.position.x = position.x * 40 - 5;
+            player.playerFlag.position.y = position.y * 40 - 45;
+            app.stage.addChild(player.playerFlag);
+            player.hold += 1/60;
+        }
+
+    }
+
+    //Center view on ball
+    app.stage.position.x = WIDTH/2;
+    app.stage.position.y = HEIGHT/2;
+    //now specify which point INSIDE stage must be (0,0)
+    app.stage.pivot.x = player.playerSprite.position.x;
+    app.stage.pivot.y = player.playerSprite.position.y;
+
+
+
+    world.ClearForces();
+}
+
 
