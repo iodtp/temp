@@ -23,6 +23,8 @@ const BOOST_SPEED = 0.3;
 
 const LEADERBOARD_LENGTH = 5;
 
+const FRAMES_PER_EPISODE = 30 * 60;
+
 
 const WIDTH = Math.min(1280, window.innerWidth);
 const HEIGHT = Math.min(800, window.innerHeight);
@@ -31,6 +33,7 @@ let tilesExtracted = {};
 let done = false;
 let stuck = false;
 let setStuck = false;
+let frameCount = 0;
 
 const entityCategory = { //who collides with me?
     EVERYONE : 0x0001,
@@ -629,7 +632,15 @@ function training(tiles, spawn, map, value){
         app.ticker.add(delta => ofmLoop(delta, player, enemy, world, keys, app, spawn, [940,60]));
     }
     else if (AI){
-        app.ticker.add(delta => AILoop(delta, player, player2, world, keys, app, spawn));
+        const model = createModel();
+
+        const agents = [
+            { model: createModel(), reward: 0 },
+            //{ model: createModel(), reward: 0 },
+        ];
+
+        const players = [player, player2];
+        app.ticker.add(delta => AILoop(delta, players, world, keys, app, spawn, model, agents));
     }
 
 }
@@ -2288,14 +2299,42 @@ function isBotStuckOnWall(bot, arenaBounds, threshold = 0.5) {
 
 }
 
-function AILoop(delta, player, player2, world, keys, app, spawn) {
+async function AILoop(delta, players, world, keys, app, spawn, model, agents) {
+    const player = players[0];
     applyForceToBall(keys, player.playerCollision);
     world.Step(1 / 60, 8, 3); // Update Box2D world
 
+    // Define target (e.g., flag)
+    const goalX = 800 / 40;
+    const goalY = 600 / 40;
+
+    for(let i = 0; i < agents.length; i++){
+        const position2 = players[i+1].playerCollision.GetPosition();
+        const pos = players[i+1].playerCollision.GetPosition();
+        const vel = players[i+1].playerCollision.GetLinearVelocity();
+        const angle = players[i+1].playerCollision.GetAngle();
+
+        const input = tf.tensor2d([[pos.x, pos.y, vel.x, vel.y, goalX, goalY]]);
+
+        const output = agents[i].model.predict(input);
+        const action = await output.array();
+        console.log(action);
+        input.dispose(); output.dispose();
+
+        const distance = Math.sqrt(Math.pow(goalX - pos.x, 2) + Math.pow(goalY - pos.y, 2));
+        agents[0].reward -= distance / FRAMES_PER_EPISODE;
+
+        players[i+1].playerSprite.x = position2.x * 40; // Convert from Box2D units to pixels
+        players[i+1].playerSprite.y = position2.y * 40;
+        players[i+1].playerSprite.rotation = angle;
+    }
+
     // Update PixiJS sprite positions
     const position = player.playerCollision.GetPosition();
-     const position2 = player2.playerCollision.GetPosition();
+
     const angle = player.playerCollision.GetAngle();
+
+
 
     if(player.dead){
         if(player.playerSprite.visible){ //we only want to start the countdown once
@@ -2322,28 +2361,102 @@ function AILoop(delta, player, player2, world, keys, app, spawn) {
             app.stage.addChild(player.playerFlag);
             player.hold += 1/60;
         }
-        player2.playerSprite.x = position2.x * 40; // Convert from Box2D units to pixels
-        player2.playerSprite.y = position2.y * 40;
-        player2.playerSprite.rotation = angle;
-        if(player.hasFlag){
-            player2.playerFlag.position.x = position2.x * 40 - 5;
-            player2.playerFlag.position.y = position2.y * 40 - 45;
-            app.stage.addChild(player2.playerFlag);
-            player2.hold += 1/60;
-        }
+
 
     }
 
     //Center view on ball
     app.stage.position.x = WIDTH/2;
-    app.stage.position.y = HEIGHT/2;
     //now specify which point INSIDE stage must be (0,0)
-    app.stage.pivot.x = player.playerSprite.position.x;
-    app.stage.pivot.y = player.playerSprite.position.y;
+    //app.stage.pivot.x = player.playerSprite.position.x;
+    //app.stage.pivot.y = player.playerSprite.position.y;
+
+    frameCount++;
+    if (frameCount >= FRAMES_PER_EPISODE) {
+        evaluateAndTrain();
+
+        frameCount = 0;
+        //resetEnvironment(player2, spawn);
+    }
 
 
 
     world.ClearForces();
 }
 
+function createTrainingData(playerPos, playerVel, goalPos) {
+    const dx = goalPos[0] - playerPos[0];
+    const dy = goalPos[1] - playerPos[1];
+    const mag = Math.sqrt(dx*dx + dy*dy) + 1e-6;
 
+    const fx = dx / mag; // unit force direction
+    const fy = dy / mag;
+
+    const input = tf.tensor2d([[playerPos[0], playerPos[1], playerVel[0], playerVel[1], goalPos[0], goalPos[1]]]);
+    const output = tf.tensor2d([[fx, fy]]);
+
+    return { input, output };
+}
+function cloneModel(model) {
+    const newModel = tf.sequential();
+    model.layers.forEach(layer => {
+        newModel.add(tf.layers.dense({
+            units: layer.units,
+            activation: layer.activation,
+            inputShape: layer.inputShape,
+            useBias: layer.useBias,
+            kernelInitializer: 'zeros',
+        }));
+    });
+    newModel.compile({
+        optimizer: tf.train.adam(0.01),
+        loss: 'meanSquaredError',
+    });
+
+    // Copy weights
+    const weights = model.getWeights();
+    newModel.setWeights(weights.map(w => w.clone()));
+    return newModel;
+}
+function evaluateAndTrain(agents) {
+    agents.sort((a, b) => b.reward - a.reward);
+
+    const bestModel = agents[0].model;
+
+    // Replace all models with the best one
+    for (let i = 1; i < agents.length; i++) {
+        agents[i].model.dispose();
+        agents[i].model = cloneModel(bestModel);
+
+        //Explore
+        mutateModelWeights(agents[i].model, 0.01);
+    }
+
+    for (const agent of agents) agent.reward = 0;
+
+    console.log("Best reward this generation:", agents[0].reward.toFixed(2));
+}
+function mutateModelWeights(model, mutationRate) {
+    const weights = model.getWeights();
+    const newWeights = weights.map(tensor => {
+        const values = tensor.dataSync().slice();
+        for (let i = 0; i < values.length; i++) {
+            if (Math.random() < mutationRate) {
+                values[i] += tf.util.randNormal(0, 0.1);
+            }
+        }
+        return tf.tensor(values, tensor.shape);
+    });
+    model.setWeights(newWeights);
+}
+function createModel(){
+    const model = tf.sequential();
+    model.add(tf.layers.dense({ inputShape: [6], units: 32, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 4, activation: 'sigmoid' })); // up, down, left, right
+    model.compile({
+        optimizer: tf.train.adam(0.01),
+        loss: 'binaryCrossentropy'
+    });
+    return model;
+}
