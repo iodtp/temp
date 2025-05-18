@@ -638,13 +638,13 @@ function training(tiles, spawn, map, value){
         const agents = [
             { model: createModel(), reward: 0, lastDistance: 0 },
             { model: createModel(), reward: 0, lastDistance: 0 },
-            { model: createModel(), reward: 0, lastDistance: 0 },
-            { model: createModel(), reward: 0, lastDistance: 0 },
-            { model: createModel(), reward: 0, lastDistance: 0 },
         ];
 
-        const spawns = [spawn, [80,80], [60,Math.floor(Math.random() * 620 + 80)], [60, Math.floor(Math.random() * 620 + 80)], [60, Math.floor(Math.random() * 620 + 80)]]; // 60, 80-700
-        const players = [player, player2, addPlayer(app, tiles, spawns[2], world), addPlayer(app, tiles, spawns[3], world), addPlayer(app, tiles, spawns[4], world)];
+        const players = [player, player2]
+        for(let i = 2; i < 10; i++){
+            players.push(addPlayer(app, tiles, [60,Math.floor(Math.random() * 620 + 80)], world));// 60, 80-700
+            agents.push({ model: createModel(), reward: 0, lastDistance: 0 });
+        }
 
         // Define target (e.g., flag)
         const goalX = 600 / 40;
@@ -659,7 +659,7 @@ function training(tiles, spawn, map, value){
         app.stage.addChild(goalGraphics);
 
         //zoomToFitMap(app, 60*PIXELS_PER_METER, 60*PIXELS_PER_METER)
-        app.ticker.add(delta => AILoop(delta, players, world, keys, app, spawns, model, agents, goalX, goalY));
+        app.ticker.add(delta => AILoop(delta, players, world, keys, app, model, agents, goalX, goalY));
     }
 
 }
@@ -2318,8 +2318,7 @@ function isBotStuckOnWall(bot, arenaBounds, threshold = 0.5) {
 
 }
 
-async function AILoop(delta, players, world, keys, app, spawns, model, agents, goalX, goalY) {
-    const player = players[0];
+async function AILoop(delta, players, world, keys, app, model, agents, goalX, goalY) {
 
     for(let i = 0; i < agents.length; i++){
         const pos = players[i].playerCollision.GetPosition();
@@ -2357,14 +2356,7 @@ async function AILoop(delta, players, world, keys, app, spawns, model, agents, g
 
 
 
-    // Update PixiJS sprite positions
-    const position = player.playerCollision.GetPosition();
-
-    const angle = player.playerCollision.GetAngle();
-
-
-
-    if(player.dead){
+    /*if(player.dead){
         if(player.playerSprite.visible){ //we only want to start the countdown once
             player.playerSprite.visible = false;
             player.hold = 0.0;
@@ -2374,7 +2366,7 @@ async function AILoop(delta, players, world, keys, app, spawns, model, agents, g
                 player.playerSprite.x = spawns[0][0];
                 player.playerSprite.y = spawns[0][1];
                 player.playerSprite.rotation = 0;
-                player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(spawn[0][0]/40,spawn[0][1]/40));
+                player.playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(spawns[0][0]/40,spawns[0][1]/40));
                 player.playerCollision.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0,0));
             }, 3000);
         }
@@ -2391,7 +2383,7 @@ async function AILoop(delta, players, world, keys, app, spawns, model, agents, g
         }
 
 
-    }
+    }*/
 
     //Center view on ball
     //app.stage.position.x = WIDTH/2;
