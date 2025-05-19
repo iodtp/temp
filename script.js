@@ -641,8 +641,9 @@ function training(tiles, spawn, map, value){
         ];
 
         const players = [player, player2]
-        for(let i = 2; i < 10; i++){
-            players.push(addPlayer(app, tiles, [60,Math.floor(Math.random() * 620 + 80)], world));// 60, 80-700
+        for(let i = 2; i < 20; i++){
+            //players.push(addPlayer(app, tiles, [60,Math.floor(Math.random() * 620 + 80)], world));// 60, 80-700
+            players.push(addPlayer(app, tiles, [60,80], world));
             agents.push({ model: createModel(), reward: 0, lastDistance: 0 });
         }
 
@@ -1264,8 +1265,8 @@ function createBall(x, y, radius, world, type) {
     fixtureDef.restitution = 0.25;
 
 
-    fixtureDef.filter.categoryBits = entityCategory.EVERYONE;
-    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.RED_TEAM;
+    fixtureDef.filter.categoryBits = entityCategory.RED_TEAM;
+    fixtureDef.filter.maskBits = entityCategory.EVERYONE | entityCategory.BLUE_TEAM; //change this back to red for collisions
 
     const sensorDef = new Box2D.Dynamics.b2FixtureDef();
     sensorDef.shape = circleShape;
@@ -2341,8 +2342,8 @@ async function AILoop(delta, players, world, keys, app, model, agents, goalX, go
         const distance = Math.sqrt(Math.pow(goalX - pos.x, 2) + Math.pow(goalY - pos.y, 2));
         agents[i].reward += agents[i].lastDistance - distance; //move closer to goal
         agents[i].reward -= distance / FRAMES_PER_EPISODE; // stay closer
-        if(agents[i].lastDistance - distance < 0){
-            agents.reward -= (agents[i].lastDistance - distance) * 30; //heavily punish going away from goal
+        if(agents[i].lastDistance < distance){
+            agents.reward += (agents[i].lastDistance - distance) * 4; //heavily punish going away from goal
         }
         agents[i].lastDistance = distance;
 
@@ -2432,17 +2433,32 @@ function evaluateAndTrain(agents, iter) {
     const bestModel = agents[0].model;
 
     // Replace all models with the best one
-    for (let i = 1; i < agents.length; i++) {
+    for (let i = 5; i < 15; i++) {
         agents[i].model.dispose();
         agents[i].model = cloneModel(bestModel);
 
         //Explore
         mutateModelWeights(agents[i].model, 0.1);
     }
+    for(let i = 15; i < 19; i++){
+        agents[i].model.dispose();
+        agents[i].model = cloneModel(agents[1].model);
+
+        //Explore
+        mutateModelWeights(agents[i].model, 0.1);
+    }
+    agents[19].model.dispose();
+    agents[19].model = cloneModel(agents[2].model);
+
+    //Explore
+    mutateModelWeights(agents[19].model, 0.1);
 
 
 
-    for (const agent of agents) agent.reward = 0;
+    for (const agent of agents) {
+        agent.reward = 0;
+        agent.lastDistance = 0;
+    }
 
 }
 function mutateModelWeights(model, mutationRate) {
@@ -2451,7 +2467,7 @@ function mutateModelWeights(model, mutationRate) {
         const values = tensor.dataSync().slice();
         for (let i = 0; i < values.length; i++) {
             if (Math.random() < mutationRate) {
-                values[i] += tf.randomNormal([1], 0, 0.2).dataSync()[0];
+                values[i] += tf.randomNormal([1], 0, 0.16).dataSync()[0];
             }
         }
         return tf.tensor(values, tensor.shape);
@@ -2472,7 +2488,8 @@ function createModel(){
 function resetEnvironment(players){
     for(let i = 0; i < players.length; i++){
         const spawnX = 60;
-        const spawnY = Math.floor(Math.random() * 620 + 80);
+        //const spawnY = Math.floor(Math.random() * 620 + 80);
+        const spawnY = 80;//consistent start spot
         players[i].playerSprite.x = spawnX;
         players[i].playerSprite.y = spawnY;
         players[i].playerCollision.SetPosition(new Box2D.Common.Math.b2Vec2(spawnX/40,spawnY/40));
